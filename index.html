@@ -70,6 +70,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sw{width:40px;height:22px;border-radius:11px;position:relative;cursor:pointer;transition:background 0.2s;}
 .sw .th{width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:2px;transition:all 0.2s;}
 .avatar{width:48px;height:48px;border-radius:50%;background:#FCEBEB;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#B51E1E;}
+/* ── NUEVOS ESTILOS ── */
+.care-card{margin:0 1.25rem;background:#fff;border:0.5px solid #ddd;border-radius:12px;overflow:hidden;}
+.care-hdr{background:#1a1a2e;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;}
+.care-hdr span{color:#fff;font-size:12px;font-weight:600;letter-spacing:0.3px;}
+.care-items{display:flex;flex-direction:column;}
+.care-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid #f0f0f0;cursor:pointer;transition:background 0.15s;}
+.care-item:last-child{border-bottom:none;}
+.care-item:active{background:#f9f9f9;}
+.care-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.care-done{width:20px;height:20px;border-radius:50%;border:1.5px solid #ccc;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;margin-left:auto;}
+.care-done.ok{background:#639922;border-color:#639922;}
+.care-done.ok::after{content:'✓';color:#fff;font-size:10px;font-weight:700;}
+.streak-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);border-radius:20px;padding:3px 10px;}
+.streak-chip span{color:#fff;font-size:11px;font-weight:600;}
+/* T&C checkbox */
+.tc-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#555;line-height:1.5;}
+.tc-row input[type=checkbox]{width:16px;height:16px;margin-top:2px;flex-shrink:0;accent-color:#B51E1E;cursor:pointer;}
+.tc-row a{color:#B51E1E;text-decoration:underline;cursor:pointer;}
+/* Racha en historial */
+.streak-banner{background:linear-gradient(135deg,#1a1a2e,#2d2d5e);border-radius:12px;padding:12px 14px;margin:0 1.25rem 10px;display:flex;align-items:center;gap:12px;}
 </style>
 </head>
 <body>
@@ -85,6 +105,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="phone-frame">
   <div class="status-bar"><span id="clock">9:41</span><span>●●●</span></div>
 
+  <!-- SPLASH -->
   <div class="screen active" id="screen-splash">
     <div class="splash">
       <div class="splash-logo">KM<br>1,000,000</div>
@@ -96,6 +117,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- LOGIN -->
   <div class="screen" id="screen-login">
     <div class="form-wrap">
       <div style="width:40px;height:40px;background:#FCEBEB;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#B51E1E;">KM</div>
@@ -109,6 +131,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- REG 1 -->
   <div class="screen" id="screen-reg1">
     <div class="form-wrap">
       <div class="step-bar"><div class="step-dot done"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
@@ -125,11 +148,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <option value="otra">Otra ciudad</option>
         </select>
       </div>
+      <!-- ✅ NUEVO: Términos y Condiciones -->
+      <div class="tc-row">
+        <input type="checkbox" id="tc-check"/>
+        <label for="tc-check">Acepto los <a onclick="alert('Términos y Condiciones — próximamente en kmunmillon.com/terminos')">Términos y Condiciones</a> y el <a onclick="alert('Aviso de Privacidad — próximamente en kmunmillon.com/privacidad')">Aviso de Privacidad</a> de KM Un Millón.</label>
+      </div>
       <button class="btn-red" style="margin-top:auto;" onclick="doReg1()">Siguiente →</button>
       <button class="btn-ghost" onclick="go('splash')">← Regresar</button>
     </div>
   </div>
 
+  <!-- REG 2 -->
   <div class="screen" id="screen-reg2">
     <div class="form-wrap">
       <div class="step-bar"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot"></div><div class="step-dot"></div></div>
@@ -165,6 +194,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- REG 3 -->
   <div class="screen" id="screen-reg3">
     <div class="form-wrap">
       <div class="step-bar"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot"></div></div>
@@ -181,6 +211,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- REG 4 -->
   <div class="screen" id="screen-reg4">
     <div class="form-wrap">
       <div class="step-bar"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div></div>
@@ -188,6 +219,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <p style="font-size:13px;color:#555;line-height:1.5;">Activa las notificaciones para recibir recordatorios antes de cada servicio.</p>
       <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
         <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Alertas de mantenimiento</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Recordatorios quincenales (presión, aditivo)</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
         <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Consejo japonés del día</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
         <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Alerta clima extremo</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
       </div>
@@ -195,6 +227,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- DASHBOARD -->
   <div class="screen" id="screen-dashboard">
     <div class="dash-hdr">
       <div class="dash-top">
@@ -203,7 +236,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div style="color:#fff;font-size:16px;font-weight:700;margin-top:2px;" id="d-car">—</div>
           <div style="color:rgba(255,255,255,0.85);font-size:12px;margin-top:2px;" id="d-km">—</div>
         </div>
-        <div style="width:30px;height:30px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;" onclick="go('checklist')">🔔</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <!-- ✅ NUEVO: Racha visible en header -->
+          <div class="streak-chip" id="streak-chip">
+            <span>🔥</span><span id="streak-num">0</span><span>meses</span>
+          </div>
+          <div style="width:30px;height:30px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;" onclick="go('checklist')">🔔</div>
+        </div>
       </div>
     </div>
     <div class="dash-body">
@@ -223,6 +262,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
         </div>
       </div>
+
       <div class="clim" id="clima-banner" style="display:none;">
         <span style="font-size:14px;">🌡️</span>
         <span style="font-size:11px;color:#854F0B;line-height:1.4;"><strong>Clima extremo detectado</strong> — Revisa refrigerante y batería con más frecuencia.</span>
@@ -231,8 +271,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <span style="font-size:14px;">⚠️</span>
         <span style="font-size:11px;color:#A32D2D;line-height:1.4;"><strong>Mantenimiento atrasado</strong> — Tu checklist incluye una puesta al corriente. Realízala pronto.</span>
       </div>
+
       <div class="sec-label">Próximo servicio</div>
       <div class="rlist" id="rlist"></div>
+
+      <!-- ✅ NUEVA SECCIÓN: Cuidado mensual -->
+      <div class="sec-label">Cuidado mensual</div>
+      <div class="care-card" style="margin:0 1.25rem;">
+        <div class="care-hdr">
+          <span>🗓️ Tareas de este período</span>
+          <span style="color:rgba(255,255,255,0.6);font-size:10px;" id="care-fecha">—</span>
+        </div>
+        <div class="care-items" id="care-items">
+          <!-- se renderizan dinámicamente -->
+        </div>
+      </div>
+
       <div style="padding:8px 1.25rem;">
         <button class="btn-out" onclick="toggleReg()">+ Registrar servicio realizado hoy</button>
       </div>
@@ -246,6 +300,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <button onclick="toggleReg()" style="flex:1;background:transparent;color:#666;border:0.5px solid #ccc;border-radius:8px;padding:10px;font-size:13px;cursor:pointer;">Cancelar</button>
         </div>
       </div>
+
       <div style="padding:1rem 1.25rem;">
         <div style="border:0.5px solid #ddd;border-radius:12px;padding:1rem 1.25rem;">
           <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Consejo japonés del día</div>
@@ -255,6 +310,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- CHECKLIST -->
   <div class="screen" id="screen-checklist">
     <div class="chk-hdr">
       <button class="back-btn" onclick="go('dashboard')">‹</button>
@@ -268,14 +324,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- HISTORIAL -->
   <div class="screen" id="screen-historial">
     <div class="chk-hdr">
       <button class="back-btn" onclick="go('dashboard')">‹</button>
       <div><div style="color:#fff;font-size:16px;font-weight:700;">Historial</div><div style="color:rgba(255,255,255,0.7);font-size:11px;" id="hist-sub">Tu vehículo</div></div>
     </div>
-    <div style="padding:1.25rem;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;" id="hist-body"></div>
+    <!-- ✅ NUEVO: Banner de racha en historial -->
+    <div class="streak-banner" id="streak-banner" style="margin-top:1rem;">
+      <div style="font-size:26px;">🔥</div>
+      <div>
+        <div style="color:#fff;font-size:14px;font-weight:700;" id="streak-hist-txt">0 meses de constancia</div>
+        <div style="color:rgba(255,255,255,0.6);font-size:11px;" id="streak-hist-sub">Completa servicios para construir tu racha</div>
+      </div>
+    </div>
+    <div style="padding:0 1.25rem;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:1rem;" id="hist-body"></div>
   </div>
 
+  <!-- PLANES -->
   <div class="screen" id="screen-planes">
     <div style="background:#B51E1E;padding:1.25rem;flex-shrink:0;">
       <div style="color:rgba(255,255,255,0.8);font-size:12px;">Tu periodo gratuito</div>
@@ -300,6 +366,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- CONFIG -->
   <div class="screen" id="screen-config">
     <div class="chk-hdr">
       <button class="back-btn" onclick="go('dashboard')">‹</button>
@@ -327,6 +394,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Notificaciones</div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Alertas de mantenimiento</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Recordatorios quincenales</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
           <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Consejo japonés del día</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
           <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Alerta clima extremo</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
         </div>
@@ -341,7 +409,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 var U=null,V=null,H=[];
 var mantOk=true;
-var consejos=["No bajes el tanque por debajo de ¼. La bomba usa la gasolina para enfriarse.","Espera 10 segundos antes de arrancar y conduce suave los primeros 5 km.","Revisa el nivel de aceite cada 2 semanas con el motor frío.","En verano estaciona a la sombra — el calor sube la temperatura del aceite.","Evita acelerones y frenadas bruscas. El motor japonés vive de la suavidad.","Llena el filtro de aceite antes de instalarlo — el motor no arranca en seco.","Un termostato defectuoso sobrecalienta el motor silenciosamente.","Las bandas se endurecen con el calor extremo. Revísalas cada 10,000 km."];
+var consejos=["No bajes el tanque por debajo de ¼. La bomba usa la gasolina para enfriarse.","Espera 10 segundos antes de arrancar y conduce suave los primeros 5 km.","Revisa el nivel de aceite cada 2 semanas con el motor frío.","En verano estaciona a la sombra — el calor sube la temperatura del aceite.","Evita acelerones y frenadas bruscas. El motor japonés vive de la suavidad.","Llena el filtro de aceite antes de instalarlo — el motor no arranca en seco.","Un termostato defectuoso sobrecalienta el motor silenciosamente.","Las bandas se endurecen con el calor extremo. Revísalas cada 10,000 km.","La presión de neumáticos correcta mejora el rendimiento de gasolina hasta 3%.","Agrega aditivo de gasolina una vez al mes. Limpia inyectores y válvulas silenciosamente."];
+
+// ── UTILIDADES DE FECHA ──
+function mesKey(){var n=new Date();return n.getFullYear()+'-'+(n.getMonth()+1);}
+function quincenaKey(){var n=new Date();var q=n.getDate()<=15?'Q1':'Q2';return n.getFullYear()+'-'+(n.getMonth()+1)+'-'+q;}
+function mesLabel(){var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];var n=new Date();return meses[n.getMonth()]+' '+n.getFullYear();}
+
+// ── RACHA ──
+function calcStreak(){
+  // Cuenta meses distintos con al menos un servicio mayor registrado
+  if(!H||!H.length)return 0;
+  var meses={};
+  H.forEach(function(h){
+    if(h.fecha){
+      // fecha en formato dd/mm/yyyy o similar
+      var parts=h.fecha.split('/');
+      if(parts.length===3){var key=parts[2]+'-'+parts[1];meses[key]=true;}
+    }
+  });
+  return Object.keys(meses).length;
+}
 
 function tick(){var n=new Date();document.getElementById('clock').textContent=n.getHours()+':'+(n.getMinutes()<10?'0':'')+n.getMinutes();}
 tick();setInterval(tick,30000);
@@ -377,7 +465,9 @@ function doReg1(){
   var e=document.getElementById('r-email').value.trim();
   var p=document.getElementById('r-pass').value;
   var c=document.getElementById('r-ciudad').value;
-  if(!n||!e||p.length<6||!c){document.getElementById('reg-err').style.display='block';return;}
+  var tc=document.getElementById('tc-check').checked;
+  if(!n||!e||p.length<6||!c){document.getElementById('reg-err').textContent='Por favor completa todos los campos';document.getElementById('reg-err').style.display='block';return;}
+  if(!tc){document.getElementById('reg-err').textContent='Debes aceptar los Términos y Condiciones para continuar';document.getElementById('reg-err').style.display='block';return;}
   document.getElementById('reg-err').style.display='none';
   U={nombre:n,email:e,pass:p,ciudad:c};
   go('reg2');
@@ -408,7 +498,7 @@ function doReg3(){go('reg4');}
 
 function doReg4(){
   H=[];
-  localStorage.setItem('km1m',JSON.stringify({nombre:U.nombre,email:U.email,pass:U.pass,ciudad:U.ciudad,v:V,h:H,mantOk:mantOk}));
+  localStorage.setItem('km1m',JSON.stringify({nombre:U.nombre,email:U.email,pass:U.pass,ciudad:U.ciudad,v:V,h:H,mantOk:mantOk,care:{}}));
   go('config');
 }
 
@@ -422,7 +512,6 @@ function getChecklist(km,comb,trans,trac,atrasado){
   var esAWD=trac==='awd';
   var esRWD=trac==='rwd';
   var items=[];
-
   if(atrasado){
     items.push('⚠️ PUESTA AL CORRIENTE — Revisar todos los servicios atrasados con un mecánico de confianza');
     items.push('Verificar nivel y estado de todos los fluidos (aceite, refrigerante, frenos, dirección, transmisión)');
@@ -436,10 +525,8 @@ function getChecklist(km,comb,trans,trac,atrasado){
     items.push('— Una vez completada la puesta al corriente, actualiza tu km en Configuración —');
     return items;
   }
-
   items.push('Cambio de aceite y filtro '+(esDiesel?'(Diesel: especial DPF)':'(Gasolina: sintético)'));
   items.push('Inspección de niveles y presión de neumáticos (PSI exacto)');
-
   if(km%10000===0){
     items.push('Rotación de neumáticos');
     items.push('Alineación y balanceo (ambos ejes)');
@@ -448,7 +535,6 @@ function getChecklist(km,comb,trans,trac,atrasado){
     items.push('Limpieza del compartimento del motor (trapo húmedo)');
     if(esDiesel)items.push('Diesel: Drenado de agua del filtro de combustible');
   }
-
   if(km%20000===0){
     items.push('Afinación mayor (revisión sistema de encendido y combustible)');
     items.push('Cambio de filtro de aire del motor');
@@ -456,25 +542,82 @@ function getChecklist(km,comb,trans,trac,atrasado){
     if(esManual)items.push('Evaluación de embrague: patinamiento, ruidos de collarín y suavidad');
     if(esDiesel)items.push('Diesel: Reemplazo total de filtro de combustible');
   }
-
   if(km%40000===0){
     if(esManual||esAWD||esRWD)items.push('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''));
     items.push('Cambio de líquido de frenos y sistema hidráulico de embrague');
     items.push('Revisión de bomba de gasolina (nivel de tanque y presión)');
   }
-
   if(km%60000===0){
     items.push('Servicio de transmisión: cambio de fluido y filtro (No Lifetime)');
     if(esDiesel){items.push('Diesel: Inspección de sistema DPF/SCR y nivel de Urea');}
     else{items.push('Gasolina: Agregar aditivo limpia inyectores (Polieteramina)');}
   }
-
   if(km%100000===0){
     if(esDiesel){items.push('Diesel: Inspección de bujías de precalentamiento (Glow plugs)');}
     else{items.push('Gasolina: Cambio de bujías (Preventivo)');}
   }
-
   return items;
+}
+
+// ── CUIDADO MENSUAL ──
+// care = { 'aditivo:2026-4': true, 'presion:2026-4-Q1': true, ... }
+function getCare(){
+  var data=JSON.parse(localStorage.getItem('km1m')||'{}');
+  return data.care||{};
+}
+function saveCare(care){
+  var data=JSON.parse(localStorage.getItem('km1m')||'{}');
+  data.care=care;
+  localStorage.setItem('km1m',JSON.stringify(data));
+}
+
+var careConfig=[
+  {id:'presion-q1', key:function(){return 'presion:'+mesKey()+'-Q1';}, icon:'🚗', bg:'#EAF3DE',
+   label:'Presión de aire — 1ra quincena', sub:'Revisa PSI de las 4 llantas', freq:'Cada 15 días'},
+  {id:'presion-q2', key:function(){return 'presion:'+mesKey()+'-Q2';}, icon:'🚗', bg:'#EAF3DE',
+   label:'Presión de aire — 2da quincena', sub:'Revisa PSI de las 4 llantas', freq:'Cada 15 días'},
+  {id:'aditivo', key:function(){return 'aditivo:'+mesKey();}, icon:'⛽', bg:'#FAEEDA',
+   label:'Aditivo de gasolina', sub:'Agrega aditivo al llenar el tanque', freq:'1 vez al mes'},
+  {id:'aceite-visual', key:function(){return 'aceite:'+mesKey();}, icon:'🛢️', bg:'#FCEBEB',
+   label:'Nivel de aceite visual', sub:'Con motor frío, verifica la varilla', freq:'1 vez al mes'},
+];
+
+function renderCare(){
+  var care=getCare();
+  var container=document.getElementById('care-items');
+  if(!container)return;
+  container.innerHTML='';
+  document.getElementById('care-fecha').textContent=mesLabel();
+  careConfig.forEach(function(item){
+    var k=item.key();
+    var done=!!care[k];
+    var div=document.createElement('div');
+    div.className='care-item';
+    div.innerHTML=
+      '<div class="care-icon" style="background:'+item.bg+'">'+item.icon+'</div>'+
+      '<div style="flex:1;">'+
+        '<div style="font-size:12px;font-weight:600;color:#111;">'+item.label+'</div>'+
+        '<div style="font-size:10px;color:#888;margin-top:1px;">'+item.sub+' · <span style="color:#B51E1E;">'+item.freq+'</span></div>'+
+      '</div>'+
+      '<div class="care-done'+(done?' ok':'')+'"></div>';
+    div.onclick=function(){
+      var c=getCare();
+      if(c[k]){delete c[k];}
+      else{
+        c[k]=true;
+        // Guardar en historial también
+        H.unshift({fecha:new Date().toLocaleDateString('es-MX'),km:V?V.km:0,servicio:item.label,auto:V?V.marca+' '+V.modelo:'—',tipo:'care'});
+        var data=JSON.parse(localStorage.getItem('km1m')||'{}');
+        data.h=H;data.care=c;
+        localStorage.setItem('km1m',JSON.stringify(data));
+        renderCare();
+        return;
+      }
+      saveCare(c);
+      renderCare();
+    };
+    container.appendChild(div);
+  });
 }
 
 function calcSvcs(){
@@ -494,6 +637,9 @@ function renderDash(){
   document.getElementById('d-km').textContent=V.km.toLocaleString()+' km · Meta: 400,000 km';
   document.getElementById('clima-banner').style.display=(U.ciudad==='mexicali'||U.ciudad==='tijuana')?'flex':'none';
   document.getElementById('mant-banner').style.display=mantOk?'none':'flex';
+  // Racha
+  var streak=calcStreak();
+  document.getElementById('streak-num').textContent=streak;
   var list=document.getElementById('rlist');
   list.innerHTML='';
   calcSvcs().forEach(function(sv){
@@ -506,6 +652,7 @@ function renderDash(){
     list.appendChild(d);
   });
   document.getElementById('consejo').textContent=consejos[new Date().getDate()%consejos.length];
+  renderCare();
 }
 
 function toggleReg(){
@@ -539,7 +686,9 @@ function guardarSrv(){
   var data=JSON.parse(localStorage.getItem('km1m')||'{}');
   data.h=H;localStorage.setItem('km1m',JSON.stringify(data));
   document.getElementById('panel-reg').style.display='none';
+  document.getElementById('srv-manual').value='';
   alert('✓ Servicio registrado en tu historial');
+  renderDash();
 }
 
 function renderChk(){
@@ -590,13 +739,20 @@ function completar(){
 function renderHist(){
   if(!V)return;
   document.getElementById('hist-sub').textContent=V.marca+' '+V.modelo+' '+V.anio;
+  // Racha
+  var streak=calcStreak();
+  document.getElementById('streak-hist-txt').textContent=streak+' '+(streak===1?'mes':'meses')+' de constancia 🔥';
+  document.getElementById('streak-hist-sub').textContent=streak===0?'Completa tu primer servicio para comenzar la racha':streak<3?'¡Vas muy bien! Sigue así cada mes.':'¡Excelente disciplina japonesa!';
   var body=document.getElementById('hist-body');
   if(!H.length){body.innerHTML='<p style="font-size:13px;color:#999;text-align:center;margin-top:2rem;">Aún no tienes servicios registrados.<br>Completa tu primer checklist para comenzar.</p>';return;}
   body.innerHTML='';
   H.forEach(function(h){
+    var isCare=h.tipo==='care';
+    var icon=isCare?'✅':'🛢️';
+    var iconBg=isCare?'#EAF3DE':'#FCEBEB';
     var d=document.createElement('div');
     d.style.cssText='background:#fff;border:0.5px solid #ddd;border-radius:10px;padding:10px 12px;display:flex;gap:12px;align-items:flex-start;';
-    d.innerHTML='<div style="width:36px;height:36px;background:#FCEBEB;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🛢️</div><div><div style="font-size:13px;font-weight:600;color:#111;">'+h.servicio+'</div><div style="font-size:11px;color:#666;margin-top:2px;">'+h.km.toLocaleString()+' km · '+h.fecha+'</div><div style="font-size:11px;color:#639922;margin-top:2px;font-weight:500;">✓ Completado</div></div>';
+    d.innerHTML='<div style="width:36px;height:36px;background:'+iconBg+';border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">'+icon+'</div><div><div style="font-size:13px;font-weight:600;color:#111;">'+h.servicio+'</div><div style="font-size:11px;color:#666;margin-top:2px;">'+h.km.toLocaleString()+' km · '+h.fecha+'</div><div style="font-size:11px;color:#639922;margin-top:2px;font-weight:500;">✓ Completado</div></div>';
     body.appendChild(d);
   });
 }
@@ -646,6 +802,10 @@ function checkNotif(){
   var kmA=pA-V.km;
   if(kmA<=500)new Notification('🛢️ KM Un Millón',{body:'Servicio en '+kmA+' km — prepárate.'});
   else if(kmA<=1500)new Notification('🛢️ KM Un Millón',{body:'Próximo servicio en '+kmA+' km.'});
+  // Notificación cuidado mensual
+  var care=getCare();
+  var pendientes=careConfig.filter(function(c){return !care[c.key()];});
+  if(pendientes.length>0)new Notification('📋 KM Un Millón',{body:'Tienes '+pendientes.length+' tarea(s) de cuidado mensual pendiente(s).'});
 }
 
 window.onload=function(){
