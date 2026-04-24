@@ -303,8 +303,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div>
 
-      <div style="padding:8px 1.25rem;">
+      <div style="padding:8px 1.25rem 0;">
         <button class="btn-out" onclick="toggleReg()">+ Registrar servicio realizado hoy</button>
+      </div>
+      <div style="padding:4px 1.25rem 0;display:flex;gap:8px;">
+        <button onclick="enviarRecordatorioWA()" style="flex:1;background:#25D366;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:600;cursor:pointer;">📲 WhatsApp</button>
+        <button onclick="pedirNotificaciones()" id="btn-notif" style="flex:1;background:#1a1a2e;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:600;cursor:pointer;">🔔 Activar alertas</button>
       </div>
       <div id="panel-reg" style="display:none;margin:0 1.25rem;background:#fff;border:0.5px solid #ddd;border-radius:12px;padding:1rem 1.25rem;">
         <div style="font-size:13px;font-weight:600;color:#111;margin-bottom:10px;">¿Qué servicio realizaste hoy?</div>
@@ -424,7 +428,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- TÉRMINOS Y CONDICIONES -->
   <div class="screen" id="screen-terminos">
     <div class="chk-hdr">
-      <button class="back-btn" onclick="history.back()||go('reg1')">‹</button>
+      <button class="back-btn" onclick="go(U?'config':'reg1')">‹</button>
       <div><div style="color:#fff;font-size:15px;font-weight:700;">Términos y Condiciones</div><div style="color:rgba(255,255,255,0.7);font-size:11px;">KM Un Millón · v1.0 · Abril 2026</div></div>
     </div>
     <div class="legal-body">
@@ -459,7 +463,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- AVISO DE PRIVACIDAD -->
   <div class="screen" id="screen-privacidad">
     <div class="chk-hdr">
-      <button class="back-btn" onclick="history.back()||go('reg1')">‹</button>
+      <button class="back-btn" onclick="go(U?'config':'reg1')">‹</button>
       <div><div style="color:#fff;font-size:15px;font-weight:700;">Aviso de Privacidad</div><div style="color:rgba(255,255,255,0.7);font-size:11px;">LFPDPPP · v1.0 · Abril 2026</div></div>
     </div>
     <div class="legal-body">
@@ -588,7 +592,7 @@ function go(name){
   var tabs=['dashboard','checklist','historial','planes','config'];
   var idx=tabs.indexOf(name);
   if(idx>=0)document.querySelectorAll('.nav-tab')[idx].classList.add('active');
-  var noNav=['splash','login','reg1','reg2','reg3','reg4'];
+  var noNav=['splash','login','reg1','reg2','reg3','reg4','terminos','privacidad'];
   document.getElementById('nav-tabs').style.display=noNav.indexOf(name)>=0?'none':'flex';
   if(name==='dashboard'){renderDash();checkNotif();}
   if(name==='checklist')renderChk();
@@ -1020,13 +1024,21 @@ function guardarCfg(){
   V.comb=document.getElementById('c-comb').value;
   V.trans=document.getElementById('c-trans').value;
   V.trac=document.getElementById('c-trac').value;
-  V.km=parseInt(document.getElementById('c-km').value)||V.km;
+  var kmNuevo=parseInt(document.getElementById('c-km').value);
+  var kmCambio=(!isNaN(kmNuevo)&&kmNuevo>100);
+  if(kmCambio) V.km=kmNuevo;
   V.kmmes=parseInt(document.getElementById('c-kmmes').value)||V.kmmes;
   U.ciudad=document.getElementById('c-ciudad').value;
   var data=JSON.parse(localStorage.getItem('km1m')||'{}');
-  data.nombre=U.nombre;data.email=U.email;data.pass=U.pass;data.ciudad=U.ciudad;data.v=V;data.h=H;data.mantOk=mantOk;
+  data.nombre=U.nombre;data.email=U.email;data.pass=U.pass;data.ciudad=U.ciudad;
+  data.v=V;data.h=H;data.mantOk=mantOk;
+  // BUG FIX: resetear referencia de km proyectado cuando el usuario actualiza el km manualmente
+  if(kmCambio){
+    data.kmRef=kmNuevo;
+    data.kmFechaRef=new Date().toDateString();
+  }
   localStorage.setItem('km1m',JSON.stringify(data));
-  alert('✓ Cambios guardados');
+  alert('✓ Cambios guardados — km actualizado a '+V.km.toLocaleString());
   go('dashboard');
 }
 
@@ -1049,6 +1061,23 @@ function checkNotif(){
   if(pendientes.length>0)new Notification('📋 KM Un Millón',{body:'Tienes '+pendientes.length+' tarea(s) de cuidado mensual pendiente(s).'});
 }
 
+function pedirNotificaciones(){
+  if(!('Notification' in window)){alert('Tu navegador no soporta notificaciones push.');return;}
+  if(Notification.permission==='granted'){
+    alert('✓ Las notificaciones ya están activas.');
+    return;
+  }
+  Notification.requestPermission().then(function(perm){
+    if(perm==='granted'){
+      new Notification('🛢️ KM Un Millón',{body:'¡Notificaciones activadas! Te avisaremos antes de cada servicio.'});
+      document.getElementById('btn-notif').textContent='🔔 Alertas activas ✓';
+      document.getElementById('btn-notif').style.background='#639922';
+    } else {
+      alert('Notificaciones bloqueadas. Puedes activarlas desde la configuración de tu navegador.');
+    }
+  });
+}
+
 function enviarRecordatorioWA(){
   if(!V)return;
   var pA=proxI(V.km,5000);
@@ -1060,7 +1089,11 @@ window.onload=function(){
   checkVersion();
   var s=JSON.parse(localStorage.getItem('km1m')||'null');
   if(s&&s.email){U=s;V=s.v;H=s.h||[];mantOk=s.mantOk!==false;go('dashboard');}
-  if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();
+  // Actualizar botón de notificaciones si ya están activas
+  if('Notification' in window&&Notification.permission==='granted'){
+    var btn=document.getElementById('btn-notif');
+    if(btn){btn.textContent='🔔 Alertas activas ✓';btn.style.background='#639922';}
+  }
 };
 </script>
 </body>
