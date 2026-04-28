@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="KM Un Millón">
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--red:#B51E1E;--red-dark:#8A1414;--red-light:#FCEBEB;--green:#639922;--green-light:#EAF3DE;--yellow:#BA7517;--yellow-light:#FAEEDA;--bg:#F5F4F0;--card:#FFFFFF;--border:#E0DED8;--text:#111111;--text-2:#555555;--text-3:#888888;--radius:14px;--font:'Georgia',serif}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -227,7 +228,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
 <div id="app">
 
 <div id="update-banner">🆕 Nueva versión disponible <button onclick="location.reload(true)">Actualizar ahora</button></div>
-<div id="beta-banner">🧪 <strong style="color:#fff">Versión Beta</strong> &nbsp;<span style="color:#888">Tu información se guarda en este dispositivo. No cierres sesión para conservar tu historial.</span></div>
+<div id="beta-banner">☁️ <strong style="color:#fff">v1.4.0 — Nube activa</strong> &nbsp;<span style="color:#888">Tu información se guarda en Supabase. Accede desde cualquier dispositivo.</span></div>
 
 <nav id="nav-tabs" style="display:none;order:2">
   <button class="nav-tab active" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Inicio</button>
@@ -248,7 +249,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
     <button class="btn-primary" onclick="go('login')">Iniciar sesión</button>
     <button class="btn-ghost" onclick="go('reg1')">Crear cuenta gratis →</button>
     <div style="font-size:12px;color:#555;margin-top:14px">30 días gratis · Sin tarjeta requerida</div>
-    <div class="splash-beta">🧪 <strong style="color:#aaa">Versión Beta</strong><br>Tu información se guarda localmente en este dispositivo. No cierres sesión para conservar tu historial. Próximamente en la nube.</div>
+    <div class="splash-beta">☁️ <strong style="color:#aaa">Versión Beta 1.4.0</strong><br>Tu información ahora se guarda en la nube. Accede desde cualquier dispositivo.</div>
   </div>
 </div>
 
@@ -527,9 +528,15 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
 </div><!-- /app -->
 <script>
 // ════════════════════════════════
-// KM UN MILLÓN v1.3.0
+// KM UN MILLÓN v1.4.0 — SUPABASE
 // ════════════════════════════════
-var APP_VERSION='1.3.0';
+var APP_VERSION='1.4.0';
+
+// SUPABASE CONFIG
+var SUPA_URL='https://jhphmomrtyunfxomhkdx.supabase.co';
+var SUPA_KEY='sb_publishable_QP--j3DvNukDcNwb-AF2-w_oK2J6x6y';
+var supa=supabase.createClient(SUPA_URL,SUPA_KEY);
+
 var U=null,AUTOS=[],ACTIVE_IDX=0,consejoIdx=-1;
 function VA(){return AUTOS[ACTIVE_IDX]||null;}
 function HA(){var v=VA();return v?(v.h||[]):[]}
@@ -552,14 +559,64 @@ function proxI(km,i){var p=Math.ceil(km/i)*i;if(p<=km)p+=i;return p;}
 function tick(){var n=new Date(),e=document.getElementById('clock');if(e)e.textContent=n.getHours()+':'+(n.getMinutes()<10?'0':'')+n.getMinutes();}
 tick();setInterval(tick,30000);
 
-function saveData(){localStorage.setItem('km1m_v2',JSON.stringify({u:U,autos:AUTOS,activeIdx:ACTIVE_IDX}));}
-function loadData(){
+// ── LOCAL CACHE (para offline y velocidad) ──
+function saveLocal(){localStorage.setItem('km1m_v2',JSON.stringify({u:U,autos:AUTOS,activeIdx:ACTIVE_IDX}));}
+function loadLocal(){
   var raw=localStorage.getItem('km1m_v2');
   if(raw){try{var d=JSON.parse(raw);U=d.u;AUTOS=d.autos||[];ACTIVE_IDX=d.activeIdx||0;return!!U;}catch(e){}}
-  var old=localStorage.getItem('km1m');
-  if(old){try{var o=JSON.parse(old);if(o&&o.email){U={nombre:o.nombre,email:o.email,pass:o.pass,ciudad:o.ciudad};var a=o.v||{};a.h=o.h||[];a.mantOk=o.mantOk!==false;a.care=o.care||{};a.kmRef=o.kmRef;a.kmFechaRef=o.kmFechaRef;AUTOS=[a];ACTIVE_IDX=0;saveData();return true;}}catch(e){}}
   return false;
 }
+
+// ── SUPABASE SYNC ──
+async function saveData(){
+  saveLocal();
+  if(!U||!U.supaId)return;
+  try{
+    // Guardar usuario
+    await supa.from('usuarios').upsert({id:U.supaId,nombre:U.nombre,email:U.email,ciudad:U.ciudad});
+    // Guardar autos
+    for(var i=0;i<AUTOS.length;i++){
+      var a=AUTOS[i];
+      if(a.supaId){
+        await supa.from('autos').upsert({id:a.supaId,user_id:U.supaId,marca:a.marca,modelo:a.modelo,anio:a.anio,comb:a.comb,trans:a.trans,trac:a.trac||'fwd',km:a.km,km_ref:a.kmRef,km_fecha_ref:a.kmFechaRef,km_mes:a.kmmes||1300,mant_ok:a.mantOk!==false,es_activo:i===ACTIVE_IDX});
+      } else {
+        var res=await supa.from('autos').insert({user_id:U.supaId,marca:a.marca,modelo:a.modelo,anio:a.anio,comb:a.comb,trans:a.trans,trac:a.trac||'fwd',km:a.km,km_ref:a.kmRef,km_fecha_ref:a.kmFechaRef,km_mes:a.kmmes||1300,mant_ok:a.mantOk!==false,es_activo:i===ACTIVE_IDX}).select().single();
+        if(res.data)AUTOS[i].supaId=res.data.id;
+      }
+    }
+    saveLocal();
+  }catch(e){console.warn('[Supabase] saveData error:',e);}
+}
+
+async function loadFromSupabase(userId){
+  try{
+    var uRes=await supa.from('usuarios').select('*').eq('id',userId).single();
+    if(uRes.data){
+      U={supaId:userId,nombre:uRes.data.nombre,email:uRes.data.email,ciudad:uRes.data.ciudad};
+    }
+    var aRes=await supa.from('autos').select('*').eq('user_id',userId).order('created_at');
+    if(aRes.data&&aRes.data.length){
+      AUTOS=aRes.data.map(function(a){return{supaId:a.id,marca:a.marca,modelo:a.modelo,anio:a.anio,comb:a.comb,trans:a.trans,trac:a.trac||'fwd',km:a.km,kmRef:a.km_ref,kmFechaRef:a.km_fecha_ref,kmmes:a.km_mes||1300,mantOk:a.mant_ok!==false,h:[],care:{}};});
+      ACTIVE_IDX=aRes.data.findIndex(function(a){return a.es_activo;})||0;
+      // Cargar historial de cada auto
+      for(var i=0;i<AUTOS.length;i++){
+        var hRes=await supa.from('historial').select('*').eq('auto_id',AUTOS[i].supaId).order('created_at',{ascending:false});
+        if(hRes.data)AUTOS[i].h=hRes.data.map(function(h){return{fecha:h.fecha,km:h.km,servicio:h.servicio,tipo:h.tipo};});
+      }
+    }
+    saveLocal();
+    return true;
+  }catch(e){console.warn('[Supabase] loadFromSupabase error:',e);return false;}
+}
+
+async function saveHistorial(auto,entrada){
+  if(!auto.supaId||!U||!U.supaId)return;
+  try{
+    await supa.from('historial').insert({auto_id:auto.supaId,user_id:U.supaId,servicio:entrada.servicio,km:entrada.km,fecha:entrada.fecha,tipo:entrada.tipo||'servicio'});
+  }catch(e){console.warn('[Supabase] saveHistorial error:',e);}
+}
+
+function loadData(){return loadLocal();}
 
 function kmProy(auto){
   if(!auto)return 0;
@@ -592,11 +649,22 @@ function go(name){
   if(name==='garage')renderGarage();
 }
 
-// LOGIN
-function doLogin(){
+// LOGIN con Supabase
+async function doLogin(){
   var e=document.getElementById('l-email').value.trim(),p=document.getElementById('l-pass').value;
-  if(U&&U.email===e&&U.pass===p){document.getElementById('login-err').style.display='none';go('dashboard');}
-  else{document.getElementById('login-err').style.display='block';}
+  var errEl=document.getElementById('login-err');
+  errEl.style.display='none';
+  var btn=document.querySelector('#screen-login .btn-primary');
+  btn.textContent='Entrando...';btn.disabled=true;
+  try{
+    var res=await supa.auth.signInWithPassword({email:e,password:p});
+    if(res.error){errEl.textContent='Correo o contraseña incorrectos';errEl.style.display='block';btn.textContent='Entrar →';btn.disabled=false;return;}
+    var uid=res.data.user.id;
+    var ok=await loadFromSupabase(uid);
+    if(!ok||!U){errEl.textContent='Error cargando datos. Intenta de nuevo.';errEl.style.display='block';btn.textContent='Entrar →';btn.disabled=false;return;}
+    btn.textContent='Entrar →';btn.disabled=false;
+    go('dashboard');
+  }catch(err){errEl.textContent='Error de conexión. Revisa tu internet.';errEl.style.display='block';btn.textContent='Entrar →';btn.disabled=false;}
 }
 
 // REGISTRO
@@ -615,8 +683,30 @@ function doReg2(){
 }
 function selOpt(val){_rM=val==='si';document.getElementById('opt-si').classList.toggle('selected',val==='si');document.getElementById('opt-no').classList.toggle('selected',val==='no');document.getElementById('mant-info').style.display=val==='no'?'block':'none';}
 function doReg3(){go('reg4');}
-function doReg4(){U=_rU;_rV.mantOk=_rM;AUTOS=[_rV];ACTIVE_IDX=0;saveData();go('dashboard');}
-function cerrarSesion(){U=null;AUTOS=[];ACTIVE_IDX=0;go('splash');}
+async function doReg4(){
+  var btn=document.querySelector('#screen-reg4 .btn-primary');
+  btn.textContent='Creando cuenta...';btn.disabled=true;
+  try{
+    var res=await supa.auth.signUp({email:_rU.email,password:_rU.pass});
+    if(res.error){alert('Error: '+res.error.message);btn.textContent='Comenzar mi plan →';btn.disabled=false;return;}
+    var uid=res.data.user.id;
+    _rU.supaId=uid;
+    U=_rU;_rV.mantOk=_rM;AUTOS=[_rV];ACTIVE_IDX=0;
+    // Guardar en Supabase
+    await supa.from('usuarios').insert({id:uid,nombre:U.nombre,email:U.email,ciudad:U.ciudad});
+    var aRes=await supa.from('autos').insert({user_id:uid,marca:_rV.marca,modelo:_rV.modelo,anio:_rV.anio,comb:_rV.comb,trans:_rV.trans,trac:_rV.trac||'fwd',km:_rV.km,km_ref:_rV.km,km_fecha_ref:new Date().toDateString(),km_mes:_rV.kmmes||1300,mant_ok:_rM,es_activo:true}).select().single();
+    if(aRes.data)AUTOS[0].supaId=aRes.data.id;
+    saveLocal();
+    btn.textContent='Comenzar mi plan →';btn.disabled=false;
+    go('dashboard');
+  }catch(err){alert('Error de conexión. Intenta de nuevo.');btn.textContent='Comenzar mi plan →';btn.disabled=false;}
+}
+async function cerrarSesion(){
+  await supa.auth.signOut();
+  U=null;AUTOS=[];ACTIVE_IDX=0;
+  localStorage.removeItem('km1m_v2');
+  go('splash');
+}
 
 // GARAGE
 function renderGarage(){
@@ -640,12 +730,19 @@ function renderGarage(){
   });
 }
 function mostrarFormAuto(){var f=document.getElementById('add-car-form');f.style.display=f.style.display==='block'?'none':'block';}
-function agregarAuto(){
+async function agregarAuto(){
   var marca=document.getElementById('nc-marca').value,modelo=document.getElementById('nc-modelo').value.trim(),anio=document.getElementById('nc-anio').value.trim(),km=parseInt(document.getElementById('nc-km').value),kmmes=parseInt(document.getElementById('nc-kmmes').value);
   if(!marca||!modelo||!anio||isNaN(km)||isNaN(kmmes)){alert('Por favor completa todos los campos');return;}
   if(AUTOS.length>=100){alert('Límite de 100 vehículos alcanzado');return;}
-  AUTOS.push({marca:marca,modelo:modelo,anio:anio,comb:document.getElementById('nc-comb').value,trans:document.getElementById('nc-trans').value,trac:document.getElementById('nc-trac').value,km:km,kmmes:kmmes,h:[],care:{},mantOk:true});
-  saveData();document.getElementById('add-car-form').style.display='none';renderGarage();alert('✓ Vehículo agregado. Tócalo para activarlo.');
+  var nuevoAuto={marca:marca,modelo:modelo,anio:anio,comb:document.getElementById('nc-comb').value,trans:document.getElementById('nc-trans').value,trac:document.getElementById('nc-trac').value,km:km,kmRef:km,kmFechaRef:new Date().toDateString(),kmmes:kmmes,h:[],care:{},mantOk:true};
+  if(U&&U.supaId){
+    try{
+      var res=await supa.from('autos').insert({user_id:U.supaId,marca:nuevoAuto.marca,modelo:nuevoAuto.modelo,anio:nuevoAuto.anio,comb:nuevoAuto.comb,trans:nuevoAuto.trans,trac:nuevoAuto.trac,km:nuevoAuto.km,km_ref:nuevoAuto.km,km_fecha_ref:nuevoAuto.kmFechaRef,km_mes:nuevoAuto.kmmes,mant_ok:true,es_activo:false}).select().single();
+      if(res.data)nuevoAuto.supaId=res.data.id;
+    }catch(e){console.warn('[Supabase] agregarAuto error:',e);}
+  }
+  AUTOS.push(nuevoAuto);
+  saveLocal();document.getElementById('add-car-form').style.display='none';renderGarage();alert('✓ Vehículo agregado. Tócalo para activarlo.');
 }
 
 // CUIDADO MENSUAL
@@ -741,11 +838,15 @@ function toggleReg(){
     var its=['Cambio de aceite y filtro','Rotación y alineación','Cambio de filtros de aire','Cambio de líquido de frenos','Servicio de transmisión','Afinación mayor'],cont=document.getElementById('srv-rapidos');cont.innerHTML='';
     its.forEach(function(txt){var btn=document.createElement('button');btn.className='quick-btn';btn.textContent=txt;btn.onclick=function(){document.getElementById('srv-manual').value=txt;cont.querySelectorAll('.quick-btn').forEach(function(b){b.classList.remove('sel');});btn.classList.add('sel');};cont.appendChild(btn);});}
 }
-function guardarSrv(){
+async function guardarSrv(){
   var srv=document.getElementById('srv-manual').value.trim(),km=parseInt(document.getElementById('srv-km').value);
   if(!srv||isNaN(km)){alert('Por favor indica el servicio y el kilometraje');return;}
-  var auto=VA();if(!auto)return;auto.h=auto.h||[];auto.h.unshift({fecha:new Date().toLocaleDateString('es-MX'),km:km,servicio:srv,auto:auto.marca+' '+auto.modelo});
-  saveData();document.getElementById('panel-reg').style.display='none';document.getElementById('srv-manual').value='';alert('✓ Servicio registrado');renderDash();
+  var auto=VA();if(!auto)return;
+  var entrada={fecha:new Date().toLocaleDateString('es-MX'),km:km,servicio:srv,auto:auto.marca+' '+auto.modelo};
+  auto.h=auto.h||[];auto.h.unshift(entrada);
+  await saveData();
+  await saveHistorial(auto,entrada);
+  document.getElementById('panel-reg').style.display='none';document.getElementById('srv-manual').value='';alert('✓ Servicio registrado');renderDash();
 }
 
 // CHECKLIST
@@ -770,14 +871,16 @@ function renderChk(){
   updProg();
 }
 function updProg(){var t=document.querySelectorAll('#chk-body .chk-item').length,c=document.querySelectorAll('#chk-body .chk-box.checked').length,p=t?Math.round(c/t*100):0;document.getElementById('prog-txt').textContent=c+' de '+t+' completados';document.getElementById('prog-pct').textContent=p+'%';document.getElementById('prog-fill').style.width=p+'%';}
-function completar(){
+async function completar(){
   var auto=VA();if(!auto)return;
   var pA=proxI(auto.km,5000),atrasado=!auto.mantOk&&(!auto.h||auto.h.length===0),srvN=atrasado?'Puesta al corriente':'Servicio '+pA.toLocaleString()+' km';
   var kmNuevo=prompt('Servicio registrado ✓\n\n¿Cuál es tu kilometraje actual?','');var km=parseInt(kmNuevo);
   if(!isNaN(km)&&km>0){auto.km=km;auto.kmRef=km;auto.kmFechaRef=new Date().toDateString();}
   if(atrasado)auto.mantOk=true;
-  auto.h=auto.h||[];auto.h.unshift({fecha:new Date().toLocaleDateString('es-MX'),km:auto.km,servicio:srvN,auto:auto.marca+' '+auto.modelo});
-  saveData();
+  var entrada={fecha:new Date().toLocaleDateString('es-MX'),km:auto.km,servicio:srvN,auto:auto.marca+' '+auto.modelo};
+  auto.h=auto.h||[];auto.h.unshift(entrada);
+  await saveData();
+  await saveHistorial(auto,entrada);
   if(U&&EJS_SVC!=='TU_SERVICE_ID'){var ps=proxI(auto.km,5000);enviarEmail(U.email,U.nombre,'Próximo: '+auto.marca+' '+auto.modelo+' a '+ps.toLocaleString()+' km',(ps-auto.km).toLocaleString());}
   alert('✓ '+(atrasado?'Puesta al corriente completada.':'Servicio registrado.'));go('dashboard');
 }
@@ -803,13 +906,13 @@ function renderCfg(){
   document.getElementById('c-comb').value=auto.comb||'gasolina';document.getElementById('c-trans').value=auto.trans||'automatica';document.getElementById('c-trac').value=auto.trac||'fwd';
   document.getElementById('c-km').value=auto.km||'';document.getElementById('c-kmmes').value=auto.kmmes||1300;document.getElementById('c-ciudad').value=U.ciudad||'mexicali';
 }
-function guardarCfg(){
+async function guardarCfg(){
   var auto=VA();if(!auto)return;
   auto.marca=document.getElementById('c-marca').value;auto.modelo=document.getElementById('c-modelo').value;auto.anio=document.getElementById('c-anio').value;
   auto.comb=document.getElementById('c-comb').value;auto.trans=document.getElementById('c-trans').value;auto.trac=document.getElementById('c-trac').value;
   var kmN=parseInt(document.getElementById('c-km').value);if(!isNaN(kmN)&&kmN>100){auto.km=kmN;auto.kmRef=kmN;auto.kmFechaRef=new Date().toDateString();}
   auto.kmmes=parseInt(document.getElementById('c-kmmes').value)||auto.kmmes;U.ciudad=document.getElementById('c-ciudad').value;
-  saveData();alert('✓ Cambios guardados');go('dashboard');
+  await saveData();alert('✓ Cambios guardados');go('dashboard');
 }
 
 // SWITCHES
@@ -846,9 +949,20 @@ function enviarRecordatorioWA(){
 function checkVersion(){var v=localStorage.getItem('km1m_version');if(v&&v!==APP_VERSION)document.getElementById('update-banner').style.display='flex';localStorage.setItem('km1m_version',APP_VERSION);}
 
 // INIT
-window.onload=function(){
+window.onload=async function(){
   checkVersion();
-  if(loadData()&&U)go('dashboard');
+  // Verificar sesión activa en Supabase
+  var sessionRes=await supa.auth.getSession();
+  if(sessionRes.data&&sessionRes.data.session){
+    var uid=sessionRes.data.session.user.id;
+    // Cargar desde cache local primero (para velocidad)
+    if(loadLocal()&&U){go('dashboard');}
+    // Luego refrescar desde Supabase en background
+    loadFromSupabase(uid).then(function(ok){if(ok)renderDash();});
+  } else if(loadLocal()&&U){
+    // Sesión local sin Supabase — llevar al splash para re-login
+    go('splash');
+  }
   if('Notification' in window&&Notification.permission==='granted'){var btn=document.getElementById('btn-notif');if(btn){btn.textContent='🔔 Alertas activas ✓';btn.classList.add('notif-active');}}
 };
 </script>
