@@ -436,7 +436,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
     <div class="consejo-nav"><button onclick="cambiarConsejo(-1)">‹</button><button onclick="cambiarConsejo(1)">›</button></div>
   </div>
   <div class="action-btns">
-    <button class="action-btn" id="btn-wa" onclick="enviarRecordatorioWA()">📲 WhatsApp</button>
+    <button class="action-btn" id="btn-manual" onclick="window.open('https://docs.google.com/document/d/12pCKh_lbhzZ7BEMwBBtcKQ601cYdBIpyevHYVDy5BrA/edit?usp=sharing','_blank')">📖 Manual de Usuario</button>
     <button class="action-btn" id="btn-notif" onclick="pedirNotificaciones()">🔔 Activar alertas</button>
   </div>
 </div>
@@ -510,7 +510,8 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
   </div>
   <div class="cfg-section">
     <button class="btn-guardar" onclick="guardarCfg()">Guardar cambios</button>
-    <button class="action-btn" style="width:100%;margin-top:10px" onclick="enviarRecordatorioWA()">📲 Enviar recordatorio por WhatsApp</button>
+    <button class="action-btn" style="width:100%;margin-top:10px" onclick="window.open('https://docs.google.com/document/d/12pCKh_lbhzZ7BEMwBBtcKQ601cYdBIpyevHYVDy5BrA/edit?usp=sharing','_blank')">📖 Ver Manual de Usuario</button>
+    <button class="btn-logout" style="color:var(--red);border-color:var(--red)" onclick="cancelarSuscripcion()">❌ Cancelar suscripción</button>
     <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
   </div>
 </div>
@@ -527,7 +528,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
     <h2>5. Limitación de responsabilidad</h2><p>KM Un Millón provee información orientativa. No sustituye el criterio de un mecánico certificado.</p>
     <h2>6. Propiedad intelectual</h2><p>Todo el contenido de la plataforma es propiedad exclusiva de KM Un Millón. Queda prohibida su reproducción sin autorización escrita.</p>
     <h2>7. Ley aplicable</h2><p>Estos términos se rigen por las leyes de México. Cualquier controversia se somete a los tribunales de Mexicali, Baja California.</p>
-    <h2>8. Contacto</h2><p>privacidad@kmunmillon.com</p>
+    <h2>8. Contacto</h2><p>kmunmillon@gmail.com</p>
   </div>
   <div class="legal-footer">KM Un Millón © 2026 · Todos los derechos reservados</div>
 </div>
@@ -539,9 +540,9 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
   <div class="legal-body">
     <h2>1. Responsable</h2><p>KM Un Millón, con domicilio en Mexicali, Baja California, México, es responsable del tratamiento de tus datos personales conforme a la LFPDPPP.</p>
     <h2>2. Datos que recabamos</h2><p><strong>Identificación:</strong> nombre, correo, ciudad. <strong>Vehículo:</strong> marca, modelo, año, combustible, transmisión, tracción, kilometraje. <strong>Uso:</strong> historial de servicios, tareas completadas.</p>
-    <h2>3. Finalidades</h2><p><strong>Primarias:</strong> crear tu cuenta, generar checklists, calcular salud del vehículo, enviar recordatorios. <strong>Secundarias:</strong> novedades y encuestas — puedes oponerte a secundarias escribiendo a privacidad@kmunmillon.com.</p>
+    <h2>3. Finalidades</h2><p><strong>Primarias:</strong> crear tu cuenta, generar checklists, calcular salud del vehículo, enviar recordatorios. <strong>Secundarias:</strong> novedades y encuestas — puedes oponerte a secundarias escribiendo a kmunmillon@gmail.com.</p>
     <h2>4. Transferencia de datos</h2><p>No vendemos tus datos.</p>
-    <h2>5. Derechos ARCO</h2><p>Acceder, Rectificar, Cancelar u Oponerte. Envía solicitud a privacidad@kmunmillon.com. Respondemos en máximo 20 días hábiles.</p>
+    <h2>5. Derechos ARCO</h2><p>Acceder, Rectificar, Cancelar u Oponerte. Envía solicitud a kmunmillon@gmail.com. Respondemos en máximo 20 días hábiles.</p>
     <h2>6. Seguridad</h2><p>Tus datos se transmiten cifrados mediante HTTPS/TLS.</p>
     <h2>7. Autoridad competente</h2><p>Puedes acudir al INAI si consideras que tus derechos no fueron debidamente atendidos.</p>
   </div>
@@ -555,7 +556,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
   <div class="modal-card">
     <button class="modal-close" onclick="cerrarModalPago()">✕</button>
     <div class="modal-title">Suscribirse</div>
-    <div class="modal-sub">30 días gratis · Sin cargo hasta que terminen</div>
+    <div class="modal-sub">🎁 30 días gratis · <strong>No se realizará ningún cargo durante tu periodo de prueba.</strong> Puedes cancelar en cualquier momento.</div>
     <div class="modal-plan-badge" id="modal-plan-nombre">Plan Mensual — $20 MXN/mes</div>
     <div class="pay-err" id="pay-err"></div>
     <input class="pay-field" id="pay-nombre" placeholder="Nombre en la tarjeta" type="text">
@@ -572,7 +573,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
 // ════════════════════════════════
 // KM UN MILLÓN v1.4.0 — SUPABASE
 // ════════════════════════════════
-var APP_VERSION='1.5.0';
+var APP_VERSION='1.6.0';
 
 // SUPABASE CONFIG
 var SUPA_URL='https://jhphmomrtyunfxomhkdx.supabase.co';
@@ -743,6 +744,23 @@ async function doReg4(){
     go('dashboard');
   }catch(err){alert('Error de conexión. Intenta de nuevo.');btn.textContent='Comenzar mi plan →';btn.disabled=false;}
 }
+async function cancelarSuscripcion(){
+  var conf=confirm('¿Deseas cancelar tu suscripción?\n\nSeguirás teniendo acceso hasta el final de tu periodo actual. No se realizarán más cargos.');
+  if(!conf)return;
+  try{
+    var res=await fetch('https://jhphmomrtyunfxomhkdx.supabase.co/functions/v1/cancelar-suscripcion',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPA_KEY},
+      body:JSON.stringify({email:U.email})
+    });
+    var data=await res.json();
+    if(data.ok){alert('✅ Suscripción cancelada.\n\nSiguirás teniendo acceso hasta el final de tu periodo. Puedes reactivar en cualquier momento desde Planes.');}
+    else{throw new Error(data.error||'Error al cancelar');}
+  }catch(e){
+    // Si no hay suscripción activa o error, mostrar contacto
+    alert('Para cancelar tu suscripción escríbenos a:\n\nkmunmillon@gmail.com\n\nTe respondemos en menos de 24 horas.');
+  }
+}
 async function cerrarSesion(){
   await supa.auth.signOut();
   U=null;AUTOS=[];ACTIVE_IDX=0;
@@ -787,18 +805,21 @@ async function agregarAuto(){
   saveLocal();document.getElementById('add-car-form').style.display='none';renderGarage();alert('✓ Vehículo agregado. Tócalo para activarlo.');
 }
 
-// CUIDADO MENSUAL
+// CUIDADO — QUINCENAS
+function quinceKey(){var n=new Date(),y=n.getFullYear(),m=n.getMonth()+1,q=n.getDate()<=15?'Q1':'Q2';return y+'-'+m+'-'+q;}
+function quinceLabel(){var n=new Date(),q=n.getDate()<=15?'1ra':'2da';var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];return q+' quincena de '+meses[n.getMonth()]+' '+n.getFullYear();}
+
 var careConfig=[
-  {key:function(){return 'presion:'+mesKey()+'-Q1';},icon:'🚗',bg:'#EAF3DE',label:'Presión de aire — 1ra quincena',sub:'Revisa PSI de las 4 llantas · Cada 15 días'},
-  {key:function(){return 'presion:'+mesKey()+'-Q2';},icon:'🚗',bg:'#EAF3DE',label:'Presión de aire — 2da quincena',sub:'Revisa PSI de las 4 llantas · Cada 15 días'},
-  {key:function(){return 'aditivo:'+mesKey();},icon:'⛽',bg:'#FAEEDA',label:'Aditivo de gasolina',sub:'Agrega aditivo al llenar el tanque · 1 vez al mes'},
-  {key:function(){return 'aceite:'+mesKey();},icon:'🛢️',bg:'#FCEBEB',label:'Nivel de aceite visual',sub:'Con motor frío, verifica la varilla · 1 vez al mes'}
+  {key:function(){return 'presion:'+quinceKey();},icon:'🚗',bg:'#EAF3DE',label:'Presión de aire en llantas',sub:'Revisa PSI de las 4 llantas · Cada 15 días'},
+  {key:function(){return 'aceite:'+quinceKey();},icon:'🛢️',bg:'#FCEBEB',label:'Nivel de aceite visual',sub:'Con motor frío, verifica la varilla · Cada 15 días'},
+  {key:function(){return 'agua:'+quinceKey();},icon:'💧',bg:'#EAF3DE',label:'Nivel de agua y aditivo',sub:'Revisa radiador y depósito · Cada 15 días'},
+  {key:function(){return 'bateria:'+quinceKey();},icon:'🔋',bg:'#FAEEDA',label:'Revisión visual de batería',sub:'Postes limpios, sin corrosión · Cada 15 días'}
 ];
 function getCare(){var v=VA();return v?(v.care||{}):{};}
 function saveCare(c){var v=VA();if(v){v.care=c;saveData();}}
 function renderCare(){
   var care=getCare(),container=document.getElementById('care-items');if(!container)return;
-  container.innerHTML='';var cf=document.getElementById('care-fecha');if(cf)cf.textContent=mesLabel();
+  container.innerHTML='';var cf=document.getElementById('care-fecha');if(cf)cf.textContent=quinceLabel();
   careConfig.forEach(function(item){
     var k=item.key(),done=!!care[k],div=document.createElement('div');
     div.className='care-item';div.style.background=item.bg;
