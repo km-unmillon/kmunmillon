@@ -1211,10 +1211,11 @@ async function procesarPago(){
     // Tokenizar tarjeta con Conekta
     Conekta.setPublicKey(CONEKTA_PUB);
     Conekta.setLanguage('es');
+    var expYear=exp[1].length===2?'20'+exp[1]:exp[1];
     var tokenRes=await new Promise(function(resolve,reject){
       Conekta.Token.create({
-        card:{number:num,name:nombre,exp_year:'20'+exp[1],exp_month:exp[0],cvc:cvc}
-      },function(token){resolve(token);},function(err){reject(err);});
+        card:{number:num,name:nombre,exp_year:expYear,exp_month:exp[0],cvc:cvc}
+      },function(token){resolve(token);},function(err){reject(new Error(err.message_to_purchaser||err.message||'Error al tokenizar tarjeta'));});
     });
 
     // Enviar a Supabase Edge Function
