@@ -782,7 +782,7 @@ async function cancelarSuscripcion(){
     if(!suscId)throw new Error('No se encontró suscripción activa');
     var res=await fetch('https://jhphmomrtyunfxomhkdx.supabase.co/functions/v1/cancelar-suscripcion',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPA_KEY},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({suscripcion_id:suscId})
     });
     var data=await res.json();
@@ -1221,7 +1221,7 @@ async function procesarPago(){
     // Enviar a Supabase Edge Function
     var res=await fetch(SUPA_FUNC_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPA_KEY},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({token:tokenRes.id,plan:_planSeleccionado,nombre:U.nombre,email:U.email})
     });
     var data=await res.json();
