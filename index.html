@@ -893,15 +893,18 @@ function mostrarFormAuto(){var f=document.getElementById('add-car-form');f.style
 async function agregarAuto(){
   var marca=document.getElementById('nc-marca').value,modelo=document.getElementById('nc-modelo').value.trim(),anio=document.getElementById('nc-anio').value.trim(),km=parseInt(document.getElementById('nc-km').value),kmmes=parseInt(document.getElementById('nc-kmmes').value);
   if(!marca||!modelo||!anio||isNaN(km)||isNaN(kmmes)){alert('Por favor completa todos los campos');return;}
-  // Verificar límite por plan
-  var plan=U?U.plan||'free':'free';
+  // Leer plan directo de Supabase
+  var planActual='free';
+  if(U&&U.supaId){
+    try{var pr=await supa.from('usuarios').select('plan').eq('id',U.supaId).single();if(pr.data)planActual=pr.data.plan||'free';U.plan=planActual;saveLocal();}catch(e){}
+  }
   var limites={free:1,individual:1,familiar:3,empresarial:999};
-  var limite=limites[plan]||1;
+  var limite=limites[planActual]||1;
   if(AUTOS.length>=limite){
-    if(plan==='free'||plan==='individual'){
+    if(planActual==='free'||planActual==='individual'){
       alert('Tu plan Individual permite 1 vehículo.\n\nActualiza al Plan Familiar ($50/mes) para agregar hasta 3 vehículos.');
       go('planes');return;
-    } else if(plan==='familiar'){
+    } else if(planActual==='familiar'){
       alert('Tu Plan Familiar permite hasta 3 vehículos.\n\nPara flotas más grandes contáctanos para el Plan Empresarial.');
       return;
     }
