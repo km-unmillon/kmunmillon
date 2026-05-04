@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="KM Un Millón">
 <link rel="manifest" href="manifest.json">
-<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.conekta.io/js/latest/conekta.js"></script>
 <style>
@@ -610,7 +610,7 @@ var consejos=["No bajes el tanque por debajo de ¼. La bomba usa la gasolina par
 // EmailJS
 var EJS_SVC='service_euk6g6o',EJS_TPL='template_odweaer',EJS_TPL_INV='template_asawnu8',EJS_KEY='4hVvU51GJRmb9u15N';
 var _ejsInited=false;
-function _ejsInit(){if(_ejsInited||typeof emailjs==='undefined')return;emailjs.init({publicKey:EJS_KEY});_ejsInited=true;}
+function _ejsInit(){if(_ejsInited||typeof emailjs==='undefined')return;emailjs.init('4hVvU51GJRmb9u15N');_ejsInited=true;}
 function enviarEmail(dest,nom,srv,kmF){
   _ejsInit();
   if(typeof emailjs==='undefined')return;
