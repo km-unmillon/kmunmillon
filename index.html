@@ -607,13 +607,26 @@ function mantOk(){var v=VA();return v?(v.mantOk!==false):true;}
 
 var consejos=["No bajes el tanque por debajo de ¼. La bomba usa la gasolina para enfriarse.","Espera 10 segundos antes de arrancar y conduce suave los primeros 5 km.","Revisa el nivel de aceite cada 2 semanas con el motor frío.","En verano estaciona a la sombra — el calor sube la temperatura del aceite.","Evita acelerones y frenadas bruscas. El motor japonés vive de la suavidad.","Llena el filtro de aceite antes de instalarlo — el motor no arranca en seco.","Un termostato defectuoso sobrecalienta el motor silenciosamente.","Las bandas se endurecen con el calor extremo. Revísalas cada 10,000 km.","La presión de neumáticos correcta mejora el rendimiento de gasolina hasta 3%.","Agrega aditivo de gasolina una vez al mes. Limpia inyectores y válvulas silenciosamente."];
 
-// EmailJS — reemplaza con tus claves reales
-var EJS_SVC='service_euk6g6o',EJS_TPL='template_odweaer',EJS_KEY='4hVvU51GJRmb9u15N';
+// EmailJS
+var EJS_SVC='service_euk6g6o',EJS_TPL='template_odweaer',EJS_TPL_INV='template_asawnu8',EJS_KEY='4hVvU51GJRmb9u15N';
+var _ejsInited=false;
+function _ejsInit(){if(_ejsInited||typeof emailjs==='undefined')return;emailjs.init(EJS_KEY);_ejsInited=true;}
 function enviarEmail(dest,nom,srv,kmF){
-  if(EJS_SVC==='TU_SERVICE_ID'){console.log('[EmailJS] no configurado');return;}
+  _ejsInit();
   if(typeof emailjs==='undefined')return;
-  emailjs.init(EJS_KEY);
-  emailjs.send(EJS_SVC,EJS_TPL,{to_email:dest,to_name:nom,servicio:srv,km_faltante:kmF,app_name:'KM Un Millón'}).then(function(){console.log('[EmailJS] enviado a '+dest);}).catch(function(e){console.error('[EmailJS]',e);});
+  emailjs.send(EJS_SVC,EJS_TPL,{to_email:dest,to_name:nom,servicio:srv,km_faltante:kmF,app_name:'KM Un Millón'}).then(function(){console.log('[EmailJS] recordatorio enviado a '+dest);}).catch(function(e){console.error('[EmailJS recordatorio]',e);});
+}
+async function enviarInvitacion(toEmail,fromName){
+  _ejsInit();
+  if(typeof emailjs==='undefined'){console.error('[EmailJS] no disponible');return false;}
+  try{
+    await emailjs.send(EJS_SVC,EJS_TPL_INV,{to_email:toEmail,from_name:fromName});
+    console.log('[EmailJS] invitación enviada a '+toEmail);
+    return true;
+  }catch(e){
+    console.error('[EmailJS invitación]',e);
+    return false;
+  }
 }
 
 function mesKey(){var n=new Date();return n.getFullYear()+'-'+(n.getMonth()+1);}
@@ -827,14 +840,13 @@ async function invitarMiembro(){
   try{
     await supa.from('familia').insert({titular_id:U.supaId,email_miembro:email,estado:'pendiente'});
     // Enviar email de invitación via EmailJS
-    emailjs.send(EJS_SVC,EJS_TPL,{
-      to_email:email,
-      to_name:email,
-      from_name:U.nombre,
-      message:'¡'+U.nombre+' te ha invitado al Plan Familiar de KM Un Millón! Crea tu cuenta en: https://kmunmillon.com y empieza a cuidar tu auto. Tu correo de invitación es: '+email
-    });
+    var enviado=await enviarInvitacion(email,U.nombre||'Un familiar');
     document.getElementById('inv-email').value='';
-    alert('✅ Invitación enviada a '+email+'\n\nCuando cree su cuenta quedará vinculado automáticamente.');
+    if(enviado){
+      alert('✅ Invitación enviada a '+email+'\n\nCuando cree su cuenta quedará vinculado automáticamente.');
+    }else{
+      alert('✅ Miembro agregado a '+email+'\n\n⚠️ El email de invitación no pudo enviarse. Comparte el enlace manualmente: https://kmunmillon.com');
+    }
     renderMiembros();
   }catch(e){alert('Error al invitar. Intenta de nuevo.');console.warn(e);}
 }
