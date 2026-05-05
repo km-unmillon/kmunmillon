@@ -248,7 +248,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
 <div id="app">
 
 <div id="update-banner">🆕 Nueva versión disponible <button onclick="location.reload(true)">Actualizar ahora</button></div>
-<div id="beta-banner">☁️ <strong style="color:#fff">v1.9.0 — Nube activa</strong> &nbsp;<span style="color:#888">Tu información se guarda en Supabase. Accede desde cualquier dispositivo.</span></div>
+<div id="beta-banner">☁️ <strong style="color:#fff">v1.8.0 — Nube activa</strong> &nbsp;<span style="color:#888">Tu información se guarda en Supabase. Accede desde cualquier dispositivo.</span></div>
 
 <nav id="nav-tabs" style="display:none;order:2">
   <button class="nav-tab active" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Inicio</button>
@@ -442,10 +442,10 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
       </svg>
     </div>
     <div class="health-bars">
-      <div class="hbar-row"><div class="hbar-label"><span>Motor <button onclick="mostrarInfoSalud('motor')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-3);padding:0;margin-left:2px">&#9432;</button></span><span id="hpct-motor">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-motor" style="width:0%"></div></div></div>
-      <div class="hbar-row"><div class="hbar-label"><span>Frenos <button onclick="mostrarInfoSalud('frenos')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-3);padding:0;margin-left:2px">&#9432;</button></span><span id="hpct-frenos">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-frenos" style="width:0%"></div></div></div>
-      <div class="hbar-row"><div class="hbar-label"><span>Llantas <button onclick="mostrarInfoSalud('llantas')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-3);padding:0;margin-left:2px">&#9432;</button></span><span id="hpct-llantas">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-llantas" style="width:0%"></div></div></div>
-      <div class="hbar-row"><div class="hbar-label"><span>Batería <button onclick="mostrarInfoSalud('bateria')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-3);padding:0;margin-left:2px">&#9432;</button></span><span id="hpct-bateria">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-bateria" style="width:0%"></div></div></div>
+      <div class="hbar-row"><div class="hbar-label"><span>Motor <button onclick="mostrarInfoSalud('motor')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--red);padding:0;margin-left:4px;font-weight:bold">&#9432;</button></span><span id="hpct-motor">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-motor" style="width:0%"></div></div></div>
+      <div class="hbar-row"><div class="hbar-label"><span>Frenos <button onclick="mostrarInfoSalud('frenos')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--red);padding:0;margin-left:4px;font-weight:bold">&#9432;</button></span><span id="hpct-frenos">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-frenos" style="width:0%"></div></div></div>
+      <div class="hbar-row"><div class="hbar-label"><span>Llantas <button onclick="mostrarInfoSalud('llantas')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--red);padding:0;margin-left:4px;font-weight:bold">&#9432;</button></span><span id="hpct-llantas">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-llantas" style="width:0%"></div></div></div>
+      <div class="hbar-row"><div class="hbar-label"><span>Batería <button onclick="mostrarInfoSalud('bateria')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--red);padding:0;margin-left:4px;font-weight:bold">&#9432;</button></span><span id="hpct-bateria">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-bateria" style="width:0%"></div></div></div>
     </div>
   </div>
   <div class="consejo-card">
@@ -1329,10 +1329,10 @@ window.onload=async function(){
 </div>
 <script>
 var _saludInfo={
-  motor:{titulo:'Motor',texto:'El porcentaje indica que tan al dia estan tus mantenimientos preventivos. Se calcula con los km desde tu ultimo servicio de aceite (cada 5,000 km). 100% = recien serviciado.'},
-  frenos:{titulo:'Frenos',texto:'Se estima segun el desgaste por km desde el ultimo cambio de pastillas. El estandar de la industria es revisar frenos cada 30,000-40,000 km.'},
-  llantas:{titulo:'Llantas',texto:'Se calcula con los km desde tu ultimo cambio de llantas. La vida util promedio es 50,000 km. El hule tambien se endurece con los anos aunque tenga banda.'},
-  bateria:{titulo:'Bateria',texto:'Se estima con el ano en que cambiaste la bateria. El estandar de la industria es 4-5 anos de vida util. Actualiza el dato en Configuracion si no lo recuerdas.'}
+  motor:{titulo:'Motor',texto:'El porcentaje indica qué tan al día están tus mantenimientos preventivos. Se calcula con los km desde tu último servicio de aceite (cada 5,000 km). 100% = recién serviciado.'},
+  frenos:{titulo:'Frenos',texto:'Se estima según el desgaste por km desde el ultimo cambio de pastillas. El estándar de la industria es revisar frenos cada 30,000-40,000 km.'},
+  llantas:{titulo:'Llantas',texto:'Se calcula con los km desde tu último cambio de llantas. La vida util promedio es 50,000 km. El hule también se endurece con los años aunque tenga banda.'},
+  bateria:{titulo:'Bateria',texto:'Se estima con el año en que cambiaste la bateria. El estándar de la industria es 4-5 años de vida útil. Actualiza el dato en Configuración si no lo recuerdas.'}
 };
 function mostrarInfoSalud(tipo){
   var info=_saludInfo[tipo];if(!info)return;
