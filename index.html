@@ -301,6 +301,18 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
   <button class="btn-primary" onclick="doForgot()">Enviar enlace →</button>
 </div>
 
+<!-- NUEVA CONTRASENA -->
+<div class="screen" id="screen-newpass" style="order:1">
+  <div class="auth-title">Nueva contraseña</div>
+  <div class="auth-sub">Elige una contraseña segura para tu cuenta</div>
+  <div class="err-msg" id="newpass-err"></div>
+  <div class="field-group">
+    <input type="password" id="newpass-1" placeholder="Nueva contraseña (mín. 6 caracteres)">
+    <input type="password" id="newpass-2" placeholder="Confirmar contraseña">
+  </div>
+  <button class="btn-primary" onclick="doNewPass()">Guardar contraseña →</button>
+</div>
+
 <!-- REG 1 -->
 <div class="screen" id="screen-reg1" style="order:1">
   <button class="back-btn" onclick="go('splash')">← Regresar</button>
@@ -502,6 +514,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
 
 <!-- CONFIG -->
 <div class="screen" id="screen-config" style="order:1">
+  <div id="cfg-bienvenida" style="display:none;background:linear-gradient(135deg,#B51E1E,#8B1515);color:#fff;padding:16px 20px"><div style="font-size:16px;font-weight:bold;margin-bottom:4px">Bienvenido a KM Un Millon!</div><div style="font-size:13px;opacity:.9">Completa los datos de tu vehiculo para comenzar.</div></div>
   <div class="cfg-header">
     <div class="cfg-title">Configuración</div>
     <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
@@ -520,6 +533,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
       <select id="c-trac"><option value="fwd">FWD — Delantera</option><option value="rwd">RWD — Trasera</option><option value="awd">AWD / 4x4</option></select>
       <input type="number" id="c-km" placeholder="Kilometraje actual">
       <input type="number" id="c-kmmes" placeholder="Km por mes">
+      <div style="font-size:11px;color:var(--text-3);margin-top:3px;margin-bottom:4px">&#9432; Cuantos km manejas al mes. El promedio en Mexico es ~1,300 km/mes. Esto nos permite calcular cuando llega tu proximo servicio.</div>
       <select id="c-ciudad"><option value="mexicali">Mexicali, BC</option><option value="tijuana">Tijuana, BC</option><option value="otra">Otra ciudad</option></select>
       <input type="number" id="c-llantas-km" placeholder="¿A cuántos km cambiaste las llantas? (ej. 45000)">
       <input type="number" id="c-llantas-anio" placeholder="¿En qué año cambiaste las llantas? (ej. 2022)">
@@ -733,7 +747,7 @@ function go(name){
   document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
   var tabs=['dashboard','checklist','historial','planes','config'];
   var idx=tabs.indexOf(name);if(idx>=0)document.querySelectorAll('.nav-tab')[idx].classList.add('active');
-  var noNav=['splash','login','forgot','reg1','reg2','reg3','reg4','terminos','privacidad','garage'];
+  var noNav=['splash','login','forgot','newpass','reg1','reg2','reg3','reg4','terminos','privacidad','garage'];
   var isNoNav=noNav.indexOf(name)>=0;
   document.getElementById('nav-tabs').style.display=isNoNav?'none':'flex';
   var bb=document.getElementById('beta-banner');if(bb)bb.style.display=isNoNav?'none':'flex';
@@ -763,6 +777,22 @@ async function doLogin(){
   }catch(err){errEl.textContent='Error de conexión. Revisa tu internet.';errEl.style.display='block';btn.textContent='Entrar →';btn.disabled=false;}
 }
 
+async function doNewPass(){
+  var p1=document.getElementById('newpass-1').value;
+  var p2=document.getElementById('newpass-2').value;
+  var errEl=document.getElementById('newpass-err');
+  errEl.style.display='none';
+  if(p1.length<6){errEl.textContent='La contraseña debe tener mínimo 6 caracteres';errEl.style.display='block';return;}
+  if(p1!==p2){errEl.textContent='Las contraseñas no coinciden';errEl.style.display='block';return;}
+  var btn=document.querySelector('#screen-newpass .btn-primary');
+  btn.textContent='Guardando...';btn.disabled=true;
+  try{
+    var res=await supa.auth.updateUser({password:p1});
+    if(res.error){errEl.textContent='Error: '+res.error.message;errEl.style.display='block';}
+    else{alert('✅ Contraseña actualizada. Ya puedes iniciar sesión.');go('login');}
+  }catch(e){errEl.textContent='Error de conexión. Intenta de nuevo.';errEl.style.display='block';}
+  btn.textContent='Guardar contraseña →';btn.disabled=false;
+}
 async function doForgot(){
   var e=document.getElementById('forgot-email').value.trim();
   var errEl=document.getElementById('forgot-err'),okEl=document.getElementById('forgot-ok');
@@ -808,7 +838,8 @@ async function doReg4(){
     if(aRes.data)AUTOS[0].supaId=aRes.data.id;
     saveLocal();
     btn.textContent='Comenzar mi plan →';btn.disabled=false;
-    go('dashboard');
+    localStorage.setItem('km1m_primer_ingreso','1');
+    go('config');
   }catch(err){alert('Error de conexión. Intenta de nuevo.');btn.textContent='Comenzar mi plan →';btn.disabled=false;}
 }
 function abrirManual(){
@@ -1150,10 +1181,11 @@ function renderHist(){
 // CONFIG
 function renderCfg(){
   var auto=VA();if(!U||!auto)return;
+  var bv=document.getElementById('cfg-bienvenida');if(bv){bv.style.display=localStorage.getItem('km1m_primer_ingreso')==='1'?'block':'none';if(bv.style.display==='block')localStorage.removeItem('km1m_primer_ingreso');}
   document.getElementById('cfg-nom').textContent=U.nombre;document.getElementById('cfg-av').textContent=U.nombre.charAt(0).toUpperCase();
   document.getElementById('c-marca').value=auto.marca||'';document.getElementById('c-modelo').value=auto.modelo||'';document.getElementById('c-anio').value=auto.anio||'';
   document.getElementById('c-comb').value=auto.comb||'gasolina';document.getElementById('c-trans').value=auto.trans||'automatica';document.getElementById('c-trac').value=auto.trac||'fwd';
-  document.getElementById('c-km').value=auto.km||'';document.getElementById('c-kmmes').value=auto.kmmes||1300;document.getElementById('c-ciudad').value=U.ciudad||'mexicali';
+  document.getElementById('c-km').value=auto.km||'';document.getElementById('c-kmmes').value=auto.kmmes||'';document.getElementById('c-ciudad').value=U.ciudad||'mexicali';
   document.getElementById('c-llantas-km').value=auto.llantasKm||'';
   document.getElementById('c-llantas-anio').value=auto.llantasAnio||'';
   document.getElementById('c-bateria-anio').value=auto.bateriaAnio||'';
@@ -1305,6 +1337,13 @@ function checkVersion(){var v=localStorage.getItem('km1m_version');if(v&&v!==APP
 // INIT
 window.onload=async function(){
   checkVersion();
+  // Detectar recovery token en URL hash
+  var hash=window.location.hash;
+  if(hash&&hash.includes('type=recovery')){
+    // Supabase maneja el token automaticamente, solo mostramos la pantalla
+    go('newpass');
+    return;
+  }
   // Verificar sesión activa en Supabase
   var sessionRes=await supa.auth.getSession();
   if(sessionRes.data&&sessionRes.data.session){
