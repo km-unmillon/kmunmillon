@@ -281,7 +281,21 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
     <input type="password" id="l-pass" placeholder="Contraseña" autocomplete="current-password">
   </div>
   <button class="btn-primary" onclick="doLogin()">Entrar →</button>
+  <button class="link-btn" onclick="go('forgot')" style="color:var(--text-2);font-size:13px">¿Olvidaste tu contraseña?</button>
   <button class="link-btn" onclick="go('reg1')">Crear cuenta gratis</button>
+</div>
+
+<!-- FORGOT -->
+<div class="screen" id="screen-forgot" style="order:1">
+  <button class="back-btn" onclick="go('login')">← Regresar</button>
+  <div class="auth-title">Recuperar acceso</div>
+  <div class="auth-sub">Te enviaremos un enlace para restablecer tu contraseña</div>
+  <div class="err-msg" id="forgot-err"></div>
+  <div id="forgot-ok" style="display:none;background:#e6f4ea;color:#2d6a2d;padding:12px 16px;border-radius:10px;font-size:14px;margin-bottom:16px">✅ Correo enviado. Revisa tu bandeja de entrada.</div>
+  <div class="field-group">
+    <input type="email" id="forgot-email" placeholder="Tu correo registrado" autocomplete="email">
+  </div>
+  <button class="btn-primary" onclick="doForgot()">Enviar enlace →</button>
 </div>
 
 <!-- REG 1 -->
@@ -316,6 +330,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
     <select id="a-trac"><option value="fwd">FWD — Delantera (más común)</option><option value="rwd">RWD — Trasera</option><option value="awd">AWD / 4x4</option></select>
     <input type="number" id="a-km" placeholder="Kilometraje actual">
     <input type="number" id="a-kmmes" placeholder="Km por mes (aprox)" value="1300">
+      <div style="font-size:11px;color:var(--text-3);margin-top:3px">&#9432; Cuantos km manejas al mes. El promedio nacional en Mexico es ~1,300 km/mes. Esto nos permite calcular cuando llega tu proximo servicio.</div>
   </div>
   <button class="btn-primary" onclick="doReg2()">Siguiente →</button>
 </div>
@@ -424,10 +439,10 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
       </svg>
     </div>
     <div class="health-bars">
-      <div class="hbar-row"><div class="hbar-label"><span>Motor</span><span id="hpct-motor">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-motor" style="width:0%"></div></div></div>
-      <div class="hbar-row"><div class="hbar-label"><span>Frenos</span><span id="hpct-frenos">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-frenos" style="width:0%"></div></div></div>
-      <div class="hbar-row"><div class="hbar-label"><span>Llantas</span><span id="hpct-llantas">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-llantas" style="width:0%"></div></div></div>
-      <div class="hbar-row"><div class="hbar-label"><span>Batería</span><span id="hpct-bateria">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-bateria" style="width:0%"></div></div></div>
+      <div class="hbar-row"><div class="hbar-label"><span>Motor <button onclick="mostrarInfoSalud('motor')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-3);padding:0;margin-left:2px">&#9432;</button></span><span id="hpct-motor">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-motor" style="width:0%"></div></div></div>
+      <div class="hbar-row"><div class="hbar-label"><span>Frenos <button onclick="mostrarInfoSalud('frenos')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-3);padding:0;margin-left:2px">&#9432;</button></span><span id="hpct-frenos">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-frenos" style="width:0%"></div></div></div>
+      <div class="hbar-row"><div class="hbar-label"><span>Llantas <button onclick="mostrarInfoSalud('llantas')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-3);padding:0;margin-left:2px">&#9432;</button></span><span id="hpct-llantas">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-llantas" style="width:0%"></div></div></div>
+      <div class="hbar-row"><div class="hbar-label"><span>Batería <button onclick="mostrarInfoSalud('bateria')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-3);padding:0;margin-left:2px">&#9432;</button></span><span id="hpct-bateria">—</span></div><div class="hbar-track"><div class="hbar-fill" id="bar-bateria" style="width:0%"></div></div></div>
     </div>
   </div>
   <div class="consejo-card">
@@ -715,7 +730,7 @@ function go(name){
   document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
   var tabs=['dashboard','checklist','historial','planes','config'];
   var idx=tabs.indexOf(name);if(idx>=0)document.querySelectorAll('.nav-tab')[idx].classList.add('active');
-  var noNav=['splash','login','reg1','reg2','reg3','reg4','terminos','privacidad','garage'];
+  var noNav=['splash','login','forgot','reg1','reg2','reg3','reg4','terminos','privacidad','garage'];
   var isNoNav=noNav.indexOf(name)>=0;
   document.getElementById('nav-tabs').style.display=isNoNav?'none':'flex';
   var bb=document.getElementById('beta-banner');if(bb)bb.style.display=isNoNav?'none':'flex';
@@ -745,6 +760,20 @@ async function doLogin(){
   }catch(err){errEl.textContent='Error de conexión. Revisa tu internet.';errEl.style.display='block';btn.textContent='Entrar →';btn.disabled=false;}
 }
 
+async function doForgot(){
+  var e=document.getElementById('forgot-email').value.trim();
+  var errEl=document.getElementById('forgot-err'),okEl=document.getElementById('forgot-ok');
+  errEl.style.display='none';okEl.style.display='none';
+  var btn=document.querySelector('#screen-forgot .btn-primary');
+  if(!e){errEl.textContent='Ingresa tu correo';errEl.style.display='block';return;}
+  btn.textContent='Enviando...';btn.disabled=true;
+  try{
+    var res=await supa.auth.resetPasswordForEmail(e,{redirectTo:'https://kmunmillon.com'});
+    if(res.error){errEl.textContent='No encontramos ese correo. Verifica e intenta de nuevo.';errEl.style.display='block';}
+    else{okEl.style.display='block';}
+  }catch(err){errEl.textContent='Error de conexion. Intenta de nuevo.';errEl.style.display='block';}
+  btn.textContent='Enviar enlace →';btn.disabled=false;
+}
 // REGISTRO
 var _rU={},_rV={},_rM=true;
 function doReg1(){
@@ -830,6 +859,15 @@ async function renderMiembros(){
   }catch(e){console.warn('[Supabase] renderMiembros error:',e);}
 }
 
+async function enviarInvitacion(toEmail,fromName){
+  _ejsInit();
+  if(typeof emailjs==='undefined'){console.error('[EmailJS] no disponible');return false;}
+  try{
+    await emailjs.send(EJS_SVC,EJS_TPL_INV,{to_email:toEmail,from_name:fromName});
+    console.log('[EmailJS] invitacion enviada a '+toEmail);
+    return true;
+  }catch(e){console.error('[EmailJS invitacion]',e);return false;}
+}
 async function invitarMiembro(){
   var email=document.getElementById('inv-email').value.trim();
   if(!email||!email.includes('@')){alert('Por favor ingresa un correo válido');return;}
@@ -1278,6 +1316,27 @@ window.onload=async function(){
   }
   if('Notification' in window&&Notification.permission==='granted'){var btn=document.getElementById('btn-notif');if(btn){btn.textContent='🔔 Alertas activas ✓';btn.classList.add('notif-active');}}
 };
+</script>
+<div id="modal-salud" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;align-items:flex-end;justify-content:center">
+  <div style="background:var(--card);border-radius:20px 20px 0 0;padding:28px 24px 40px;width:100%;max-width:430px">
+    <button onclick="document.getElementById('modal-salud').style.display='none'" style="background:none;border:none;font-size:22px;color:var(--text-3);cursor:pointer;float:right;margin-top:-4px">&#10005;</button>
+    <div id="modal-salud-titulo" style="font-size:18px;font-weight:bold;margin-bottom:12px"></div>
+    <div id="modal-salud-texto" style="font-size:14px;color:var(--text-2);line-height:1.7"></div>
+  </div>
+</div>
+<script>
+var _saludInfo={
+  motor:{titulo:'Motor',texto:'El porcentaje indica que tan al dia estan tus mantenimientos preventivos. Se calcula con los km desde tu ultimo servicio de aceite (cada 5,000 km). 100% = recien serviciado.'},
+  frenos:{titulo:'Frenos',texto:'Se estima segun el desgaste por km desde el ultimo cambio de pastillas. El estandar de la industria es revisar frenos cada 30,000-40,000 km.'},
+  llantas:{titulo:'Llantas',texto:'Se calcula con los km desde tu ultimo cambio de llantas. La vida util promedio es 50,000 km. El hule tambien se endurece con los anos aunque tenga banda.'},
+  bateria:{titulo:'Bateria',texto:'Se estima con el ano en que cambiaste la bateria. El estandar de la industria es 4-5 anos de vida util. Actualiza el dato en Configuracion si no lo recuerdas.'}
+};
+function mostrarInfoSalud(tipo){
+  var info=_saludInfo[tipo];if(!info)return;
+  document.getElementById('modal-salud-titulo').textContent=info.titulo;
+  document.getElementById('modal-salud-texto').textContent=info.texto;
+  document.getElementById('modal-salud').style.display='flex';
+}
 </script>
 </body>
 </html>
