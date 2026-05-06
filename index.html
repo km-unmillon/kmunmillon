@@ -838,7 +838,9 @@ async function doReg4(){
     if(aRes.data)AUTOS[0].supaId=aRes.data.id;
     saveLocal();
     btn.textContent='Comenzar mi plan →';btn.disabled=false;
-    localStorage.setItem('km1m_primer_ingreso','1');
+    // Mostrar banner bienvenida directamente
+    var bv=document.getElementById('cfg-bienvenida');
+    if(bv)bv.style.display='block';
     go('config');
   }catch(err){alert('Error de conexión. Intenta de nuevo.');btn.textContent='Comenzar mi plan →';btn.disabled=false;}
 }
@@ -1181,7 +1183,7 @@ function renderHist(){
 // CONFIG
 function renderCfg(){
   var auto=VA();if(!U||!auto)return;
-  var bv=document.getElementById('cfg-bienvenida');if(bv){bv.style.display=localStorage.getItem('km1m_primer_ingreso')==='1'?'block':'none';if(bv.style.display==='block')localStorage.removeItem('km1m_primer_ingreso');}
+  // banner bienvenida se maneja en doReg4
   document.getElementById('cfg-nom').textContent=U.nombre;document.getElementById('cfg-av').textContent=U.nombre.charAt(0).toUpperCase();
   document.getElementById('c-marca').value=auto.marca||'';document.getElementById('c-modelo').value=auto.modelo||'';document.getElementById('c-anio').value=auto.anio||'';
   document.getElementById('c-comb').value=auto.comb||'gasolina';document.getElementById('c-trans').value=auto.trans||'automatica';document.getElementById('c-trac').value=auto.trac||'fwd';
