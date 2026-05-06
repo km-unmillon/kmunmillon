@@ -648,19 +648,6 @@ function enviarEmail(dest,nom,srv,kmF){
   if(typeof emailjs==='undefined')return;
   emailjs.send(EJS_SVC,EJS_TPL,{to_email:dest,to_name:nom,servicio:srv,km_faltante:kmF,app_name:'KM Un Millón'}).then(function(){console.log('[EmailJS] recordatorio enviado a '+dest);}).catch(function(e){console.error('[EmailJS recordatorio]',e);});
 }
-async function enviarInvitacion(toEmail,fromName){
-  _ejsInit();
-  if(typeof emailjs==='undefined'){console.error('[EmailJS] no disponible');return false;}
-  try{
-    await emailjs.send(EJS_SVC,EJS_TPL_INV,{to_email:toEmail,from_name:fromName});
-    console.log('[EmailJS] invitación enviada a '+toEmail);
-    return true;
-  }catch(e){
-    console.error('[EmailJS invitación]',e);
-    return false;
-  }
-}
-
 function mesKey(){var n=new Date();return n.getFullYear()+'-'+(n.getMonth()+1);}
 function mesLabel(){var m=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],n=new Date();return m[n.getMonth()]+' '+n.getFullYear();}
 function proxI(km,i){var p=Math.ceil(km/i)*i;if(p<=km)p+=i;return p;}
