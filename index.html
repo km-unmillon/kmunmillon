@@ -233,7 +233,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
 .btn-guardar{width:100%;padding:15px;background:var(--red);color:#fff;border:none;border-radius:var(--radius);font-size:16px;font-weight:bold;cursor:pointer;font-family:var(--font)}
 .btn-logout{width:100%;padding:14px;background:transparent;color:var(--text-3);border:.5px solid var(--border);border-radius:var(--radius);font-size:14px;cursor:pointer;font-family:var(--font);margin-top:8px}
 /* LEGAL */
-#screen-terminos,#screen-privacidad{padding:48px 24px 40px}
+#screen-terminos,#screen-privacidad,#screen-cancelacion,#screen-landing{padding:48px 24px 40px}
 .legal-header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
 .legal-back{background:none;border:none;color:var(--red);font-size:22px;cursor:pointer;padding:0;line-height:1}
 .legal-title{font-size:22px;font-weight:bold}
@@ -269,6 +269,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
     <button class="btn-primary" onclick="go('login')">Iniciar sesión</button>
     <button class="btn-ghost" onclick="go('reg1')">Crear cuenta gratis →</button>
     <div style="font-size:12px;color:#555;margin-top:14px">30 días gratis · Sin tarjeta requerida</div>
+    <div style="margin-top:10px"><a onclick="go('landing')" style="font-size:12px;color:#777;cursor:pointer;text-decoration:underline">Ver planes y precios →</a></div>
     <div class="splash-beta">☁️ <strong style="color:#aaa">Versión 1.9.0</strong><br>Tu información se guarda en la nube. Plan Individual $20/mes · Plan Familiar $50/mes · 30 días gratis.</div>
   </div>
 </div>
@@ -563,6 +564,9 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
   <div class="cfg-section">
     <button class="btn-guardar" onclick="guardarCfg()">Guardar cambios</button>
     <button class="action-btn" style="width:100%;margin-top:10px" onclick="abrirManual()">📖 Ver Manual de Usuario</button>
+    <button class="action-btn" style="width:100%;margin-top:10px" onclick="go('terminos')">📄 Términos y Condiciones</button>
+    <button class="action-btn" style="width:100%;margin-top:10px" onclick="go('privacidad')">🔒 Aviso de Privacidad</button>
+    <button class="action-btn" style="width:100%;margin-top:10px" onclick="go('cancelacion')">↩️ Política de Cancelaciones</button>
     <button class="btn-logout" style="color:var(--red);border-color:var(--red)" onclick="cancelarSuscripcion()">❌ Cancelar suscripción</button>
     <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
   </div>
@@ -599,6 +603,84 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
     <h2>7. Autoridad competente</h2><p>Puedes acudir al INAI si consideras que tus derechos no fueron debidamente atendidos.</p>
   </div>
   <div class="legal-footer">KM Un Millón © 2026 · Mexicali, Baja California, México</div>
+</div>
+
+<!-- POLÍTICA DE CANCELACIÓN -->
+<div class="screen" id="screen-cancelacion" style="order:1">
+  <div class="legal-header"><button class="legal-back" onclick="history.back()">←</button><div class="legal-title">Cancelaciones y Reembolsos</div></div>
+  <div class="legal-version">KM Un Millón · v1.0 · Mayo 2026</div>
+  <div class="legal-body">
+    <h2>1. Período de prueba gratuito</h2><p>Todos los planes incluyen 30 días de prueba gratuita. No se realiza ningún cargo durante este período. Puedes cancelar en cualquier momento antes de que termine el período de prueba sin costo alguno.</p>
+    <h2>2. Cancelación de suscripción</h2><p>Puedes cancelar tu suscripción en cualquier momento desde la sección "Mi Plan" dentro de la aplicación. La cancelación es efectiva al término del período de facturación en curso. Seguirás teniendo acceso al servicio hasta el fin del período pagado.</p>
+    <h2>3. Política de reembolsos</h2><p>No se realizan reembolsos por períodos de suscripción parcialmente utilizados. Si experimentas un problema técnico que impida el uso del servicio, escríbenos a kmunmillon@gmail.com dentro de los primeros 7 días del cargo y evaluaremos tu caso.</p>
+    <h2>4. Cambio de plan</h2><p>Puedes cambiar de plan en cualquier momento. El nuevo plan entrará en vigor al inicio del siguiente ciclo de facturación.</p>
+    <h2>5. Cargo no reconocido</h2><p>Si detectas un cargo que no reconoces, escríbenos de inmediato a kmunmillon@gmail.com con el comprobante y lo resolveremos en máximo 5 días hábiles.</p>
+    <h2>6. Contacto</h2><p>kmunmillon@gmail.com · Mexicali, Baja California, México</p>
+  </div>
+  <div class="legal-footer">KM Un Millón © 2026 · Todos los derechos reservados</div>
+</div>
+
+<!-- LANDING PÚBLICA (visible sin login para Conekta) -->
+<div class="screen" id="screen-landing" style="order:1">
+  <div style="padding:32px 20px 60px;max-width:480px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:32px;font-weight:bold;color:var(--red)">🚗 KM Un Millón</div>
+      <div style="font-size:15px;color:var(--text-2);margin-top:6px">Mantenimiento preventivo basado en metodología japonesa</div>
+    </div>
+
+    <div style="font-size:18px;font-weight:bold;margin-bottom:16px">Nuestros Planes</div>
+
+    <div style="background:var(--card);border:.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px">
+      <div style="font-weight:bold;font-size:16px">Plan Individual</div>
+      <div style="color:var(--text-2);font-size:13px;margin:4px 0 10px">1 vehículo · Cancela cuando quieras</div>
+      <div style="font-size:26px;font-weight:bold;color:var(--red)">$20 <span style="font-size:13px;color:var(--text-2);font-weight:normal">MXN / mes</span></div>
+      <ul style="font-size:13px;color:var(--text-2);padding-left:18px;margin:10px 0">
+        <li>Checklist de mantenimiento personalizado</li>
+        <li>Historial de servicios</li>
+        <li>Indicador de salud del vehículo</li>
+        <li>Recordatorios por kilometraje</li>
+        <li>30 días de prueba gratuita</li>
+      </ul>
+      <button class="btn-guardar" style="width:100%;margin-top:8px" onclick="go('login')">Comenzar 30 días gratis →</button>
+    </div>
+
+    <div style="background:var(--card);border:2px solid var(--red);border-radius:14px;padding:18px;margin-bottom:12px;position:relative">
+      <div style="position:absolute;top:-10px;left:16px;background:var(--red);color:#fff;font-size:11px;font-weight:bold;padding:2px 10px;border-radius:99px">MÁS POPULAR</div>
+      <div style="font-weight:bold;font-size:16px">Plan Familiar</div>
+      <div style="color:var(--text-2);font-size:13px;margin:4px 0 10px">Hasta 3 autos · Cada miembro con su propia cuenta</div>
+      <div style="font-size:26px;font-weight:bold;color:var(--red)">$50 <span style="font-size:13px;color:var(--text-2);font-weight:normal">MXN / mes</span></div>
+      <ul style="font-size:13px;color:var(--text-2);padding-left:18px;margin:10px 0">
+        <li>Todo lo del Plan Individual</li>
+        <li>Hasta 3 vehículos y 3 cuentas</li>
+        <li>Invitaciones por correo</li>
+        <li>30 días de prueba gratuita</li>
+      </ul>
+      <button class="btn-guardar" style="width:100%;margin-top:8px" onclick="go('login')">Comenzar 30 días gratis →</button>
+    </div>
+
+    <div style="background:#111;border-radius:14px;padding:18px;margin-bottom:24px">
+      <div style="font-weight:bold;font-size:16px;color:#fff">Plan Empresarial</div>
+      <div style="color:#aaa;font-size:13px;margin:4px 0 10px">Para flotas y pequeñas empresas</div>
+      <button class="btn-guardar" style="width:100%;margin-top:8px;background:var(--red)" onclick="window.open('https://forms.gle/ivL7SnifjUqiqgse7','_blank')">Solicitar cotización →</button>
+    </div>
+
+    <div style="font-size:18px;font-weight:bold;margin-bottom:12px">Síguenos</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px">
+      <a href="https://www.facebook.com/kmunmillon" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--card);border:.5px solid var(--border);border-radius:12px;padding:14px 16px;text-decoration:none;color:var(--text)">
+        <span style="font-size:22px">📘</span><span style="font-size:14px;font-weight:bold">Facebook — @kmunmillon</span>
+      </a>
+      <a href="https://www.instagram.com/kmunmillon" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--card);border:.5px solid var(--border);border-radius:12px;padding:14px 16px;text-decoration:none;color:var(--text)">
+        <span style="font-size:22px">📸</span><span style="font-size:14px;font-weight:bold">Instagram — @kmunmillon</span>
+      </a>
+    </div>
+
+    <div style="text-align:center;font-size:12px;color:var(--text-3);line-height:1.8">
+      <a onclick="go('terminos')" style="color:var(--red);cursor:pointer">Términos y Condiciones</a> · 
+      <a onclick="go('privacidad')" style="color:var(--red);cursor:pointer">Aviso de Privacidad</a> · 
+      <a onclick="go('cancelacion')" style="color:var(--red);cursor:pointer">Cancelaciones y Reembolsos</a><br>
+      kmunmillon@gmail.com · Mexicali, B.C., México
+    </div>
+  </div>
 </div>
 
 </div><!-- /app -->
@@ -734,7 +816,7 @@ function go(name){
   document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
   var tabs=['dashboard','checklist','historial','planes','config'];
   var idx=tabs.indexOf(name);if(idx>=0)document.querySelectorAll('.nav-tab')[idx].classList.add('active');
-  var noNav=['splash','login','forgot','newpass','reg1','reg2','reg3','reg4','terminos','privacidad','garage'];
+  var noNav=['splash','login','forgot','newpass','reg1','reg2','reg3','reg4','terminos','privacidad','cancelacion','landing','garage'];
   var isNoNav=noNav.indexOf(name)>=0;
   document.getElementById('nav-tabs').style.display=isNoNav?'none':'flex';
   var bb=document.getElementById('beta-banner');if(bb)bb.style.display=isNoNav?'none':'flex';
