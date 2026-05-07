@@ -903,7 +903,7 @@ async function enviarInvitacion(toEmail,fromName){
   _ejsInit();
   if(typeof emailjs==='undefined'){console.error('[EmailJS] no disponible');return false;}
   try{
-    await emailjs.send(EJS_SVC,EJS_TPL_INV,{to_email:toEmail,from_name:fromName});
+    await emailjs.send(EJS_SVC,EJS_TPL_INV,{to_email:toEmail,from_name:fromName,name:fromName,email:toEmail});
     console.log('[EmailJS] invitacion enviada a '+toEmail);
     return true;
   }catch(e){console.error('[EmailJS invitacion]',e);return false;}
