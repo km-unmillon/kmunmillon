@@ -883,12 +883,13 @@ async function doReg1(){
   var n=document.getElementById('r-nombre').value.trim(),e=document.getElementById('r-email').value.trim(),p=document.getElementById('r-pass').value,c=document.getElementById('r-ciudad').value,tc=document.getElementById('tc-check').checked;
   if(!n||!e||p.length<6||!c){document.getElementById('reg-err').textContent='Por favor completa todos los campos';document.getElementById('reg-err').style.display='block';return;}
   if(!tc){document.getElementById('reg-err').textContent='Debes aceptar los Términos y Condiciones';document.getElementById('reg-err').style.display='block';return;}
-  // Verificar si el correo ya tiene cuenta
+  // Verificar si el correo ya tiene cuenta intentando login fallido
   var btn=document.querySelector('#screen-reg1 .btn-primary');
   btn.textContent='Verificando...';btn.disabled=true;
-  var chk=await supa.from('usuarios').select('id').eq('email',e).maybeSingle();
+  var chk=await supa.auth.signInWithPassword({email:e,password:'__check__'});
   btn.textContent='Siguiente →';btn.disabled=false;
-  if(chk.data){
+  if(chk.error&&chk.error.message.includes('Invalid login credentials')){
+    // El correo existe pero la contraseña es incorrecta = ya tiene cuenta
     document.getElementById('reg-err').textContent='Este correo ya tiene una cuenta. Usa «Olvidaste tu contraseña» si no recuerdas tu acceso.';
     document.getElementById('reg-err').style.display='block';return;
   }
