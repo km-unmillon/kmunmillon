@@ -14,7 +14,7 @@
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.conekta.io/js/latest/conekta.js"></script>
+<script src="https://sdk.mercadopago.com/js/v2"></script>
 <style>
 /* MODAL PAGO */
 #modal-pago{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:flex-end;justify-content:center}
@@ -620,7 +620,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
   <div class="legal-footer">KM Un Millón © 2026 · Todos los derechos reservados</div>
 </div>
 
-<!-- LANDING PÚBLICA (visible sin login para Conekta) -->
+<!-- LANDING PÚBLICA -->
 <div class="screen" id="screen-landing" style="order:1">
   <div style="padding:32px 20px 60px;max-width:480px;margin:0 auto">
     <button class="back-btn" onclick="go('splash')" style="position:relative;margin-bottom:16px">← Regresar</button>
@@ -686,7 +686,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
 
 </div><!-- /app -->
 
-<!-- MODAL PAGO CONEKTA -->
+<!-- MODAL PAGO MERCADO PAGO -->
 <div id="modal-pago">
   <div class="modal-card">
     <button class="modal-close" onclick="cerrarModalPago()">✕</button>
@@ -694,21 +694,15 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
     <div class="modal-sub">🎁 30 días gratis · <strong>No se realizará ningún cargo durante tu periodo de prueba.</strong> Puedes cancelar en cualquier momento.</div>
     <div class="modal-plan-badge" id="modal-plan-nombre">Plan Mensual — $20 MXN/mes</div>
     <div class="pay-err" id="pay-err"></div>
-    <input class="pay-field" id="pay-nombre" placeholder="Nombre en la tarjeta" type="text">
-    <input class="pay-field" id="pay-num" placeholder="Número de tarjeta" type="tel" maxlength="19">
-    <div class="pay-row">
-      <input class="pay-field" id="pay-exp" placeholder="MM/AA" type="tel" maxlength="5">
-      <input class="pay-field" id="pay-cvc" placeholder="CVC" type="tel" maxlength="4">
-    </div>
-    <button class="btn-primary" id="pay-btn" onclick="procesarPago()">Comenzar 30 días gratis →</button>
-    <div class="pay-secure">🔒 Pago seguro · Powered by Conekta</div>
+    <div id="mp-card-form" style="min-height:140px"></div>
+    <div class="pay-secure">🔒 Pago seguro · Powered by Mercado Pago</div>
   </div>
 </div>
 <script>
 // ════════════════════════════════
-// KM UN MILLÓN v1.9.0 — SUPABASE
+// KM UN MILLÓN v2.0.0 — MERCADO PAGO
 // ════════════════════════════════
-var APP_VERSION='1.9.0';
+var APP_VERSION='2.0.0';
 
 // SUPABASE CONFIG
 var SUPA_URL='https://jhphmomrtyunfxomhkdx.supabase.co';
@@ -933,8 +927,8 @@ async function cancelarSuscripcion(){
   if(!conf)return;
   try{
     // Obtener ID de suscripción desde Supabase
-    var uRes=await supa.from('usuarios').select('conekta_suscripcion_id').eq('id',U.supaId).single();
-    var suscId=uRes.data&&uRes.data.conekta_suscripcion_id;
+    var uRes=await supa.from('usuarios').select('mp_suscripcion_id,mp_preapproval_id').eq('id',U.supaId).single();
+    var suscId=uRes.data&&(uRes.data.mp_preapproval_id||uRes.data.mp_suscripcion_id);
     if(!suscId)throw new Error('No se encontró suscripción activa');
     var res=await fetch('https://jhphmomrtyunfxomhkdx.supabase.co/functions/v1/cancelar-suscripcion',{
       method:'POST',
@@ -943,7 +937,7 @@ async function cancelarSuscripcion(){
     });
     var data=await res.json();
     if(data.ok){
-      await supa.from('usuarios').update({plan:'free',conekta_suscripcion_id:null}).eq('id',U.supaId);
+      await supa.from('usuarios').update({plan:'free',mp_suscripcion_id:null,mp_preapproval_id:null}).eq('id',U.supaId);
       U.plan='free';saveLocal();
       alert('✅ Suscripción cancelada.\n\nSeguirás teniendo acceso hasta el final de tu periodo. Puedes reactivar en cualquier momento desde Planes.');
     }else{throw new Error(data.error||'Error al cancelar');}
@@ -1333,64 +1327,83 @@ function enviarRecordatorioWA(){
   window.open('https://wa.me/?text='+encodeURIComponent('🚗 *KM Un Millón* — Recordatorio de mantenimiento\n\nHola '+U.nombre+', tu *'+auto.marca+' '+auto.modelo+'* necesita:\n*Servicio '+pA.toLocaleString()+' km*\nFaltan aproximadamente *'+kmA.toLocaleString()+' km*.\n\nAgenda tu cita a tiempo. 🛢️'),'_blank');
 }
 
-// ── CONEKTA PAGOS ──
-var CONEKTA_PUB='key_b9SDzQB4iNpPTloDoIeEEqT';
+// ── MERCADO PAGO SUSCRIPCIONES ──
+var MP_PUBLIC_KEY='APP_USR-98a1fc15-3a3e-4490-96ce-69f85f24d7f7';
 var SUPA_FUNC_URL='https://jhphmomrtyunfxomhkdx.supabase.co/functions/v1/procesar-pago';
 var _planSeleccionado='';
+var _mpInstance=null;
+var _mpCardBrick=null;
+
+// Montos por plan en MXN
+var MP_PLANES={
+  'individual': {monto:20, label:'Plan Individual — $20 MXN/mes'},
+  'individual-anual': {monto:180, label:'Plan Individual Anual — $180 MXN/año'},
+  'familiar': {monto:50, label:'Plan Familiar — $50 MXN/mes'}
+};
 
 function abrirModalPago(planId, planNombre){
   _planSeleccionado=planId;
-  document.getElementById('modal-plan-nombre').textContent=planNombre;
+  document.getElementById('modal-plan-nombre').textContent=planNombre||MP_PLANES[planId]&&MP_PLANES[planId].label||planNombre;
   document.getElementById('pay-err').style.display='none';
-  document.getElementById('pay-num').value='';
-  document.getElementById('pay-exp').value='';
-  document.getElementById('pay-cvc').value='';
-  document.getElementById('pay-nombre').value='';
   document.getElementById('modal-pago').classList.add('open');
+  // Inicializar MP Bricks al abrir
+  setTimeout(function(){_initMPBrick();},100);
 }
+
 function cerrarModalPago(){
   document.getElementById('modal-pago').classList.remove('open');
+  // Destruir brick al cerrar para evitar duplicados
+  if(_mpCardBrick){try{_mpCardBrick.unmount();}catch(e){}}_mpCardBrick=null;
 }
 
-// Formatear número de tarjeta
-document.addEventListener('DOMContentLoaded',function(){
-  var numEl=document.getElementById('pay-num');
-  if(numEl){numEl.addEventListener('input',function(){var v=this.value.replace(/\D/g,'').substring(0,16);this.value=v.replace(/(.{4})/g,'$1 ').trim();});}
-  var expEl=document.getElementById('pay-exp');
-  if(expEl){expEl.addEventListener('input',function(){var v=this.value.replace(/\D/g,'');if(v.length>=2)v=v.substring(0,2)+'/'+v.substring(2,4);this.value=v;});}
-});
-
-async function procesarPago(){
-  var nombre=document.getElementById('pay-nombre').value.trim();
-  var num=document.getElementById('pay-num').value.replace(/\s/g,'');
-  var exp=document.getElementById('pay-exp').value.split('/');
-  var cvc=document.getElementById('pay-cvc').value.trim();
-  var errEl=document.getElementById('pay-err');
-  var btn=document.getElementById('pay-btn');
-
-  if(!nombre||num.length<15||exp.length!==2||cvc.length<3){
-    errEl.textContent='Por favor completa todos los campos correctamente';
-    errEl.style.display='block';return;
-  }
-
-  btn.textContent='Procesando...';btn.disabled=true;errEl.style.display='none';
-
+async function _initMPBrick(){
+  var container=document.getElementById('mp-card-form');
+  if(!container)return;
+  container.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-3);font-size:13px">Cargando formulario de pago...</div>';
   try{
-    // Tokenizar tarjeta con Conekta
-    Conekta.setPublicKey(CONEKTA_PUB);
-    Conekta.setLanguage('es');
-    var expYear=exp[1].length===2?'20'+exp[1]:exp[1];
-    var tokenRes=await new Promise(function(resolve,reject){
-      Conekta.Token.create({
-        card:{number:num,name:nombre,exp_year:expYear,exp_month:exp[0],cvc:cvc}
-      },function(token){resolve(token);},function(err){reject(new Error(err.message_to_purchaser||err.message||'Error al tokenizar tarjeta'));});
+    if(!_mpInstance){_mpInstance=new MercadoPago(MP_PUBLIC_KEY,{locale:'es-MX'});}
+    var bricks=_mpInstance.bricks();
+    _mpCardBrick=await bricks.create('cardPayment','mp-card-form',{
+      initialization:{amount:(MP_PLANES[_planSeleccionado]&&MP_PLANES[_planSeleccionado].monto)||20},
+      customization:{
+        paymentMethods:{maxInstallments:1},
+        visual:{style:{theme:'default'}}
+      },
+      callbacks:{
+        onReady:function(){},
+        onSubmit:function(cardFormData){return _procesarPagoMP(cardFormData);},
+        onError:function(error){
+          var errEl=document.getElementById('pay-err');
+          errEl.textContent='Error en el formulario de pago. Intenta de nuevo.';
+          errEl.style.display='block';
+        }
+      }
     });
+  }catch(e){
+    container.innerHTML='<div style="text-align:center;padding:20px;color:var(--red);font-size:13px">Error al cargar el formulario. Recarga la página.</div>';
+    console.error('[MP Bricks]',e);
+  }
+}
 
-    // Enviar a Supabase Edge Function
+async function _procesarPagoMP(cardFormData){
+  var errEl=document.getElementById('pay-err');
+  errEl.style.display='none';
+  try{
+    // Enviar token + plan a Supabase Edge Function
     var res=await fetch(SUPA_FUNC_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({token:tokenRes.id,plan:_planSeleccionado,nombre:U.nombre,email:U.email})
+      body:JSON.stringify({
+        token:cardFormData.token,
+        payment_method_id:cardFormData.payment_method_id,
+        issuer_id:cardFormData.issuer_id,
+        installments:cardFormData.installments,
+        payer:cardFormData.payer,
+        plan:_planSeleccionado,
+        nombre:U&&U.nombre,
+        email:U&&U.email,
+        user_id:U&&U.supaId
+      })
     });
     var data=await res.json();
     if(!data.ok)throw new Error(data.error||'Error al procesar el pago');
@@ -1398,16 +1411,19 @@ async function procesarPago(){
     // Guardar plan en Supabase
     var planNombre=_planSeleccionado.indexOf('familiar')>=0?'familiar':'individual';
     if(U&&U.supaId){
-      await supa.from('usuarios').update({plan:planNombre,conekta_cliente_id:data.cliente_id,conekta_suscripcion_id:data.suscripcion_id}).eq('id',U.supaId);
+      await supa.from('usuarios').update({
+        plan:planNombre,
+        mp_suscripcion_id:data.suscripcion_id,
+        mp_preapproval_id:data.preapproval_id
+      }).eq('id',U.supaId);
       U.plan=planNombre;saveLocal();
     }
     cerrarModalPago();
     alert('✅ ¡Suscripción activada!\n\n30 días gratis comenzaron hoy. Te avisaremos antes de tu primer cargo.');
-    btn.textContent='Comenzar 30 días gratis →';btn.disabled=false;
   }catch(e){
     errEl.textContent=e.message||'Error al procesar. Verifica los datos de tu tarjeta.';
     errEl.style.display='block';
-    btn.textContent='Comenzar 30 días gratis →';btn.disabled=false;
+    throw e; // necesario para que Bricks sepa que hubo error
   }
 }
 
