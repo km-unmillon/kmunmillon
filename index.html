@@ -1390,9 +1390,12 @@ async function _procesarPagoMP(cardFormData){
   errEl.style.display='none';
   try{
     // Enviar token + plan a Supabase Edge Function
+    // Obtener session token para autorizar la Edge Function
+    var sessionData=await supa.auth.getSession();
+    var accessToken=sessionData.data&&sessionData.data.session&&sessionData.data.session.access_token;
     var res=await fetch(SUPA_FUNC_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+(accessToken||SUPA_KEY)},
       body:JSON.stringify({
         token:cardFormData.token,
         payment_method_id:cardFormData.payment_method_id,
