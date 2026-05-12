@@ -14,7 +14,6 @@
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://sdk.mercadopago.com/js/v2"></script>
 <style>
 /* MODAL PAGO */
 #modal-pago{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:flex-end;justify-content:center}
@@ -694,8 +693,12 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
     <div class="modal-sub">🎁 30 días gratis · <strong>No se realizará ningún cargo durante tu periodo de prueba.</strong> Puedes cancelar en cualquier momento.</div>
     <div class="modal-plan-badge" id="modal-plan-nombre">Plan Mensual — $20 MXN/mes</div>
     <div class="pay-err" id="pay-err"></div>
-    <div id="mp-card-form" style="min-height:140px"></div>
-    <div class="pay-secure">🔒 Pago seguro · Powered by Mercado Pago</div>
+    <div id="mp-card-form" style="min-height:80px;display:flex;align-items:center;justify-content:center">
+      <button id="btn-ir-mp" onclick="_irAMercadoPago()" style="background:#009ee3;color:#fff;border:none;border-radius:12px;padding:16px 32px;font-size:17px;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px">
+        <span>🔒</span> Pagar con Mercado Pago
+      </button>
+    </div>
+    <div class="pay-secure" style="margin-top:10px;text-align:center;font-size:12px;color:#888">Serás redirigido al sitio seguro de Mercado Pago</div>
   </div>
 </div>
 <script>
@@ -1327,106 +1330,83 @@ function enviarRecordatorioWA(){
   window.open('https://wa.me/?text='+encodeURIComponent('🚗 *KM Un Millón* — Recordatorio de mantenimiento\n\nHola '+U.nombre+', tu *'+auto.marca+' '+auto.modelo+'* necesita:\n*Servicio '+pA.toLocaleString()+' km*\nFaltan aproximadamente *'+kmA.toLocaleString()+' km*.\n\nAgenda tu cita a tiempo. 🛢️'),'_blank');
 }
 
-// ── MERCADO PAGO SUSCRIPCIONES ──
-var MP_PUBLIC_KEY='APP_USR-98a1fc15-3a3e-4490-96ce-69f85f24d7f7';
+// ── MERCADO PAGO CHECKOUT PRO ──
 var SUPA_FUNC_URL='https://jhphmomrtyunfxomhkdx.supabase.co/functions/v1/procesar-pago';
 var _planSeleccionado='';
-var _mpInstance=null;
-var _mpCardBrick=null;
 
-// Montos por plan en MXN
 var MP_PLANES={
-  'individual': {monto:20, label:'Plan Individual — $20 MXN/mes'},
-  'individual-anual': {monto:180, label:'Plan Individual Anual — $180 MXN/año'},
-  'familiar': {monto:50, label:'Plan Familiar — $50 MXN/mes'}
+  'individual':      {monto:20,  label:'Plan Individual — $20 MXN/mes'},
+  'individual-anual':{monto:180, label:'Plan Individual Anual — $180 MXN/año'},
+  'familiar':        {monto:50,  label:'Plan Familiar — $50 MXN/mes'}
+};
+
+// IDs de plan para la Edge Function
+var MP_PLAN_IDS={
+  'individual':      'plan_mensual_km',
+  'individual-anual':'plan_anual_km',
+  'familiar':        'plan_trimestral_km'
 };
 
 function abrirModalPago(planId, planNombre){
   _planSeleccionado=planId;
-  document.getElementById('modal-plan-nombre').textContent=planNombre||MP_PLANES[planId]&&MP_PLANES[planId].label||planNombre;
+  document.getElementById('modal-plan-nombre').textContent=planNombre||(MP_PLANES[planId]&&MP_PLANES[planId].label)||planNombre;
   document.getElementById('pay-err').style.display='none';
   document.getElementById('modal-pago').classList.add('open');
-  // Inicializar MP Bricks al abrir
-  setTimeout(function(){_initMPBrick();},100);
 }
 
 function cerrarModalPago(){
   document.getElementById('modal-pago').classList.remove('open');
-  // Destruir brick al cerrar para evitar duplicados
-  if(_mpCardBrick){try{_mpCardBrick.unmount();}catch(e){}}_mpCardBrick=null;
 }
 
-async function _initMPBrick(){
-  var container=document.getElementById('mp-card-form');
-  if(!container)return;
-  container.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-3);font-size:13px">Cargando formulario de pago...</div>';
-  try{
-    if(!_mpInstance){_mpInstance=new MercadoPago(MP_PUBLIC_KEY,{locale:'es-MX'});}
-    var bricks=_mpInstance.bricks();
-    _mpCardBrick=await bricks.create('cardPayment','mp-card-form',{
-      initialization:{amount:(MP_PLANES[_planSeleccionado]&&MP_PLANES[_planSeleccionado].monto)||20},
-      customization:{
-        paymentMethods:{maxInstallments:1},
-        visual:{style:{theme:'default'}}
-      },
-      callbacks:{
-        onReady:function(){},
-        onSubmit:function(cardFormData){return _procesarPagoMP(cardFormData);},
-        onError:function(error){
-          var errEl=document.getElementById('pay-err');
-          errEl.textContent='Error en el formulario de pago. Intenta de nuevo.';
-          errEl.style.display='block';
-        }
-      }
-    });
-  }catch(e){
-    container.innerHTML='<div style="text-align:center;padding:20px;color:var(--red);font-size:13px">Error al cargar el formulario. Recarga la página.</div>';
-    console.error('[MP Bricks]',e);
-  }
-}
-
-async function _procesarPagoMP(cardFormData){
+async function _irAMercadoPago(){
   var errEl=document.getElementById('pay-err');
+  var btn=document.getElementById('btn-ir-mp');
   errEl.style.display='none';
+  btn.disabled=true;
+  btn.textContent='Preparando pago...';
   try{
-    // Enviar token + plan a Supabase Edge Function
-    // Obtener session token para autorizar la Edge Function
-    var sessionData=await supa.auth.getSession();
-    var accessToken=sessionData.data&&sessionData.data.session&&sessionData.data.session.access_token;
+    var planKey=MP_PLAN_IDS[_planSeleccionado]||'plan_mensual_km';
     var res=await fetch(SUPA_FUNC_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+(accessToken||SUPA_KEY)},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        token:cardFormData.token,
-        payment_method_id:cardFormData.payment_method_id,
-        issuer_id:cardFormData.issuer_id,
-        installments:cardFormData.installments,
-        payer:cardFormData.payer,
-        plan:_planSeleccionado,
-        nombre:U&&U.nombre,
-        email:U&&U.email,
-        user_id:U&&U.supaId
+        plan:planKey,
+        nombre:U&&U.nombre||'Usuario',
+        email:U&&U.email||''
       })
     });
     var data=await res.json();
-    if(!data.ok)throw new Error(data.error||'Error al procesar el pago');
-
-    // Guardar plan en Supabase
-    var planNombre=_planSeleccionado.indexOf('familiar')>=0?'familiar':'individual';
-    if(U&&U.supaId){
-      await supa.from('usuarios').update({
-        plan:planNombre,
-        mp_suscripcion_id:data.suscripcion_id,
-        mp_preapproval_id:data.preapproval_id
-      }).eq('id',U.supaId);
-      U.plan=planNombre;saveLocal();
-    }
-    cerrarModalPago();
-    alert('✅ ¡Suscripción activada!\n\n30 días gratis comenzaron hoy. Te avisaremos antes de tu primer cargo.');
+    if(!data.ok)throw new Error(data.error||'Error al conectar con Mercado Pago');
+    // Redirigir al Checkout Pro de MP
+    window.location.href=data.init_point;
   }catch(e){
-    errEl.textContent=e.message||'Error al procesar. Verifica los datos de tu tarjeta.';
+    errEl.textContent=e.message||'Error al conectar con Mercado Pago. Intenta de nuevo.';
     errEl.style.display='block';
-    throw e; // necesario para que Bricks sepa que hubo error
+    btn.disabled=false;
+    btn.innerHTML='<span>🔒</span> Pagar con Mercado Pago';
+  }
+}
+
+// Detectar regreso de MP y actualizar plan
+async function _verificarPagoMP(){
+  var params=new URLSearchParams(window.location.search);
+  var pago=params.get('pago');
+  if(!pago)return;
+  // Limpiar URL
+  history.replaceState(null,'',window.location.pathname);
+  if(pago==='exitoso'){
+    if(U&&U.supaId){
+      try{
+        await supa.from('usuarios').update({plan:'individual'}).eq('id',U.supaId);
+        U.plan='individual';saveLocal();
+      }catch(e){console.warn('update plan error',e);}
+    }
+    alert('✅ ¡Suscripción activada!\n\n30 días gratis comenzaron hoy. Te avisaremos antes de tu primer cargo.');
+    go('dashboard');
+  }else if(pago==='fallido'){
+    alert('❌ El pago no se pudo completar. Verifica los datos de tu tarjeta e intenta de nuevo.');
+  }else if(pago==='pendiente'){
+    alert('⏳ Tu pago está en proceso. Te notificaremos cuando se confirme.');
   }
 }
 
@@ -1436,6 +1416,7 @@ function checkVersion(){var v=localStorage.getItem('km1m_version');if(v&&v!==APP
 // INIT
 window.onload=async function(){
   checkVersion();
+  _verificarPagoMP();
   // Detectar recovery token en URL hash
   var hash=window.location.hash;
   if(hash&&hash.includes('type=recovery')){
