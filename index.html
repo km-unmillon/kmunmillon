@@ -1397,17 +1397,32 @@ async function _verificarPagoMP(){
   if(pago==='exitoso'){
     if(U&&U.supaId){
       try{
-        await supa.from('usuarios').update({plan:'individual'}).eq('id',U.supaId);
-        U.plan='individual';saveLocal();
+        var hoy=new Date();
+        var trialEnd=new Date(hoy.getTime()+30*24*60*60*1000).toISOString().split('T')[0];
+        await supa.from('usuarios').update({
+          plan:'individual',
+          suscripcion_inicio:hoy.toISOString(),
+          trial_end:trialEnd
+        }).eq('id',U.supaId);
+        U.plan='individual';
+        U.trial_end=trialEnd;
+        saveLocal();
       }catch(e){console.warn('update plan error',e);}
     }
-    alert('✅ ¡Suscripción activada!\n\n30 días gratis comenzaron hoy. Te avisaremos antes de tu primer cargo.');
+    alert('✅ ¡Suscripción activada!\n\n🎁 Tienes 30 días gratis. Tu primer cobro será el '+_formatFecha30dias()+'.\n\nPuedes cancelar en cualquier momento desde Configuración.');
     go('dashboard');
   }else if(pago==='fallido'){
     alert('❌ El pago no se pudo completar. Verifica los datos de tu tarjeta e intenta de nuevo.');
   }else if(pago==='pendiente'){
     alert('⏳ Tu pago está en proceso. Te notificaremos cuando se confirme.');
   }
+}
+
+function _formatFecha30dias(){
+  var d=new Date();
+  d.setDate(d.getDate()+30);
+  var meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return d.getDate()+' de '+meses[d.getMonth()]+' de '+d.getFullYear();
 }
 
 // VERSIÓN
