@@ -1358,34 +1358,21 @@ function cerrarModalPago(){
   document.getElementById('modal-pago').classList.remove('open');
 }
 
-async function _irAMercadoPago(){
-  var errEl=document.getElementById('pay-err');
-  var btn=document.getElementById('btn-ir-mp');
-  errEl.style.display='none';
-  btn.disabled=true;
-  btn.textContent='Preparando pago...';
-  try{
-    var planKey=MP_PLAN_IDS[_planSeleccionado]||'plan_mensual_km';
-    var res=await fetch(SUPA_FUNC_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        plan:planKey,
-        nombre:U&&U.nombre||'Usuario',
-        email:U&&U.email||''
-      })
-    });
-    var data=await res.json();
-    if(!data.ok)throw new Error(data.error||'Error al conectar con Mercado Pago');
-    // Redirigir al Checkout Pro de MP
-    window.location.href=data.init_point;
-  }catch(e){
-    errEl.textContent=e.message||'Error al conectar con Mercado Pago. Intenta de nuevo.';
-    errEl.style.display='block';
-    btn.disabled=false;
-    btn.innerHTML='<span>🔒</span> Pagar con Mercado Pago';
-  }
+// URLs directas de los planes de suscripcion MP (30 dias gratis incluidos)
+var MP_PLAN_URLS={
+  'individual':      'https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=f2a6347acada418a8cc080234227edb1',
+  'plan_mensual_km': 'https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=f2a6347acada418a8cc080234227edb1',
+  'familiar':        'https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=eab5166139b642318a198561dbe6f5ad',
+  'plan_familiar_km':'https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=eab5166139b642318a198561dbe6f5ad',
+};
+
+function _irAMercadoPago(){
+  var url=MP_PLAN_URLS[_planSeleccionado]||MP_PLAN_URLS['individual'];
+  if(U&&U.email) url+='&payer_email='+encodeURIComponent(U.email);
+  window.location.href=url;
 }
+
+
 
 // Detectar regreso de MP y actualizar plan
 async function _verificarPagoMP(){
