@@ -1392,6 +1392,9 @@ async function _verificarPagoMP(){
   var params=new URLSearchParams(window.location.search);
   var pago=params.get('pago');
   if(!pago)return;
+  // Capturar IDs que MP regresa en la URL
+  var preapprovalId=params.get('preapproval_id')||params.get('subscription_id')||null;
+  var planParam=params.get('plan')||null;
   // Limpiar URL
   history.replaceState(null,'',window.location.pathname);
   if(pago==='exitoso'){
@@ -1399,13 +1402,17 @@ async function _verificarPagoMP(){
       try{
         var hoy=new Date();
         var trialEnd=new Date(hoy.getTime()+30*24*60*60*1000).toISOString().split('T')[0];
-        await supa.from('usuarios').update({
-          plan:'individual',
+        var planNombre=planParam&&planParam.indexOf('familiar')>=0?'familiar':'individual';
+        var updateData={
+          plan:planNombre,
           suscripcion_inicio:hoy.toISOString(),
           trial_end:trialEnd
-        }).eq('id',U.supaId);
-        U.plan='individual';
+        };
+        if(preapprovalId) updateData.mp_preapproval_id=preapprovalId;
+        await supa.from('usuarios').update(updateData).eq('id',U.supaId);
+        U.plan=planNombre;
         U.trial_end=trialEnd;
+        if(preapprovalId) U.mp_preapproval_id=preapprovalId;
         saveLocal();
       }catch(e){console.warn('update plan error',e);}
     }
