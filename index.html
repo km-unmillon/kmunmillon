@@ -1155,6 +1155,7 @@ function renderHealth(){
 // DASHBOARD
 function renderDash(){
   var auto=VA();if(!U||!auto)return;
+  _verificarTrial();
   var km=kmProy(auto);auto.km=km;saveData();
   var h=new Date().getHours(),sal=h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
   document.getElementById('d-saludo').textContent=sal+', '+U.nombre.split(' ')[0];
