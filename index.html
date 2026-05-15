@@ -1437,6 +1437,47 @@ function _formatFecha30dias(){
 function checkVersion(){var v=localStorage.getItem('km1m_version');if(v&&v!==APP_VERSION)document.getElementById('update-banner').style.display='flex';localStorage.setItem('km1m_version',APP_VERSION);}
 
 // INIT
+
+// ── VERIFICACIÓN DE PERÍODO DE PRUEBA ──
+function _verificarTrial(){
+  if(!U) return;
+  var plan = U.plan || 'free';
+
+  // Usuario sin plan pagado — mostrar banner de trial en Planes
+  if(plan === 'free'){
+    // Sin trial_end = recién registrado, tiene 30 días
+    return;
+  }
+
+  // Usuario con plan individual/familiar — verificar si trial venció
+  if(plan === 'individual' || plan === 'familiar'){
+    var trialEnd = U.trial_end || null;
+    if(!trialEnd) return; // no hay fecha registrada, no hacer nada
+
+    var hoy = new Date();
+    hoy.setHours(0,0,0,0);
+    var fin = new Date(trialEnd);
+    fin.setHours(0,0,0,0);
+    var diasRestantes = Math.ceil((fin - hoy) / (1000*60*60*24));
+
+    if(diasRestantes <= 0){
+      // Trial vencido — llevar a Planes con mensaje
+      setTimeout(function(){
+        alert('⏰ Tu período de prueba ha terminado.\n\nPara seguir usando KM Un Millón activa tu suscripción. ¡Solo $20/mes!');
+        go('planes');
+      }, 500);
+    } else if(diasRestantes <= 5){
+      // Aviso 5 días antes
+      setTimeout(function(){
+        var msg = diasRestantes === 1
+          ? '⚠️ Tu período de prueba termina mañana.'
+          : '⚠️ Tu período de prueba termina en ' + diasRestantes + ' días.';
+        alert(msg + '\n\nActiva tu suscripción para no perder el acceso.');
+      }, 1000);
+    }
+  }
+}
+
 window.onload=async function(){
   checkVersion();
   _verificarPagoMP();
@@ -1454,7 +1495,10 @@ window.onload=async function(){
     // Cargar desde cache local primero (para velocidad)
     if(loadLocal()&&U){go('dashboard');}
     // Luego refrescar desde Supabase en background
-    loadFromSupabase(uid).then(function(ok){if(ok)renderDash();});
+    loadFromSupabase(uid).then(function(ok){
+      if(ok) renderDash();
+      _verificarTrial();
+    });
   } else if(loadLocal()&&U){
     // Sesión local sin Supabase — llevar al splash para re-login
     go('splash');
