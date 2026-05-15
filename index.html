@@ -499,7 +499,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
 
 <!-- PLANES -->
 <div class="screen" id="screen-planes" style="order:1">
-  <div class="planes-header"><div class="planes-title">Elige tu plan</div><div class="planes-sub">Cuando estés listo</div></div>
+  <div class="planes-header"><div class="planes-title" id="planes-title">Elige tu plan</div><div class="planes-sub" id="planes-sub">Cuando estés listo</div></div>
   <div class="trial-banner" id="trial-banner"><div class="trial-label">Tu periodo gratuito</div><div class="trial-main" id="trial-dias">30 días</div><div class="trial-sub" id="trial-sub">Elige tu plan cuando estés listo</div></div>
   <div class="plan-card"><div class="plan-name">Individual</div><div class="plan-desc">1 vehículo · Cancela cuando quieras</div><div class="plan-price">$20 <span>MXN / mes</span></div><button class="plan-btn" style="opacity:1" onclick="abrirModalPago('plan_mensual_km','Plan Individual — $20 MXN/mes')">Comenzar 30 días gratis →</button></div>
   <div class="plan-card popular"><div class="plan-badge">MÁS POPULAR</div><div class="plan-name">Familiar <span style="font-size:12px;color:var(--green);font-weight:bold">Hasta 3 autos</span></div><div class="plan-desc">Cada miembro con su propia cuenta</div><div class="plan-price">$50 <span>MXN / mes</span></div><button class="plan-btn" style="opacity:1" onclick="abrirModalPago('plan_familiar_km','Plan Familiar — $50 MXN/mes')">Comenzar 30 días gratis →</button></div>
@@ -820,6 +820,7 @@ function go(name){
   var bb=document.getElementById('beta-banner');if(bb)bb.style.display=isNoNav?'none':'flex';
   if(name==='dashboard'){renderDash();checkNotifTodos();}
   if(name==='checklist')renderChk();
+  if(name==='planes'){_verificarTrial();_renderPlanesHeader();}
   if(name==='historial')renderHist();
   if(name==='config')renderCfg();
   if(name==='garage')renderGarage();
@@ -1438,6 +1439,35 @@ function _formatFecha30dias(){
 function checkVersion(){var v=localStorage.getItem('km1m_version');if(v&&v!==APP_VERSION)document.getElementById('update-banner').style.display='flex';localStorage.setItem('km1m_version',APP_VERSION);}
 
 // INIT
+
+// ── HEADER DINÁMICO EN PLANES ──
+function _renderPlanesHeader(){
+  var titulo = document.getElementById('planes-title');
+  var sub = document.getElementById('planes-sub');
+  if(!titulo||!sub) return;
+  if(!U){ titulo.textContent='Elige tu plan'; sub.textContent='Cuando estés listo'; return; }
+  var plan = U.plan||'free';
+  if(plan==='individual'){
+    titulo.textContent='Tu plan está activo';
+    sub.textContent='Plan Individual · Vigente hasta el '+_formatDate(U.trial_end);
+  } else if(plan==='familiar'){
+    titulo.textContent='Tu plan está activo';
+    sub.textContent='Plan Familiar · Vigente hasta el '+_formatDate(U.trial_end);
+  } else if(plan==='empresarial'){
+    titulo.textContent='Tu plan está activo';
+    sub.textContent='Plan Empresarial · Contacta a soporte para cambios';
+  } else {
+    titulo.textContent='Elige tu plan';
+    sub.textContent='30 días gratis, sin necesidad de tarjeta';
+  }
+}
+
+function _formatDate(dateStr){
+  if(!dateStr) return '';
+  var d = new Date(dateStr);
+  var meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return d.getDate()+' de '+meses[d.getMonth()+1 > 11 ? 11 : d.getMonth()]+' de '+d.getFullYear();
+}
 
 // ── VERIFICACIÓN DE PERÍODO DE PRUEBA ──
 function _verificarTrial(){
