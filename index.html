@@ -500,7 +500,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
 <!-- PLANES -->
 <div class="screen" id="screen-planes" style="order:1">
   <div class="planes-header"><div class="planes-title">Elige tu plan</div><div class="planes-sub">Cuando estés listo</div></div>
-  <div class="trial-banner"><div class="trial-label">Tu periodo gratuito</div><div class="trial-main">30 días</div><div class="trial-sub">Elige tu plan cuando estés listo</div></div>
+  <div class="trial-banner" id="trial-banner"><div class="trial-label">Tu periodo gratuito</div><div class="trial-main" id="trial-dias">30 días</div><div class="trial-sub" id="trial-sub">Elige tu plan cuando estés listo</div></div>
   <div class="plan-card"><div class="plan-name">Individual</div><div class="plan-desc">1 vehículo · Cancela cuando quieras</div><div class="plan-price">$20 <span>MXN / mes</span></div><button class="plan-btn" style="opacity:1" onclick="abrirModalPago('plan_mensual_km','Plan Individual — $20 MXN/mes')">Comenzar 30 días gratis →</button></div>
   <div class="plan-card popular"><div class="plan-badge">MÁS POPULAR</div><div class="plan-name">Familiar <span style="font-size:12px;color:var(--green);font-weight:bold">Hasta 3 autos</span></div><div class="plan-desc">Cada miembro con su propia cuenta</div><div class="plan-price">$50 <span>MXN / mes</span></div><button class="plan-btn" style="opacity:1" onclick="abrirModalPago('plan_familiar_km','Plan Familiar — $50 MXN/mes')">Comenzar 30 días gratis →</button></div>
   <div class="plan-card" style="border-color:#111;background:#111;color:#fff">
@@ -767,7 +767,7 @@ async function loadFromSupabase(userId){
   try{
     var uRes=await supa.from('usuarios').select('*').eq('id',userId).single();
     if(uRes.data){
-      U={supaId:userId,nombre:uRes.data.nombre,email:uRes.data.email,ciudad:uRes.data.ciudad,plan:uRes.data.plan||'free',esTitular:uRes.data.es_titular!==false,titularId:uRes.data.titular_id};
+      U={supaId:userId,nombre:uRes.data.nombre,email:uRes.data.email,ciudad:uRes.data.ciudad,plan:uRes.data.plan||'free',trial_end:uRes.data.trial_end||null,suscripcion_inicio:uRes.data.suscripcion_inicio||null,esTitular:uRes.data.es_titular!==false,titularId:uRes.data.titular_id};
     }
     var aRes=await supa.from('autos').select('*').eq('user_id',userId).order('created_at');
     if(aRes.data&&aRes.data.length){
@@ -1442,17 +1442,16 @@ function checkVersion(){var v=localStorage.getItem('km1m_version');if(v&&v!==APP
 function _verificarTrial(){
   if(!U) return;
   var plan = U.plan || 'free';
+  var banner = document.getElementById('trial-banner');
+  var diasEl = document.getElementById('trial-dias');
+  var subEl = document.getElementById('trial-sub');
 
-  // Usuario sin plan pagado — mostrar banner de trial en Planes
-  if(plan === 'free'){
-    // Sin trial_end = recién registrado, tiene 30 días
-    return;
-  }
+  // Usuario con plan pagado — ocultar banner de trial
+  if(plan === 'individual' || plan === 'familiar' || plan === 'empresarial'){
+    if(banner) banner.style.display = 'none';
 
-  // Usuario con plan individual/familiar — verificar si trial venció
-  if(plan === 'individual' || plan === 'familiar'){
     var trialEnd = U.trial_end || null;
-    if(!trialEnd) return; // no hay fecha registrada, no hacer nada
+    if(!trialEnd) return;
 
     var hoy = new Date();
     hoy.setHours(0,0,0,0);
@@ -1461,19 +1460,41 @@ function _verificarTrial(){
     var diasRestantes = Math.ceil((fin - hoy) / (1000*60*60*24));
 
     if(diasRestantes <= 0){
-      // Trial vencido — llevar a Planes con mensaje
       setTimeout(function(){
-        alert('⏰ Tu período de prueba ha terminado.\n\nPara seguir usando KM Un Millón activa tu suscripción. ¡Solo $20/mes!');
+        alert('\u23F0 Tu período de prueba ha terminado.\n\nPara seguir usando KM Un Millón activa tu suscripción. ¡Solo $20/mes!');
         go('planes');
       }, 500);
     } else if(diasRestantes <= 5){
-      // Aviso 5 días antes
       setTimeout(function(){
         var msg = diasRestantes === 1
-          ? '⚠️ Tu período de prueba termina mañana.'
-          : '⚠️ Tu período de prueba termina en ' + diasRestantes + ' días.';
+          ? '\u26A0\uFE0F Tu período de prueba termina mañana.'
+          : '\u26A0\uFE0F Tu período de prueba termina en ' + diasRestantes + ' días.';
         alert(msg + '\n\nActiva tu suscripción para no perder el acceso.');
       }, 1000);
+    }
+    return;
+  }
+
+  // Usuario free — mostrar días restantes si tiene trial_end
+  var trialEnd = U.trial_end || null;
+  if(trialEnd && diasEl && subEl){
+    var hoy = new Date();
+    hoy.setHours(0,0,0,0);
+    var fin = new Date(trialEnd);
+    fin.setHours(0,0,0,0);
+    var dias = Math.ceil((fin - hoy) / (1000*60*60*24));
+    if(dias > 0){
+      diasEl.textContent = dias + (dias === 1 ? ' día' : ' días');
+      subEl.textContent = 'Te quedan ' + dias + ' días gratis. Activa tu plan cuando estés listo.';
+    } else {
+      // Free y trial vencido
+      if(banner) banner.style.background = 'var(--red-light, #ffeaea)';
+      diasEl.textContent = 'Prueba terminada';
+      subEl.textContent = 'Activa tu plan para seguir usando la app.';
+      setTimeout(function(){
+        alert('\u23F0 Tu período de prueba ha terminado.\n\nActiva tu plan para seguir usando KM Un Millón.');
+        go('planes');
+      }, 500);
     }
   }
 }
