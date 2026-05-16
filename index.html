@@ -488,6 +488,18 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
   </div>
   <div class="chk-body" id="chk-body"></div>
   <button class="completar-btn" onclick="completar()">Marcar servicio como completado ✓</button>
+  <!-- SECCIÓN QUINCENAL -->
+  <div style="margin:16px 16px 0">
+    <div id="chk-quince-banner" style="display:none;background:#FFF3CD;border:1px solid #FFD700;border-radius:12px;padding:12px 14px;margin-bottom:12px;align-items:center;gap:10px">
+      <span style="font-size:20px">🔔</span>
+      <div>
+        <div style="font-weight:700;font-size:14px">Es momento de tu revisión quincenal</div>
+        <div style="font-size:12px;color:#666">Marca las tareas completadas abajo</div>
+      </div>
+    </div>
+    <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);margin-bottom:8px">🗓️ Cuidado quincenal</div>
+    <div id="chk-quince-body" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
 </div>
 
 <!-- HISTORIAL -->
@@ -1226,6 +1238,53 @@ function renderChk(){
   document.getElementById('chk-title').textContent=atrasado?'Puesta al corriente':'Servicio '+pA.toLocaleString()+' km';
   document.getElementById('chk-sub').textContent=auto.marca+' '+auto.modelo+' · '+(auto.comb==='diesel'?'Diesel':'Gas')+' · '+(auto.trans==='manual'?'Manual':'Auto');
   var lista=getChecklist(pA,auto.comb,auto.trans,auto.trac||'fwd',atrasado),body=document.getElementById('chk-body');body.innerHTML='';
+  // Cargar tareas quincenales guardadas
+  var care=auto.care||{};
+  // Aviso quincenal: si es día 1-2 o día 15-16 y todas estaban marcadas la quincena anterior
+  var hoy=new Date().getDate();
+  var esInicioQuincena=(hoy<=2)||(hoy>=15&&hoy<=16);
+  // Sección quincenal
+  var QUINCENALES=[
+    {key:function(){return 'presion:'+quinceKey();},icon:'🚗',label:'Presión de aire en llantas'},
+    {key:function(){return 'aceite:'+quinceKey();},icon:'🛢️',label:'Nivel de aceite visual'},
+    {key:function(){return 'agua:'+quinceKey();},icon:'💧',label:'Nivel de agua y aditivo'},
+    {key:function(){return 'bateria:'+quinceKey();},icon:'🔋',label:'Revisión visual de batería'}
+  ];
+  // Banner quincenal
+  var qBody=document.getElementById('chk-quince-body');
+  if(qBody){
+    qBody.innerHTML='';
+    var todasMarcadas=QUINCENALES.every(function(t){return !!care[t.key()];});
+    var qBanner=document.getElementById('chk-quince-banner');
+    if(qBanner){
+      if(esInicioQuincena&&!todasMarcadas){
+        qBanner.style.display='flex';
+      } else {
+        qBanner.style.display='none';
+      }
+    }
+    QUINCENALES.forEach(function(t){
+      var marcado=!!care[t.key()];
+      var d=document.createElement('div');
+      d.className='chk-item'+(marcado?' checked-item':'');
+      d.innerHTML='<div class="chk-box'+(marcado?' checked':'')+'"></div><div class="chk-txt">'+t.icon+' '+t.label+'</div>';
+      d.onclick=function(){
+        var box=d.querySelector('.chk-box');
+        var ahora=!box.classList.contains('checked');
+        box.classList.toggle('checked');
+        d.classList.toggle('checked-item');
+        if(!auto.care)auto.care={};
+        if(ahora){auto.care[t.key()]=true;}else{delete auto.care[t.key()];}
+        saveLocal();
+        // Sync Supabase
+        if(U&&U.supaId&&auto.supaId){
+          if(ahora){supa.from('cuidado').upsert({user_id:U.supaId,auto_id:auto.supaId,quince_key:quinceKey(),tarea:t.key(),completado:true},{onConflict:'user_id,auto_id,quince_key,tarea'}).then(function(){});}
+          else{supa.from('cuidado').delete().eq('user_id',U.supaId).eq('auto_id',auto.supaId).eq('quince_key',quinceKey()).eq('tarea',t.key()).then(function(){});}
+        }
+      };
+      qBody.appendChild(d);
+    });
+  }
   lista.forEach(function(txt){var d=document.createElement('div');d.className='chk-item';d.innerHTML='<div class="chk-box"></div><div class="chk-txt">'+txt+'</div>';d.onclick=function(){d.querySelector('.chk-box').classList.toggle('checked');updProg();};body.appendChild(d);});
   updProg();
 }
