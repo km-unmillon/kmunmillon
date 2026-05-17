@@ -831,7 +831,15 @@ function go(name){
   document.getElementById('nav-tabs').style.display=isNoNav?'none':'flex';
   var bb=document.getElementById('beta-banner');if(bb)bb.style.display=isNoNav?'none':'flex';
   if(name==='dashboard'){renderDash();checkNotifTodos();}
-  if(name==='checklist')renderChk();
+  if(name==='checklist'){
+    var auto=VA();
+    if(auto&&U&&U.supaId&&auto.supaId){
+      supa.from('cuidado').select('tarea,completado').eq('user_id',U.supaId).eq('auto_id',auto.supaId).eq('quince_key',quinceKey()).then(function(cRes){
+        if(cRes.data){var c={};cRes.data.forEach(function(r){if(r.completado){c[r.tarea+':'+quinceKey()]=true;}});auto.care=c;saveLocal();}
+        renderChk();
+      });
+    } else { renderChk(); }
+  }
   if(name==='planes'){_verificarTrial();_renderPlanesHeader();}
   if(name==='historial')renderHist();
   if(name==='config')renderCfg();
