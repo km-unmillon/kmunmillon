@@ -789,7 +789,7 @@ async function loadFromSupabase(userId){
         var hRes=await supa.from('historial').select('*').eq('auto_id',AUTOS[i].supaId).order('created_at',{ascending:false});
         if(hRes.data)AUTOS[i].h=hRes.data.map(function(h){return{fecha:h.fecha,km:h.km,servicio:h.servicio,tipo:h.tipo};});
         var cRes=await supa.from('cuidado').select('tarea,completado').eq('user_id',userId).eq('auto_id',AUTOS[i].supaId).eq('quince_key',quinceKey());
-        if(cRes.data){var care={};cRes.data.forEach(function(r){if(r.completado)care[r.tarea+':'+quinceKey()]=true;});AUTOS[i].care=care;}
+        if(cRes.data){var care={};cRes.data.forEach(function(r){if(r.completado){care[r.tarea+':'+quinceKey()]=true;}});AUTOS[i].care=care;}
       }
     }
     saveLocal();
@@ -1125,7 +1125,7 @@ async function loadCareFromSupabase(){
   if(!U||!U.supaId||!VA()||!VA().supaId)return;
   try{
     var res=await supa.from('cuidado').select('tarea,completado').eq('user_id',U.supaId).eq('auto_id',VA().supaId).eq('quince_key',quinceKey());
-    if(res.data){var care={};res.data.forEach(function(r){if(r.completado)care[r.tarea+':'+quinceKey()]=true;});var v=VA();if(v){v.care=care;saveLocal();}}
+    if(res.data){var care={};res.data.forEach(function(r){if(r.completado){care[r.tarea+':'+quinceKey()]=true;}});var v=VA();if(v){v.care=care;saveLocal();}}
   }catch(e){console.warn('[Supabase] loadCare error:',e);}
 }
 function saveCare(c){var v=VA();if(v){v.care=c;saveLocal();}}
@@ -1286,8 +1286,9 @@ function renderChk(){
         saveLocal();
         // Sync Supabase
         if(U&&U.supaId&&auto.supaId){
-          if(ahora){supa.from('cuidado').upsert({user_id:U.supaId,auto_id:auto.supaId,quince_key:quinceKey(),tarea:t.key(),completado:true},{onConflict:'user_id,auto_id,quince_key,tarea'}).then(function(){});}
-          else{supa.from('cuidado').delete().eq('user_id',U.supaId).eq('auto_id',auto.supaId).eq('quince_key',quinceKey()).eq('tarea',t.key()).then(function(){});}
+          var tareaBase=t.key().split(':')[0];
+          if(ahora){supa.from('cuidado').upsert({user_id:U.supaId,auto_id:auto.supaId,quince_key:quinceKey(),tarea:tareaBase,completado:true},{onConflict:'user_id,auto_id,quince_key,tarea'}).then(function(){});}
+          else{supa.from('cuidado').delete().eq('user_id',U.supaId).eq('auto_id',auto.supaId).eq('quince_key',quinceKey()).eq('tarea',tareaBase).then(function(){});}
         }
       };
       qBody.appendChild(d);
