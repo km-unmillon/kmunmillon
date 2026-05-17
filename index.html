@@ -783,7 +783,7 @@ async function loadFromSupabase(userId){
     }
     var aRes=await supa.from('autos').select('*').eq('user_id',userId).order('created_at');
     if(aRes.data&&aRes.data.length){
-      AUTOS=aRes.data.map(function(a){return{supaId:a.id,marca:a.marca,modelo:a.modelo,anio:a.anio,comb:a.comb,trans:a.trans,trac:a.trac||'fwd',km:a.km,kmRef:a.km_ref,kmFechaRef:a.km_fecha_ref,kmmes:a.km_mes||1300,mantOk:a.mant_ok!==false,llantasKm:a.llantas_km,llantasAnio:a.llantas_anio,bateriaAnio:a.bateria_anio,h:[],care:{}};});
+      AUTOS=aRes.data.map(function(a,idx){var prevCare=(AUTOS[idx]&&AUTOS[idx].care)||{};return{supaId:a.id,marca:a.marca,modelo:a.modelo,anio:a.anio,comb:a.comb,trans:a.trans,trac:a.trac||'fwd',km:a.km,kmRef:a.km_ref,kmFechaRef:a.km_fecha_ref,kmmes:a.km_mes||1300,mantOk:a.mant_ok!==false,llantasKm:a.llantas_km,llantasAnio:a.llantas_anio,bateriaAnio:a.bateria_anio,h:[],care:prevCare};});
       ACTIVE_IDX=Math.max(0,aRes.data.findIndex(function(a){return a.es_activo;}));
       for(var i=0;i<AUTOS.length;i++){
         var hRes=await supa.from('historial').select('*').eq('auto_id',AUTOS[i].supaId).order('created_at',{ascending:false});
