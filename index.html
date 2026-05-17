@@ -1242,6 +1242,14 @@ function getChecklist(km,comb,trans,trac,atrasado){
 }
 function renderChk(){
   var auto=VA();if(!auto)return;
+  if(U&&U.supaId&&auto.supaId){
+    supa.from('cuidado').select('tarea,completado').eq('user_id',U.supaId).eq('auto_id',auto.supaId).eq('quince_key',quinceKey()).then(function(cRes){
+      if(cRes.data){var c={};cRes.data.forEach(function(r){if(r.completado){c[r.tarea+':'+quinceKey()]=true;}});auto.care=c;saveLocal();}
+      _renderChkInterno(auto);
+    });
+  } else { _renderChkInterno(auto); }
+}
+function _renderChkInterno(auto){
   var pA=proxI(auto.km,5000),atrasado=!auto.mantOk&&(!auto.h||auto.h.length===0);
   document.getElementById('chk-title').textContent=atrasado?'Puesta al corriente':'Servicio '+pA.toLocaleString()+' km';
   document.getElementById('chk-sub').textContent=auto.marca+' '+auto.modelo+' · '+(auto.comb==='diesel'?'Diesel':'Gas')+' · '+(auto.trans==='manual'?'Manual':'Auto');
