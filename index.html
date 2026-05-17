@@ -264,7 +264,7 @@ html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--t
     <div class="splash-km">KM</div>
     <div class="splash-title">1<span>,</span>000<span>,</span>000</div>
     <div class="splash-mill">KM Un Millón</div>
-    <div class="splash-tagline">Metodología japonesa para llevar tu auto a 400,000 km y más.</div>
+    <div class="splash-tagline">Metodología japonesa para llevar tu auto a 1,000,000 km.</div>
     <button class="btn-primary" onclick="go('login')">Iniciar sesión</button>
     <button class="btn-ghost" onclick="go('reg1')">Crear cuenta gratis →</button>
     <div style="font-size:12px;color:#555;margin-top:14px">30 días gratis · Sin tarjeta requerida</div>
@@ -1181,7 +1181,7 @@ function renderDash(){
   var h=new Date().getHours(),sal=h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
   document.getElementById('d-saludo').textContent=sal+', '+U.nombre.split(' ')[0];
   document.getElementById('d-car').textContent=auto.marca+' '+auto.modelo+' '+auto.anio+' · '+(auto.comb==='diesel'?'Diesel':'Gasolina')+' · '+(auto.trans==='manual'?'Manual':'Automático');
-  document.getElementById('d-km').textContent=km.toLocaleString()+' km estimados · Meta: 400,000 km';
+  document.getElementById('d-km').textContent=km.toLocaleString()+' km estimados · Meta: 1,000,000 km';
   document.getElementById('clima-banner').style.display=(U.ciudad==='mexicali'||U.ciudad==='tijuana')?'flex':'none';
   document.getElementById('mant-banner').style.display=mantOk()?'none':'flex';
   document.getElementById('streak-num').textContent=calcStreak(HA());
