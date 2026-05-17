@@ -1242,6 +1242,7 @@ function getChecklist(km,comb,trans,trac,atrasado){
 }
 function renderChk(){
   var auto=VA();if(!auto)return;
+  console.log('[renderChk] care:', JSON.stringify(auto.care), 'quinceKey:', quinceKey());
   var pA=proxI(auto.km,5000),atrasado=!auto.mantOk&&(!auto.h||auto.h.length===0);
   document.getElementById('chk-title').textContent=atrasado?'Puesta al corriente':'Servicio '+pA.toLocaleString()+' km';
   document.getElementById('chk-sub').textContent=auto.marca+' '+auto.modelo+' · '+(auto.comb==='diesel'?'Diesel':'Gas')+' · '+(auto.trans==='manual'?'Manual':'Auto');
@@ -1616,7 +1617,12 @@ window.onload=async function(){
     if(loadLocal()&&U){go('dashboard');}
     // Luego refrescar desde Supabase en background
     loadFromSupabase(uid).then(function(ok){
-      if(ok) renderDash();
+      if(ok){
+        renderDash();
+        // Si el usuario está viendo el checklist, re-renderizarlo con datos frescos
+        var chkScreen=document.getElementById('screen-checklist');
+        if(chkScreen&&chkScreen.style.display!=='none'&&chkScreen.style.order==='1'){renderChk();}
+      }
       _verificarTrial();
     });
   } else if(loadLocal()&&U){
