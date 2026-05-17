@@ -925,6 +925,14 @@ async function doReg4(){
     var aRes=await supa.from('autos').insert({user_id:uid,marca:_rV.marca,modelo:_rV.modelo,anio:_rV.anio,comb:_rV.comb,trans:_rV.trans,trac:_rV.trac||'fwd',km:_rV.km,km_ref:_rV.km,km_fecha_ref:new Date().toDateString(),km_mes:_rV.kmmes||1300,mant_ok:_rM,es_activo:true}).select().single();
     if(aRes.data)AUTOS[0].supaId=aRes.data.id;
     saveLocal();
+    // Notificar nuevo registro a kmunmillon@gmail.com
+    try{
+      fetch('https://jhphmomrtyunfxomhkdx.supabase.co/functions/v1/nuevo-usuario',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({nombre:U.nombre,email:U.email,plan:'free'})
+      });
+    }catch(e){console.warn('notif registro error',e);}
     btn.textContent='Comenzar mi plan →';btn.disabled=false;
     // Mostrar banner bienvenida directamente
     var bv=document.getElementById('cfg-bienvenida');
