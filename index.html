@@ -1242,7 +1242,6 @@ function getChecklist(km,comb,trans,trac,atrasado){
 }
 function renderChk(){
   var auto=VA();if(!auto)return;
-  console.log('[renderChk] care:', JSON.stringify(auto.care), 'quinceKey:', quinceKey());
   var pA=proxI(auto.km,5000),atrasado=!auto.mantOk&&(!auto.h||auto.h.length===0);
   document.getElementById('chk-title').textContent=atrasado?'Puesta al corriente':'Servicio '+pA.toLocaleString()+' km';
   document.getElementById('chk-sub').textContent=auto.marca+' '+auto.modelo+' · '+(auto.comb==='diesel'?'Diesel':'Gas')+' · '+(auto.trans==='manual'?'Manual':'Auto');
@@ -1254,10 +1253,10 @@ function renderChk(){
   var esInicioQuincena=(hoy<=2)||(hoy>=15&&hoy<=16);
   // Sección quincenal
   var QUINCENALES=[
-    {key:function(){return 'presion:'+quinceKey();},icon:'🚗',label:'Presión de aire en llantas'},
-    {key:function(){return 'aceite:'+quinceKey();},icon:'🛢️',label:'Nivel de aceite visual'},
-    {key:function(){return 'agua:'+quinceKey();},icon:'💧',label:'Nivel de agua y aditivo'},
-    {key:function(){return 'bateria:'+quinceKey();},icon:'🔋',label:'Revisión visual de batería'}
+    {key:function(){return 'Presión de aire en llantas:'+quinceKey();},icon:'🚗',label:'Presión de aire en llantas'},
+    {key:function(){return 'Nivel de aceite visual:'+quinceKey();},icon:'🛢️',label:'Nivel de aceite visual'},
+    {key:function(){return 'Nivel de agua y aditivo:'+quinceKey();},icon:'💧',label:'Nivel de agua y aditivo'},
+    {key:function(){return 'Revisión visual de batería:'+quinceKey();},icon:'🔋',label:'Revisión visual de batería'}
   ];
   // Banner quincenal
   var qBody=document.getElementById('chk-quince-body');
@@ -1617,12 +1616,7 @@ window.onload=async function(){
     if(loadLocal()&&U){go('dashboard');}
     // Luego refrescar desde Supabase en background
     loadFromSupabase(uid).then(function(ok){
-      if(ok){
-        renderDash();
-        // Si el usuario está viendo el checklist, re-renderizarlo con datos frescos
-        var chkScreen=document.getElementById('screen-checklist');
-        if(chkScreen&&chkScreen.style.display!=='none'&&chkScreen.style.order==='1'){renderChk();}
-      }
+      if(ok) renderDash();
       _verificarTrial();
     });
   } else if(loadLocal()&&U){
