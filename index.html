@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>KM Un Millón</title>
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HYC87BQSVG"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -12,58 +11,7 @@
   gtag('js', new Date());
   gtag('config', 'G-HYC87BQSVG');
 </script>
-<script>
-function showLoading(){ document.getElementById("loading-overlay").style.display="flex"; }
-function hideLoading(){ document.getElementById("loading-overlay").style.display="none"; }
-</script>
-<!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCdH-5vEDDR84edxEPMMJIC_xI7OoNuLBg",
-    authDomain: "kmunmillon-ed61e.firebaseapp.com",
-    projectId: "kmunmillon-ed61e",
-    storageBucket: "kmunmillon-ed61e.firebasestorage.app",
-    messagingSenderId: "1008095694036",
-    appId: "1:10080956940036:web:12548c8b18f4621bb57f41",
-    measurementId: "G-5T9ZFM5ST8"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  // Exponer globalmente
-  window._auth = auth;
-  window._db = db;
-  window._fbFns = {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut,
-    sendPasswordResetEmail,
-    doc, setDoc, getDoc, updateDoc,
-    collection, addDoc, getDocs, deleteDoc, query, orderBy
-  };
-
-  // Inicializar cuando Firebase esté listo
-  window._initAuth = function() {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        await window.cargarDatosUsuario(user.uid);
-        go('config');
-      } else {
-        go('splash');
-      }
-      hideLoading();
-    });
-  };
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f4f0;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem;gap:1.5rem;min-height:100vh;}
@@ -84,6 +32,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .frow{display:flex;gap:8px;}
 .frow>div{flex:1;}
 .err-box{background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:8px 12px;font-size:12px;color:#A32D2D;display:none;}
+.ok-box{background:#EAF3DE;border:0.5px solid #C0DD97;border-radius:8px;padding:8px 12px;font-size:12px;color:#3B6D11;display:none;}
 .opt-btn{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;background:#fff;font-size:13px;color:#111;cursor:pointer;text-align:left;transition:all 0.15s;}
 .opt-btn.selected{border-color:#B51E1E;background:#FCEBEB;color:#B51E1E;font-weight:600;}
 .splash{background:#B51E1E;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:2rem;}
@@ -111,6 +60,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .badge{font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;}
 .clim{background:#FAEEDA;border:0.5px solid #FAC775;border-radius:8px;padding:8px 12px;margin:8px 1.25rem 0;display:flex;gap:8px;align-items:flex-start;}
 .warn-banner{background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:8px 12px;margin:8px 1.25rem 0;display:flex;gap:8px;align-items:flex-start;}
+.info-banner{background:#EAF3DE;border:0.5px solid #C0DD97;border-radius:8px;padding:8px 12px;margin:8px 1.25rem 0;display:flex;gap:8px;align-items:flex-start;}
 .chk-hdr{background:#B51E1E;padding:1rem 1.25rem;display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .back-btn{color:#fff;font-size:22px;cursor:pointer;background:none;border:none;padding:0;line-height:1;}
 .chk-body{padding:0.75rem 1.25rem;flex:1;overflow-y:auto;}
@@ -125,22 +75,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .plan-card{background:#fff;border:0.5px solid #ddd;border-radius:12px;padding:1rem 1.25rem;}
 .plan-card.feat{border:2px solid #B51E1E;position:relative;}
 .pop-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#B51E1E;color:#fff;font-size:10px;font-weight:600;padding:3px 12px;border-radius:20px;white-space:nowrap;}
-.soon{background:#f4f4f0;border-radius:8px;padding:10px 12px;font-size:12px;color:#777;text-align:center;margin-top:8px;}
 .sw{width:40px;height:22px;border-radius:11px;position:relative;cursor:pointer;transition:background 0.2s;}
 .sw .th{width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:2px;transition:all 0.2s;}
 .avatar{width:48px;height:48px;border-radius:50%;background:#FCEBEB;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#B51E1E;}
 .hist-item{background:#fff;border:0.5px solid #ddd;border-radius:10px;padding:10px 12px;display:flex;gap:12px;align-items:flex-start;}
 .hist-del{background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;padding:0;margin-left:auto;flex-shrink:0;}
 .hist-del:hover{color:#E24B4A;}
-.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(181,30,30,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:12px;}
+.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(181,30,30,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:12px;}
 .loading-overlay p{color:#fff;font-size:14px;font-weight:500;}
 .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top:3px solid #fff;border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:flex-end;justify-content:center;z-index:998;padding:1rem;}
+.modal-box{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:360px;max-height:80vh;overflow-y:auto;}
+.chip{display:inline-block;background:#FCEBEB;color:#B51E1E;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-left:6px;}
 </style>
 </head>
 <body>
 
-<!-- Loading overlay -->
 <div class="loading-overlay" id="loading-overlay">
   <div class="spinner"></div>
   <p>Cargando...</p>
@@ -162,10 +113,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="splash">
       <div class="splash-logo">KM<br>1,000,000</div>
       <h1>KM Un Millón</h1>
-      <p>Metodología japonesa para llevar tu auto a 400,000 km y más.</p>
+      <p>Metodología japonesa para llevar tu auto al millón de kilómetros.</p>
       <button class="btn-red" style="margin-top:1.5rem;background:#fff;color:#B51E1E;" onclick="go('login')">Iniciar sesión</button>
       <button class="btn-red" style="margin-top:8px;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="go('reg1')">Crear cuenta gratis →</button>
       <span class="splash-sub" style="margin-top:8px;">30 días gratis · Sin tarjeta requerida</span>
+      <div style="margin-top:16px;display:flex;gap:12px;">
+        <button onclick="go('terminos')" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:10px;cursor:pointer;text-decoration:underline;">Términos y Condiciones</button>
+        <button onclick="go('privacidad')" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:10px;cursor:pointer;text-decoration:underline;">Aviso de Privacidad</button>
+      </div>
     </div>
   </div>
 
@@ -175,14 +130,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="width:40px;height:40px;background:#FCEBEB;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#B51E1E;">KM</div>
       <div><div class="form-title">Bienvenido de vuelta</div><div class="form-sub">Ingresa a tu cuenta</div></div>
       <div id="login-err" class="err-box">Correo o contraseña incorrectos</div>
+      <div id="login-ok" class="ok-box"></div>
       <div><div class="fl">Correo</div><input class="fi" type="email" id="l-email" placeholder="tu@correo.com"/></div>
       <div><div class="fl">Contraseña</div><input class="fi" type="password" id="l-pass" placeholder="••••••••"/></div>
       <button class="btn-red" onclick="doLogin()">Entrar →</button>
       <button class="btn-out" style="margin-top:4px;" onclick="go('reg1')">Crear cuenta gratis</button>
       <button class="btn-ghost" onclick="doResetPass()">¿Olvidaste tu contraseña?</button>
-      <div id="reset-ok" style="display:none;background:#EAF3DE;border:0.5px solid #C0DD97;border-radius:8px;padding:10px 12px;font-size:12px;color:#3B6D11;">
-        ✓ Te enviamos un correo para restablecer tu contraseña.
-      </div>
       <button class="btn-ghost" onclick="go('splash')">← Regresar</button>
     </div>
   </div>
@@ -192,7 +145,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="form-wrap">
       <div class="step-bar"><div class="step-dot done"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
       <div><div class="form-title">Crea tu cuenta</div><div class="form-sub">Paso 1 de 4 — datos personales</div></div>
-      <div id="reg-err" class="err-box">Por favor completa todos los campos</div>
+      <div id="reg-err" class="err-box"></div>
       <div><div class="fl">Nombre</div><input class="fi" type="text" id="r-nombre" placeholder="Tu nombre"/></div>
       <div><div class="fl">Correo</div><input class="fi" type="email" id="r-email" placeholder="tu@correo.com"/></div>
       <div><div class="fl">Contraseña</div><input class="fi" type="password" id="r-pass" placeholder="Mínimo 6 caracteres"/></div>
@@ -204,6 +157,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <option value="otra">Otra ciudad</option>
         </select>
       </div>
+      <div style="font-size:11px;color:#777;line-height:1.5;">Al crear tu cuenta aceptas nuestros <button onclick="go('terminos')" style="background:none;border:none;color:#B51E1E;font-size:11px;cursor:pointer;text-decoration:underline;">Términos y Condiciones</button> y <button onclick="go('privacidad')" style="background:none;border:none;color:#B51E1E;font-size:11px;cursor:pointer;text-decoration:underline;">Aviso de Privacidad</button>.</div>
       <button class="btn-red" style="margin-top:auto;" onclick="doReg1()">Siguiente →</button>
       <button class="btn-ghost" onclick="go('splash')">← Regresar</button>
     </div>
@@ -273,7 +227,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Consejo japonés del día</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
         <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Alerta clima extremo</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
       </div>
-      <button class="btn-red" style="margin-top:auto;" onclick="doReg4()">Comenzar mi plan →</button>
+      <button class="btn-red" style="margin-top:auto;" id="btn-finalizar" onclick="doReg4()">Comenzar mi plan →</button>
     </div>
   </div>
 
@@ -313,6 +267,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="warn-banner" id="mant-banner" style="display:none;">
         <span style="font-size:14px;">⚠️</span>
         <span style="font-size:11px;color:#A32D2D;line-height:1.4;"><strong>Mantenimiento atrasado</strong> — Tu checklist incluye una puesta al corriente.</span>
+      </div>
+      <div id="trial-banner" class="info-banner" style="display:none;">
+        <span style="font-size:14px;">🎁</span>
+        <span style="font-size:11px;color:#3B6D11;line-height:1.4;" id="trial-txt"></span>
       </div>
       <div class="sec-label">Próximo servicio</div>
       <div class="rlist" id="rlist"></div>
@@ -367,25 +325,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- PLANES -->
   <div class="screen" id="screen-planes">
     <div style="background:#B51E1E;padding:1.25rem;flex-shrink:0;">
-      <div style="color:rgba(255,255,255,0.8);font-size:12px;">Tu periodo gratuito</div>
-      <div style="color:#fff;font-size:22px;font-weight:700;">30 días</div>
-      <div style="color:rgba(255,255,255,0.7);font-size:12px;margin-top:2px;">Elige tu plan cuando estés listo</div>
+      <div style="color:rgba(255,255,255,0.8);font-size:12px;" id="plan-estado-lbl">Tu periodo gratuito</div>
+      <div style="color:#fff;font-size:22px;font-weight:700;" id="plan-estado-val">30 días</div>
+      <div style="color:rgba(255,255,255,0.7);font-size:12px;margin-top:2px;" id="plan-estado-sub">Elige tu plan cuando estés listo</div>
     </div>
     <div style="padding:1.25rem;display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;">
       <div class="plan-card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:14px;font-weight:600;color:#111;">Mensual</div><div style="font-size:12px;color:#666;margin-top:2px;">Cancela cuando quieras</div></div><div style="text-align:right;"><div style="font-size:20px;font-weight:700;color:#111;">$20</div><div style="font-size:11px;color:#999;">MXN / mes</div></div></div>
-        <div class="soon">Próximamente — acceso gratis por 30 días</div>
-      </div>
-      <div class="plan-card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;font-weight:600;color:#111;">Trimestral</span><span style="background:#FAEEDA;color:#854F0B;font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;">Ahorra $10</span></div><div style="font-size:12px;color:#666;margin-top:2px;">3 meses · $16.67/mes</div></div><div style="text-align:right;"><div style="font-size:20px;font-weight:700;color:#111;">$50</div><div style="font-size:11px;color:#999;">MXN / 3 meses</div></div></div>
-        <div class="soon">Próximamente — acceso gratis por 30 días</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><div style="font-size:14px;font-weight:600;color:#111;">Individual Mensual</div><div style="font-size:12px;color:#666;margin-top:2px;">1 vehículo · Cancela cuando quieras</div></div>
+          <div style="text-align:right;"><div style="font-size:20px;font-weight:700;color:#111;">$20</div><div style="font-size:11px;color:#999;">MXN / mes</div></div>
+        </div>
+        <button class="btn-red" style="margin-top:10px;font-size:13px;" onclick="iniciarPago('individual')">Suscribirme →</button>
       </div>
       <div class="plan-card feat">
         <div class="pop-badge">MÁS POPULAR</div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;font-weight:600;color:#111;">Anual</span><span style="background:#FCEBEB;color:#A32D2D;font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;">3 meses gratis</span></div><div style="font-size:12px;color:#666;margin-top:2px;">12 meses · $15/mes</div></div><div style="text-align:right;"><div style="font-size:20px;font-weight:700;color:#B51E1E;">$180</div><div style="font-size:11px;color:#999;">MXN / año</div></div></div>
-        <div class="soon">Próximamente — acceso gratis por 30 días</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;font-weight:600;color:#111;">Familiar</span><span style="background:#FAEEDA;color:#854F0B;font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;">Hasta 3 autos</span></div><div style="font-size:12px;color:#666;margin-top:2px;">$16.67 por auto/mes</div></div>
+          <div style="text-align:right;"><div style="font-size:20px;font-weight:700;color:#B51E1E;">$50</div><div style="font-size:11px;color:#999;">MXN / mes</div></div>
+        </div>
+        <button class="btn-red" style="margin-top:10px;font-size:13px;" onclick="iniciarPago('familiar')">Suscribirme →</button>
       </div>
-      <div style="text-align:center;font-size:11px;color:#aaa;">Pago seguro · Cancela en cualquier momento</div>
+      <div style="text-align:center;font-size:11px;color:#aaa;">Pago seguro vía Mercado Pago · Cancela en cualquier momento</div>
+      <div style="text-align:center;">
+        <button onclick="go('terminos')" style="background:none;border:none;color:#B51E1E;font-size:11px;cursor:pointer;text-decoration:underline;">Ver Términos y Condiciones</button>
+      </div>
     </div>
   </div>
 
@@ -398,7 +361,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div style="padding:1.25rem;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;">
       <div style="display:flex;align-items:center;gap:12px;padding-bottom:14px;border-bottom:0.5px solid #eee;">
         <div class="avatar" id="cfg-av">P</div>
-        <div><div style="font-size:15px;font-weight:600;color:#111;" id="cfg-nom">—</div><div style="font-size:12px;color:#B51E1E;">30 días gratis · activo</div></div>
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#111;" id="cfg-nom">—</div>
+          <div style="font-size:12px;color:#B51E1E;" id="cfg-plan">30 días gratis · activo</div>
+        </div>
       </div>
       <div>
         <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Datos del vehículo</div>
@@ -417,14 +383,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Mis Automóviles</div>
         <div id="autos-lista" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
         <button class="btn-out" style="font-size:12px;padding:8px;" onclick="go('reg2add')">+ Agregar otro automóvil</button>
-      </div>
-      <div style="border-top:0.5px solid #eee;padding-top:12px;">
-        <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Notificaciones</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Alertas de mantenimiento</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Consejo japonés del día</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Alerta clima extremo</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
-        </div>
       </div>
       <button class="btn-red" onclick="guardarCfg()">Guardar cambios</button>
       <button style="background:none;border:none;color:#999;font-size:12px;cursor:pointer;text-align:center;" onclick="cerrarSesion()">Cerrar sesión</button>
@@ -467,10 +425,69 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- TÉRMINOS Y CONDICIONES -->
+  <div class="screen" id="screen-terminos">
+    <div class="chk-hdr">
+      <button class="back-btn" onclick="history.back()||go('splash')">‹</button>
+      <div><div style="color:#fff;font-size:16px;font-weight:700;">Términos y Condiciones</div></div>
+    </div>
+    <div style="padding:1.25rem;flex:1;overflow-y:auto;font-size:12px;color:#333;line-height:1.6;">
+      <p style="font-weight:700;margin-bottom:8px;">KM UN MILLÓN — Términos y Condiciones de Uso</p>
+      <p style="color:#777;margin-bottom:12px;">Última actualización: Mayo 2026</p>
+      <p style="font-weight:600;margin-bottom:4px;">1. Aceptación</p>
+      <p style="margin-bottom:10px;">Al acceder y usar KM Un Millón ("la App"), aceptas estos Términos. Si no estás de acuerdo, no uses la App.</p>
+      <p style="font-weight:600;margin-bottom:4px;">2. Descripción del Servicio</p>
+      <p style="margin-bottom:10px;">KM Un Millón es una aplicación web de seguimiento de mantenimiento automotriz basada en metodología japonesa. La App proporciona recordatorios y checklists orientativos — no sustituye el criterio de un mecánico certificado.</p>
+      <p style="font-weight:600;margin-bottom:4px;">3. Planes y Precios</p>
+      <p style="margin-bottom:4px;"><strong>Plan Individual:</strong> $20 MXN/mes — 1 vehículo.</p>
+      <p style="margin-bottom:10px;"><strong>Plan Familiar:</strong> $50 MXN/mes — hasta 3 vehículos.</p>
+      <p style="margin-bottom:10px;">Todos los nuevos usuarios tienen acceso gratuito por 30 días sin necesidad de tarjeta de crédito.</p>
+      <p style="font-weight:600;margin-bottom:4px;">4. Pagos y Cancelación</p>
+      <p style="margin-bottom:10px;">Los pagos se procesan a través de Mercado Pago. Puedes cancelar tu suscripción en cualquier momento desde la sección Planes. No se realizan reembolsos por períodos parciales.</p>
+      <p style="font-weight:600;margin-bottom:4px;">5. Responsabilidad</p>
+      <p style="margin-bottom:10px;">KM Un Millón no se responsabiliza por daños mecánicos derivados del uso o no uso de las recomendaciones de la App. Los intervalos de mantenimiento son orientativos.</p>
+      <p style="font-weight:600;margin-bottom:4px;">6. Modificaciones</p>
+      <p style="margin-bottom:10px;">Nos reservamos el derecho de modificar estos Términos con aviso previo de 15 días por correo electrónico.</p>
+      <p style="font-weight:600;margin-bottom:4px;">7. Jurisdicción</p>
+      <p style="margin-bottom:10px;">Estos Términos se rigen por las leyes de los Estados Unidos Mexicanos, con jurisdicción en Mexicali, Baja California.</p>
+      <p style="color:#777;">Contacto: kmunmillon@gmail.com</p>
+    </div>
+  </div>
+
+  <!-- AVISO DE PRIVACIDAD -->
+  <div class="screen" id="screen-privacidad">
+    <div class="chk-hdr">
+      <button class="back-btn" onclick="go('splash')">‹</button>
+      <div><div style="color:#fff;font-size:16px;font-weight:700;">Aviso de Privacidad</div></div>
+    </div>
+    <div style="padding:1.25rem;flex:1;overflow-y:auto;font-size:12px;color:#333;line-height:1.6;">
+      <p style="font-weight:700;margin-bottom:8px;">AVISO DE PRIVACIDAD — KM UN MILLÓN</p>
+      <p style="color:#777;margin-bottom:12px;">Conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP)</p>
+      <p style="font-weight:600;margin-bottom:4px;">Responsable</p>
+      <p style="margin-bottom:10px;">KM Un Millón, con domicilio en Mexicali, Baja California, México. Contacto: kmunmillon@gmail.com</p>
+      <p style="font-weight:600;margin-bottom:4px;">Datos que recabamos</p>
+      <p style="margin-bottom:10px;">Nombre, correo electrónico, ciudad, datos del vehículo (marca, modelo, año, kilometraje), e historial de mantenimiento registrado por el usuario.</p>
+      <p style="font-weight:600;margin-bottom:4px;">Finalidad</p>
+      <p style="margin-bottom:10px;">Proporcionar el servicio de seguimiento de mantenimiento automotriz, enviar notificaciones de servicio y recordatorios, y mejorar la experiencia de la App.</p>
+      <p style="font-weight:600;margin-bottom:4px;">Transferencia de datos</p>
+      <p style="margin-bottom:10px;">No compartimos tus datos con terceros, salvo proveedores de servicio esenciales (Supabase para almacenamiento, Mercado Pago para procesamiento de pagos) bajo acuerdos de confidencialidad.</p>
+      <p style="font-weight:600;margin-bottom:4px;">Derechos ARCO</p>
+      <p style="margin-bottom:10px;">Tienes derecho de Acceso, Rectificación, Cancelación y Oposición al tratamiento de tus datos. Envía tu solicitud a kmunmillon@gmail.com.</p>
+      <p style="font-weight:600;margin-bottom:4px;">Cambios al Aviso</p>
+      <p style="margin-bottom:10px;">Cualquier modificación será notificada por correo electrónico con 15 días de anticipación.</p>
+    </div>
+  </div>
+
 </div>
 
 <script>
-var U=null, V=null, H=[], mantOk=null, currentUID=null;
+// ── SUPABASE ───────────────────────────────────────────────
+const SUPA_URL = 'https://jhphmomrtyunfxomhkdx.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpocGhtb21ydHl1bmZ4b21oa2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODg3NDAsImV4cCI6MjA5Mjk2NDc0MH0.xI0JZV_4FPRR9L9O4zTt-qwGsGTUsoE93G4_CinD7Nc';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ── ESTADO GLOBAL ──────────────────────────────────────────
+var U=null, V=null, H=[], mantOk=null, currentUID=null, todosAutos=[], autoIdx=0;
 var consejos=["No bajes el tanque por debajo de ¼. La bomba usa la gasolina para enfriarse.","Espera 10 segundos antes de arrancar y conduce suave los primeros 5 km.","Revisa el nivel de aceite cada 2 semanas con el motor frío.","En verano estaciona a la sombra — el calor sube la temperatura del aceite.","Evita acelerones y frenadas bruscas. El motor japonés vive de la suavidad.","Llena el filtro de aceite antes de instalarlo — el motor no arranca en seco.","Un termostato defectuoso sobrecalienta el motor silenciosamente.","Las bandas se endurecen con el calor extremo. Revísalas cada 10,000 km."];
 
 function showLoading(){ document.getElementById('loading-overlay').style.display='flex'; }
@@ -479,63 +496,71 @@ function hideLoading(){ document.getElementById('loading-overlay').style.display
 function tick(){var n=new Date();document.getElementById('clock').textContent=n.getHours()+':'+(n.getMinutes()<10?'0':'')+n.getMinutes();}
 tick(); setInterval(tick,30000);
 
-// Ocultar loading inicial hasta que Firebase responda
-document.getElementById('loading-overlay').style.display='flex';
-
 function go(name){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
-  document.getElementById('screen-'+name).classList.add('active');
+  var el = document.getElementById('screen-'+name);
+  if(el) el.classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
   var tabs=['dashboard','checklist','historial','planes','config'];
   var idx=tabs.indexOf(name);
   if(idx>=0) document.querySelectorAll('.nav-tab')[idx].classList.add('active');
-  var noNav=['splash','login','reg1','reg2','reg3','reg4'];
+  var noNav=['splash','login','reg1','reg2','reg3','reg4','terminos','privacidad'];
   document.getElementById('nav-tabs').style.display=noNav.indexOf(name)>=0?'none':'flex';
   if(name==='dashboard'){renderDash();checkNotif();}
   if(name==='checklist') renderChk();
   if(name==='historial') renderHist();
   if(name==='config') renderCfg();
+  if(name==='planes') renderPlanes();
 }
 
-// ── FIREBASE AUTH ──────────────────────────────────────────
+// ── AUTH ───────────────────────────────────────────────────
 async function doLogin(){
   var email=document.getElementById('l-email').value.trim();
   var pass=document.getElementById('l-pass').value;
+  document.getElementById('login-err').style.display='none';
+  document.getElementById('login-ok').style.display='none';
   showLoading();
   try {
-    var cred = await window._fbFns.signInWithEmailAndPassword(window._auth, email, pass);
-    await cargarDatosUsuario(cred.user.uid);
-    document.getElementById('login-err').style.display='none';
-    go('config');
+    var {data,error} = await sb.auth.signInWithPassword({email,password:pass});
+    if(error) throw error;
+    await cargarDatos(data.user.uid || data.user.id);
+    go('dashboard');
   } catch(e) {
     document.getElementById('login-err').style.display='block';
+    document.getElementById('login-err').textContent='Correo o contraseña incorrectos';
   } finally { hideLoading(); }
 }
 
 async function doResetPass(){
   var email=document.getElementById('l-email').value.trim();
   if(!email){alert('Escribe tu correo primero');return;}
+  showLoading();
   try {
-    await window._fbFns.sendPasswordResetEmail(window._auth, email);
-    document.getElementById('reset-ok').style.display='block';
-  } catch(e){ alert('No se pudo enviar el correo. Verifica que el correo sea correcto.'); }
+    await sb.auth.resetPasswordForEmail(email, {redirectTo:'https://kmunmillon.com'});
+    document.getElementById('login-ok').style.display='block';
+    document.getElementById('login-ok').textContent='✓ Te enviamos un correo para restablecer tu contraseña.';
+  } catch(e){ alert('Error al enviar correo. Verifica el correo ingresado.'); }
+  finally { hideLoading(); }
 }
 
 async function cerrarSesion(){
-  await window._fbFns.signOut(window._auth);
-  U=null; V=null; H=[]; mantOk=null; currentUID=null;
+  await sb.auth.signOut();
+  U=null; V=null; H=[]; mantOk=null; currentUID=null; todosAutos=[]; autoIdx=0;
   go('splash');
 }
 
 // ── REGISTRO ───────────────────────────────────────────────
+var regData = {};
+
 function doReg1(){
   var n=document.getElementById('r-nombre').value.trim();
   var e=document.getElementById('r-email').value.trim();
   var p=document.getElementById('r-pass').value;
   var c=document.getElementById('r-ciudad').value;
-  if(!n||!e||p.length<6||!c){document.getElementById('reg-err').style.display='block';return;}
-  document.getElementById('reg-err').style.display='none';
-  U={nombre:n,email:e,pass:p,ciudad:c};
+  var err=document.getElementById('reg-err');
+  if(!n||!e||p.length<6||!c){err.style.display='block';err.textContent='Por favor completa todos los campos';return;}
+  err.style.display='none';
+  regData={nombre:n,email:e,pass:p,ciudad:c};
   go('reg2');
 }
 
@@ -549,7 +574,7 @@ function doReg2(){
   var km=parseInt(document.getElementById('a-km').value);
   var kmmes=parseInt(document.getElementById('a-kmmes').value);
   if(!marca||!modelo||!anio||isNaN(km)||isNaN(kmmes)){alert('Por favor completa todos los campos');return;}
-  V={id:'auto_'+Date.now(),marca:marca,modelo:modelo,anio:anio,comb:comb,trans:trans,trac:trac,km:km,kmmes:kmmes};
+  regData.auto={marca,modelo,anio,comb,trans,trac,km,kmmes};
   go('reg3');
 }
 
@@ -566,64 +591,72 @@ function doReg3(){
 }
 
 async function doReg4(){
+  var btn=document.getElementById('btn-finalizar');
+  btn.disabled=true; btn.textContent='Creando cuenta...';
   showLoading();
   try {
-    var cred = await window._fbFns.createUserWithEmailAndPassword(window._auth, U.email, U.pass);
-    currentUID = cred.user.uid;
-    var db = window._db;
-    var fns = window._fbFns;
+    // Crear usuario en Supabase Auth
+    var {data,error} = await sb.auth.signUp({email:regData.email, password:regData.pass});
+    if(error) throw error;
+    var uid = data.user.uid || data.user.id;
 
-    // Guardar perfil
-    await fns.setDoc(fns.doc(db,'users',currentUID), {
-      nombre: U.nombre,
-      email: U.email,
-      ciudad: U.ciudad,
-      mantOk: mantOk===true,
-      autoIdx: 0,
-      fechaRegistro: new Date().toISOString()
+    // Calcular trial
+    var trialEnd = new Date();
+    trialEnd.setDate(trialEnd.getDate()+30);
+
+    // Insertar en tabla usuarios
+    await sb.from('usuarios').insert({
+      id: uid,
+      nombre: regData.nombre,
+      email: regData.email,
+      ciudad: regData.ciudad,
+      plan: 'trial',
+      trial_end: trialEnd.toISOString(),
+      mant_ok: mantOk===true,
+      auto_idx: 0
     });
 
-    // Guardar vehículo
-    await fns.setDoc(fns.doc(db,'users',currentUID,'vehicles',V.id), V);
+    // Insertar auto
+    var {data:autoData} = await sb.from('autos').insert({
+      usuario_id: uid,
+      marca: regData.auto.marca,
+      modelo: regData.auto.modelo,
+      anio: regData.auto.anio,
+      comb: regData.auto.comb,
+      trans: regData.auto.trans,
+      trac: regData.auto.trac,
+      km: regData.auto.km,
+      kmmes: regData.auto.kmmes
+    }).select().single();
 
-    H=[];
-    go('config');
+    await cargarDatos(uid);
+    go('dashboard');
   } catch(e) {
     alert('Error al crear cuenta: '+e.message);
+    btn.disabled=false; btn.textContent='Comenzar mi plan →';
   } finally { hideLoading(); }
 }
 
-// ── CARGAR DATOS DESDE FIRESTORE ───────────────────────────
-async function cargarDatosUsuario(uid){
+// ── CARGAR DATOS ───────────────────────────────────────────
+async function cargarDatos(uid){
   currentUID = uid;
-  var db = window._db;
-  var fns = window._fbFns;
 
-  var perfilSnap = await fns.getDoc(fns.doc(db,'users',uid));
-  if(!perfilSnap.exists()) return;
+  // Perfil
+  var {data:perfil} = await sb.from('usuarios').select('*').eq('id',uid).single();
+  if(!perfil) return;
+  U = {nombre:perfil.nombre, email:perfil.email, ciudad:perfil.ciudad, plan:perfil.plan, trial_end:perfil.trial_end};
+  mantOk = perfil.mant_ok !== false;
+  autoIdx = perfil.auto_idx || 0;
 
-  var perfil = perfilSnap.data();
-  U = { nombre:perfil.nombre, email:perfil.email, ciudad:perfil.ciudad };
-  mantOk = perfil.mantOk !== false;
+  // Autos
+  var {data:autos} = await sb.from('autos').select('*').eq('usuario_id',uid);
+  todosAutos = autos || [];
+  V = todosAutos[autoIdx] || todosAutos[0] || null;
 
-  // Cargar vehículos
-  var autosSnap = await fns.getDocs(fns.collection(db,'users',uid,'vehicles'));
-  var autos = [];
-  autosSnap.forEach(function(d){ autos.push(d.data()); });
-
-  var autoIdx = perfil.autoIdx || 0;
-  V = autos[autoIdx] || autos[0] || null;
-  window._autos = autos;
-  window._autoIdx = autoIdx;
-
-  // Cargar historial del vehículo activo
+  // Historial del auto activo
   if(V){
-    var histSnap = await fns.getDocs(fns.query(
-      fns.collection(db,'users',uid,'vehicles',V.id,'history'),
-      fns.orderBy('fecha','desc')
-    ));
-    H = [];
-    histSnap.forEach(function(d){ H.push(Object.assign({_id:d.id},d.data())); });
+    var {data:hist} = await sb.from('historial').select('*').eq('auto_id',V.id).order('created_at',{ascending:false});
+    H = hist || [];
   }
 }
 
@@ -641,12 +674,11 @@ async function guardarCfg(){
   U.ciudad=document.getElementById('c-ciudad').value;
   showLoading();
   try {
-    var db=window._db; var fns=window._fbFns;
-    await fns.updateDoc(fns.doc(db,'users',currentUID),{ciudad:U.ciudad});
-    await fns.setDoc(fns.doc(db,'users',currentUID,'vehicles',V.id),V);
+    await sb.from('autos').update({marca:V.marca,modelo:V.modelo,anio:V.anio,comb:V.comb,trans:V.trans,trac:V.trac,km:V.km,kmmes:V.kmmes}).eq('id',V.id);
+    await sb.from('usuarios').update({ciudad:U.ciudad}).eq('id',currentUID);
     alert('✓ Cambios guardados');
     go('dashboard');
-  } catch(e){ alert('Error al guardar: '+e.message); }
+  } catch(e){ alert('Error: '+e.message); }
   finally { hideLoading(); }
 }
 
@@ -657,12 +689,15 @@ async function guardarSrv(){
   if(!srv||isNaN(km)){alert('Por favor indica el servicio y el kilometraje');return;}
   showLoading();
   try {
-    var db=window._db; var fns=window._fbFns;
-    var registro = {fecha:new Date().toISOString(),km:km,servicio:srv,auto:V.marca+' '+V.modelo};
-    var ref = await fns.addDoc(fns.collection(db,'users',currentUID,'vehicles',V.id,'history'),registro);
-    H.unshift(Object.assign({_id:ref.id},registro));
+    var {data:nuevo} = await sb.from('historial').insert({
+      auto_id: V.id,
+      usuario_id: currentUID,
+      servicio: srv,
+      km: km
+    }).select().single();
+    H.unshift(nuevo);
     document.getElementById('panel-reg').style.display='none';
-    alert('✓ Servicio registrado en tu historial');
+    alert('✓ Servicio registrado');
   } catch(e){ alert('Error: '+e.message); }
   finally { hideLoading(); }
 }
@@ -678,55 +713,39 @@ async function guardarAutoAdd(){
   var km=parseInt(document.getElementById('add-km').value);
   var kmmes=parseInt(document.getElementById('add-kmmes').value);
   if(!marca||!modelo||!anio||isNaN(km)||isNaN(kmmes)){alert('Por favor completa todos los campos');return;}
-  var nuevoAuto={id:'auto_'+Date.now(),marca:marca,modelo:modelo,anio:anio,comb:comb,trans:trans,trac:trac,km:km,kmmes:kmmes};
   showLoading();
   try {
-    var db=window._db; var fns=window._fbFns;
-    await fns.setDoc(fns.doc(db,'users',currentUID,'vehicles',nuevoAuto.id),nuevoAuto);
-    window._autos = window._autos || [];
-    window._autos.push(nuevoAuto);
-    alert('✓ Automóvil agregado: '+nuevoAuto.marca+' '+nuevoAuto.modelo);
+    var {data:nuevoAuto} = await sb.from('autos').insert({usuario_id:currentUID,marca,modelo,anio,comb,trans,trac,km,kmmes}).select().single();
+    todosAutos.push(nuevoAuto);
+    alert('✓ Automóvil agregado');
     go('config');
   } catch(e){ alert('Error: '+e.message); }
   finally { hideLoading(); }
 }
 
 async function cambiarAuto(idx){
-  var autos = window._autos || [];
-  if(idx<0||idx>=autos.length) return;
-  V = autos[idx];
-  window._autoIdx = idx;
   showLoading();
   try {
-    var db=window._db; var fns=window._fbFns;
-    await fns.updateDoc(fns.doc(db,'users',currentUID),{autoIdx:idx});
-    var histSnap = await fns.getDocs(fns.query(
-      fns.collection(db,'users',currentUID,'vehicles',V.id,'history'),
-      fns.orderBy('fecha','desc')
-    ));
-    H=[];
-    histSnap.forEach(function(d){ H.push(Object.assign({_id:d.id},d.data())); });
+    autoIdx = idx;
+    V = todosAutos[idx];
+    await sb.from('usuarios').update({auto_idx:idx}).eq('id',currentUID);
+    var {data:hist} = await sb.from('historial').select('*').eq('auto_id',V.id).order('created_at',{ascending:false});
+    H = hist || [];
     go('dashboard');
   } catch(e){ alert('Error: '+e.message); }
   finally { hideLoading(); }
 }
 
 async function borrarAuto(idx){
-  var autos = window._autos || [];
-  if(autos.length<=1){alert('No puedes eliminar el único automóvil registrado.');return;}
+  if(todosAutos.length<=1){alert('No puedes eliminar el único automóvil registrado.');return;}
   if(!confirm('¿Eliminar este automóvil?')) return;
-  var auto = autos[idx];
   showLoading();
   try {
-    var db=window._db; var fns=window._fbFns;
-    await fns.deleteDoc(fns.doc(db,'users',currentUID,'vehicles',auto.id));
-    autos.splice(idx,1);
-    window._autos = autos;
-    var autoIdx = window._autoIdx||0;
-    if(autoIdx>=autos.length) autoIdx=0;
-    window._autoIdx = autoIdx;
-    V = autos[autoIdx];
-    await fns.updateDoc(fns.doc(db,'users',currentUID),{autoIdx:autoIdx});
+    await sb.from('autos').delete().eq('id',todosAutos[idx].id);
+    todosAutos.splice(idx,1);
+    if(autoIdx>=todosAutos.length) autoIdx=0;
+    V = todosAutos[autoIdx];
+    await sb.from('usuarios').update({auto_idx:autoIdx}).eq('id',currentUID);
     renderCfg();
   } catch(e){ alert('Error: '+e.message); }
   finally { hideLoading(); }
@@ -734,11 +753,9 @@ async function borrarAuto(idx){
 
 async function borrarHist(idx){
   if(!confirm('¿Borrar este servicio del historial?')) return;
-  var item = H[idx];
   showLoading();
   try {
-    var db=window._db; var fns=window._fbFns;
-    await fns.deleteDoc(fns.doc(db,'users',currentUID,'vehicles',V.id,'history',item._id));
+    await sb.from('historial').delete().eq('id',H[idx].id);
     H.splice(idx,1);
     renderHist();
   } catch(e){ alert('Error: '+e.message); }
@@ -751,25 +768,44 @@ async function completar(){
   var atrasado=!mantOk&&H.length===0;
   var kmServicio=proxI(V.km,5000);
   var srvNombre=atrasado?'Puesta al corriente':'Servicio '+kmServicio.toLocaleString()+' km';
-
   var kmNuevoStr=prompt('Servicio registrado ✓\n\n¿Cuál es tu kilometraje actual?',''+V.km);
   var kmNuevo=parseInt(kmNuevoStr);
   showLoading();
   try {
-    var db=window._db; var fns=window._fbFns;
-    if(!isNaN(kmNuevo)&&kmNuevo>0){ V.km=kmNuevo; }
-    if(atrasado){ mantOk=true; await fns.updateDoc(fns.doc(db,'users',currentUID),{mantOk:true}); }
-    await fns.setDoc(fns.doc(db,'users',currentUID,'vehicles',V.id),V);
-    var registro={fecha:new Date().toISOString(),km:V.km,servicio:srvNombre,auto:V.marca+' '+V.modelo};
-    var ref = await fns.addDoc(fns.collection(db,'users',currentUID,'vehicles',V.id,'history'),registro);
-    H.unshift(Object.assign({_id:ref.id},registro));
-    alert('✓ '+(atrasado?'Puesta al corriente completada.':'Servicio registrado.')+(!isNaN(kmNuevo)&&kmNuevo>0?' Km actualizado a '+kmNuevo.toLocaleString()+'.':' Actualiza tu km en Configuración.'));
+    if(!isNaN(kmNuevo)&&kmNuevo>0){
+      V.km=kmNuevo;
+      await sb.from('autos').update({km:kmNuevo}).eq('id',V.id);
+    }
+    if(atrasado){
+      mantOk=true;
+      await sb.from('usuarios').update({mant_ok:true}).eq('id',currentUID);
+    }
+    var {data:nuevo} = await sb.from('historial').insert({
+      auto_id:V.id, usuario_id:currentUID, servicio:srvNombre, km:V.km
+    }).select().single();
+    H.unshift(nuevo);
+    alert('✓ '+(atrasado?'Puesta al corriente completada.':'Servicio registrado.')+(!isNaN(kmNuevo)&&kmNuevo>0?' Km actualizado a '+kmNuevo.toLocaleString()+'.':''));
     go('dashboard');
   } catch(e){ alert('Error: '+e.message); }
   finally { hideLoading(); }
 }
 
-// ── RENDER FUNCTIONS ───────────────────────────────────────
+// ── PAGOS ──────────────────────────────────────────────────
+async function iniciarPago(tipo){
+  showLoading();
+  try {
+    var planId = tipo==='individual' ? 'f2a6347acada418a8cc080234227edb1' : 'eab5166139b642318a198561dbe6f5ad';
+    var {data,error} = await sb.functions.invoke('procesar-pago',{
+      body:{plan:tipo, plan_id:planId, usuario_id:currentUID, email:U.email}
+    });
+    if(error) throw error;
+    if(data && data.init_point) window.open(data.init_point,'_blank');
+    else alert('Error al generar el pago. Intenta de nuevo.');
+  } catch(e){ alert('Error al procesar pago: '+e.message); }
+  finally { hideLoading(); }
+}
+
+// ── RENDER ─────────────────────────────────────────────────
 function proxI(km,i){var p=Math.ceil(km/i)*i;if(p<=km)p+=i;return p;}
 
 function getChecklist(km,comb,trans,trac,atrasado){
@@ -794,19 +830,11 @@ function getChecklist(km,comb,trans,trac,atrasado){
   items.push('Cambio de aceite y filtro '+(esDiesel?'(Diesel: especial DPF)':'(Gasolina: sintético)'));
   items.push('Inspección de niveles y presión de neumáticos (PSI exacto)');
   if(km%10000===0&&km%20000!==0){items.push('Rotación de neumáticos');items.push('Revisión visual y auditiva de frenos');items.push('Limpieza de postes de batería (grasa dieléctrica)');if(esDiesel)items.push('Diesel: Drenado de agua del filtro de combustible');}
-  if(km%20000===0&&km%40000!==0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina (Aire Acondicionado)');items.push('Revisión visual y auditiva de frenos');if(esManual)items.push('Evaluación de embrague: patinamiento, ruidos y suavidad');if(esDiesel)items.push('Diesel: Reemplazo total de filtro de combustible');}
-  if(km%40000===0&&km%60000!==0&&km%100000!==0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina (Aire Acondicionado)');items.push('Cambio de líquido de frenos');if(esManual||esAWD||esRWD)items.push('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''));items.push('Revisión de bomba de gasolina (nivel de tanque y presión)');if(esManual)items.push('Evaluación de embrague: patinamiento, ruidos y suavidad');if(esDiesel)items.push('Diesel: Reemplazo total de filtro de combustible');}
-  if(km%60000===0&&km%100000!==0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina (Aire Acondicionado)');items.push('Cambio de líquido de frenos');items.push('Servicio de transmisión: cambio de fluido y filtro');if(esManual||esAWD||esRWD)items.push('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''));if(esDiesel){items.push('Diesel: Inspección de sistema DPF/SCR y nivel de Urea');}else{items.push('Gasolina: Agregar aditivo limpia inyectores (Polieteramina)');}if(esManual)items.push('Evaluación de embrague: patinamiento, ruidos y suavidad');}
-  if(km%100000===0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina (Aire Acondicionado)');items.push('Cambio de líquido de frenos');items.push('Servicio de transmisión: cambio de fluido y filtro');if(esManual||esAWD||esRWD)items.push('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''));items.push('Revisión de bomba de gasolina (nivel de tanque y presión)');if(esDiesel){items.push('Diesel: Inspección de bujías de precalentamiento (Glow plugs)');items.push('Diesel: Inspección de sistema DPF/SCR y nivel de Urea');}else{items.push('Gasolina: Cambio de bujías (Preventivo)');items.push('Gasolina: Agregar aditivo limpia inyectores (Polieteramina)');}if(esManual)items.push('Evaluación de embrague: patinamiento, ruidos y suavidad');items.push('Inspección general de mangueras, bandas y sistema de enfriamiento');}
+  if(km%20000===0&&km%40000!==0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina (Aire Acondicionado)');items.push('Revisión visual y auditiva de frenos');if(esManual)items.push('Evaluación de embrague');if(esDiesel)items.push('Diesel: Reemplazo total de filtro de combustible');}
+  if(km%40000===0&&km%60000!==0&&km%100000!==0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina');items.push('Cambio de líquido de frenos');if(esManual||esAWD||esRWD)items.push('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''));items.push('Revisión de bomba de gasolina');}
+  if(km%60000===0&&km%100000!==0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina');items.push('Cambio de líquido de frenos');items.push('Servicio de transmisión: cambio de fluido y filtro');if(esManual||esAWD||esRWD)items.push('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''));if(esDiesel){items.push('Diesel: Inspección de sistema DPF/SCR y nivel de Urea');}else{items.push('Gasolina: Agregar aditivo limpia inyectores (Polieteramina)');}}
+  if(km%100000===0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina');items.push('Cambio de líquido de frenos');items.push('Servicio de transmisión: cambio de fluido y filtro');if(esManual||esAWD||esRWD)items.push('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''));items.push('Revisión de bomba de gasolina');if(esDiesel){items.push('Diesel: Inspección de bujías de precalentamiento');items.push('Diesel: Inspección DPF/SCR y nivel de Urea');}else{items.push('Gasolina: Cambio de bujías (Preventivo)');items.push('Gasolina: Agregar aditivo limpia inyectores');}if(esManual)items.push('Evaluación de embrague');items.push('Inspección general de mangueras, bandas y sistema de enfriamiento');}
   return items;
-}
-
-function calcSvcs(){
-  if(!V) return[];
-  var pA=proxI(V.km,5000);
-  var kmA=pA-V.km;
-  var niv=kmA<=500?'urgent':kmA<=1500?'warn':'ok';
-  return[{icon:'🛢️',nombre:'Próximo servicio',due:'En '+kmA.toLocaleString()+' km · ~'+pA.toLocaleString()+' km',nivel:niv}];
 }
 
 function renderDash(){
@@ -815,21 +843,49 @@ function renderDash(){
   var s=h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
   document.getElementById('d-saludo').textContent=s+', '+U.nombre.split(' ')[0];
   document.getElementById('d-car').textContent=V.marca+' '+V.modelo+' '+V.anio+' · '+(V.comb==='diesel'?'Diesel':'Gasolina')+' · '+(V.trans==='manual'?'Manual':'Automático');
-  document.getElementById('d-km').textContent=V.km.toLocaleString()+' km · Meta: 400,000 km';
+  document.getElementById('d-km').textContent=V.km.toLocaleString()+' km · Meta: 1,000,000 km';
   document.getElementById('clima-banner').style.display=(U.ciudad==='mexicali'||U.ciudad==='tijuana')?'flex':'none';
   document.getElementById('mant-banner').style.display=mantOk?'none':'flex';
+
+  // Trial banner
+  var trialBanner=document.getElementById('trial-banner');
+  var trialTxt=document.getElementById('trial-txt');
+  if(U.trial_end && U.plan==='trial'){
+    var dias=Math.ceil((new Date(U.trial_end)-new Date())/(1000*60*60*24));
+    if(dias>0){
+      trialBanner.style.display='flex';
+      trialTxt.textContent='🎁 Te quedan '+dias+' días de prueba gratuita. Suscríbete en Planes.';
+    }else{ trialBanner.style.display='none'; }
+  }else{ trialBanner.style.display='none'; }
+
   var list=document.getElementById('rlist');
   list.innerHTML='';
-  calcSvcs().forEach(function(sv){
-    var bg=sv.nivel==='urgent'?'#FCEBEB':sv.nivel==='warn'?'#FAEEDA':'#EAF3DE';
-    var bc=sv.nivel==='urgent'?'background:#FCEBEB;color:#A32D2D':sv.nivel==='warn'?'background:#FAEEDA;color:#854F0B':'background:#EAF3DE;color:#3B6D11';
-    var lbl=sv.nivel==='urgent'?'Urgente':sv.nivel==='warn'?'Próximo':'Al día';
-    var d=document.createElement('div');
-    d.className='rcard';d.onclick=function(){go('checklist');};
-    d.innerHTML='<div class="rico" style="background:'+bg+'">'+sv.icon+'</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#111;">'+sv.nombre+'</div><div style="font-size:11px;color:#777;margin-top:1px;">'+sv.due+'</div></div><span class="badge" style="'+bc+'">'+lbl+'</span>';
-    list.appendChild(d);
-  });
+  var pA=proxI(V.km,5000);
+  var kmA=pA-V.km;
+  var niv=kmA<=500?'urgent':kmA<=1500?'warn':'ok';
+  var bg=niv==='urgent'?'#FCEBEB':niv==='warn'?'#FAEEDA':'#EAF3DE';
+  var bc=niv==='urgent'?'background:#FCEBEB;color:#A32D2D':niv==='warn'?'background:#FAEEDA;color:#854F0B':'background:#EAF3DE;color:#3B6D11';
+  var lbl=niv==='urgent'?'Urgente':niv==='warn'?'Próximo':'Al día';
+  var d=document.createElement('div');
+  d.className='rcard'; d.onclick=function(){go('checklist');};
+  d.innerHTML='<div class="rico" style="background:'+bg+'">🛢️</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#111;">Próximo servicio</div><div style="font-size:11px;color:#777;margin-top:1px;">En '+kmA.toLocaleString()+' km · ~'+pA.toLocaleString()+' km</div></div><span class="badge" style="'+bc+'">'+lbl+'</span>';
+  list.appendChild(d);
   document.getElementById('consejo').textContent=consejos[new Date().getDate()%consejos.length];
+}
+
+function renderPlanes(){
+  if(!U) return;
+  var lbl=document.getElementById('plan-estado-lbl');
+  var val=document.getElementById('plan-estado-val');
+  var sub=document.getElementById('plan-estado-sub');
+  if(U.plan==='individual'){lbl.textContent='Plan activo';val.textContent='Individual';sub.textContent='$20 MXN/mes · 1 vehículo';}
+  else if(U.plan==='familiar'){lbl.textContent='Plan activo';val.textContent='Familiar';sub.textContent='$50 MXN/mes · hasta 3 autos';}
+  else{
+    var dias=U.trial_end?Math.max(0,Math.ceil((new Date(U.trial_end)-new Date())/(1000*60*60*24))):0;
+    lbl.textContent='Periodo gratuito';
+    val.textContent=dias+' días restantes';
+    sub.textContent='Elige tu plan antes de que expire';
+  }
 }
 
 function toggleReg(){
@@ -857,9 +913,8 @@ function toggleReg(){
 
 function renderChk(){
   if(!V) return;
-  var km=V.km;
   var atrasado=!mantOk&&H.length===0;
-  var kmParaChecklist=proxI(km,5000);
+  var kmParaChecklist=proxI(V.km,5000);
   document.getElementById('chk-title').textContent=atrasado?'Puesta al corriente':'Servicio '+kmParaChecklist.toLocaleString()+' km';
   document.getElementById('chk-sub').textContent=V.marca+' '+V.modelo+' · '+(V.comb==='diesel'?'Diesel':'Gasolina')+' · '+(V.trans==='manual'?'Manual':'Automático');
   var lista=getChecklist(kmParaChecklist,V.comb,V.trans,V.trac||'fwd',atrasado);
@@ -894,7 +949,7 @@ function renderHist(){
   }
   body.innerHTML='';
   H.forEach(function(h,idx){
-    var fecha = h.fecha ? new Date(h.fecha).toLocaleDateString('es-MX') : '—';
+    var fecha=h.created_at?new Date(h.created_at).toLocaleDateString('es-MX'):'—';
     var d=document.createElement('div');
     d.className='hist-item';
     d.innerHTML='<div style="width:36px;height:36px;background:#FCEBEB;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🛢️</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#111;">'+h.servicio+'</div><div style="font-size:11px;color:#666;margin-top:2px;">'+h.km.toLocaleString()+' km · '+fecha+'</div><div style="font-size:11px;color:#639922;margin-top:2px;font-weight:500;">✓ Completado</div></div><button class="hist-del" onclick="borrarHist('+idx+')">🗑️</button>';
@@ -902,30 +957,12 @@ function renderHist(){
   });
 }
 
-function renderAutosLista(){
-  var autos = window._autos || [];
-  var autoIdx = window._autoIdx || 0;
-  var lista=document.getElementById('autos-lista');
-  if(!lista) return;
-  lista.innerHTML='';
-  for(var i=0;i<autos.length;i++){
-    (function(a,i){
-      var activo=i===autoIdx;
-      var d=document.createElement('div');
-      d.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid '+(activo?'#B51E1E':'#ddd')+';background:'+(activo?'#FCEBEB':'#fff')+';';
-      var btnUsar=activo?'<span style="font-size:10px;font-weight:600;color:#B51E1E;padding:3px 8px;">Activo</span>':'<button onclick="cambiarAuto('+i+')" style="font-size:11px;color:#B51E1E;background:none;border:1px solid #B51E1E;border-radius:6px;padding:3px 8px;cursor:pointer;">Usar</button>';
-      var btnBorrar=autos.length>1?'<button onclick="borrarAuto('+i+')" style="background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;margin-left:4px;">🗑️</button>':'';
-      d.innerHTML='<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:'+(activo?'#B51E1E':'#111')+';">'+a.marca+' '+a.modelo+'</div><div style="font-size:11px;color:#777;">'+a.anio+' · '+a.km.toLocaleString()+' km</div></div>'+btnUsar+btnBorrar;
-      lista.appendChild(d);
-    })(autos[i],i);
-  }
-}
-
 function renderCfg(){
   if(!U||!V) return;
   document.getElementById('cfg-nom').textContent=U.nombre;
   document.getElementById('cfg-av').textContent=U.nombre.charAt(0).toUpperCase();
-  renderAutosLista();
+  var planTxt = U.plan==='individual'?'Plan Individual · activo':U.plan==='familiar'?'Plan Familiar · activo':'30 días gratis · activo';
+  document.getElementById('cfg-plan').textContent=planTxt;
   document.getElementById('c-marca').value=V.marca;
   document.getElementById('c-modelo').value=V.modelo;
   document.getElementById('c-anio').value=V.anio;
@@ -935,6 +972,22 @@ function renderCfg(){
   document.getElementById('c-km').value=V.km;
   document.getElementById('c-kmmes').value=V.kmmes;
   document.getElementById('c-ciudad').value=U.ciudad;
+  renderAutosLista();
+}
+
+function renderAutosLista(){
+  var lista=document.getElementById('autos-lista');
+  if(!lista) return;
+  lista.innerHTML='';
+  todosAutos.forEach(function(a,i){
+    var activo=i===autoIdx;
+    var d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid '+(activo?'#B51E1E':'#ddd')+';background:'+(activo?'#FCEBEB':'#fff')+';';
+    var btnUsar=activo?'<span style="font-size:10px;font-weight:600;color:#B51E1E;padding:3px 8px;">Activo</span>':'<button onclick="cambiarAuto('+i+')" style="font-size:11px;color:#B51E1E;background:none;border:1px solid #B51E1E;border-radius:6px;padding:3px 8px;cursor:pointer;">Usar</button>';
+    var btnBorrar=todosAutos.length>1?'<button onclick="borrarAuto('+i+')" style="background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;margin-left:4px;">🗑️</button>':'';
+    d.innerHTML='<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:'+(activo?'#B51E1E':'#111')+';">'+a.marca+' '+a.modelo+'</div><div style="font-size:11px;color:#777;">'+a.anio+' · '+a.km.toLocaleString()+' km</div></div>'+btnUsar+btnBorrar;
+    lista.appendChild(d);
+  });
 }
 
 function toggleSw(el){
@@ -952,14 +1005,23 @@ function checkNotif(){
   else if(kmA<=1500) new Notification('🛢️ KM Un Millón',{body:'Próximo servicio en '+kmA+' km.'});
 }
 
-window.cargarDatosUsuario = cargarDatosUsuario;
-
-// Iniciar Firebase Auth ahora que todas las funciones están definidas
-if(window._initAuth){
-  window._initAuth();
-} else {
-  document.addEventListener("DOMContentLoaded", function(){ if(window._initAuth) window._initAuth(); });
-}
+// ── INICIALIZAR ────────────────────────────────────────────
+window.addEventListener('load', async function(){
+  if('Notification' in window && Notification.permission==='default') Notification.requestPermission();
+  try {
+    var {data:{session}} = await sb.auth.getSession();
+    if(session && session.user){
+      await cargarDatos(session.user.id);
+      go('dashboard');
+    } else {
+      go('splash');
+    }
+  } catch(e){
+    go('splash');
+  } finally {
+    hideLoading();
+  }
+});
 </script>
 </body>
 </html>
