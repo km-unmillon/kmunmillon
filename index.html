@@ -64,11 +64,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .chk-hdr{background:#B51E1E;padding:1rem 1.25rem;display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .back-btn{color:#fff;font-size:22px;cursor:pointer;background:none;border:none;padding:0;line-height:1;}
 .chk-body{padding:0.75rem 1.25rem;flex:1;overflow-y:auto;}
+.chk-section{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;padding:8px 0 4px;}
 .chk-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid #eee;cursor:pointer;}
 .chk-item:last-child{border-bottom:none;}
 .chk-box{width:18px;height:18px;border-radius:4px;flex-shrink:0;margin-top:1px;border:1.5px solid #ccc;background:transparent;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
 .chk-box.checked{background:#B51E1E;border-color:#B51E1E;}
 .chk-box.checked::after{content:'✓';color:#fff;font-size:10px;}
+.info-btn{width:16px;height:16px;border-radius:50%;background:#e8e8e4;border:none;color:#666;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;}
 .chk-foot{padding:1rem 1.25rem;border-top:0.5px solid #eee;flex-shrink:0;}
 .prog-wrap{width:100%;height:5px;background:#eee;border-radius:3px;margin-top:6px;}
 .prog-fill{height:5px;border-radius:3px;background:#B51E1E;transition:width 0.3s;}
@@ -80,14 +82,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .avatar{width:48px;height:48px;border-radius:50%;background:#FCEBEB;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#B51E1E;}
 .hist-item{background:#fff;border:0.5px solid #ddd;border-radius:10px;padding:10px 12px;display:flex;gap:12px;align-items:flex-start;}
 .hist-del{background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;padding:0;margin-left:auto;flex-shrink:0;}
-.hist-del:hover{color:#E24B4A;}
 .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(181,30,30,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:12px;}
 .loading-overlay p{color:#fff;font-size:14px;font-weight:500;}
 .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top:3px solid #fff;border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:flex-end;justify-content:center;z-index:998;padding:1rem;}
-.modal-box{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:360px;max-height:80vh;overflow-y:auto;}
-.chip{display:inline-block;background:#FCEBEB;color:#B51E1E;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-left:6px;}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;z-index:998;padding:1rem;}
+.modal-overlay.active{display:flex;}
+.modal-box{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:360px;}
+.tooltip-box{background:#333;color:#fff;font-size:11px;line-height:1.5;border-radius:8px;padding:8px 12px;margin-top:4px;display:none;}
 </style>
 </head>
 <body>
@@ -95,6 +97,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="loading-overlay" id="loading-overlay">
   <div class="spinner"></div>
   <p>Cargando...</p>
+</div>
+
+<!-- Modal tooltip -->
+<div class="modal-overlay" id="modal-overlay" onclick="cerrarModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:8px;" id="modal-title"></div>
+    <div style="font-size:13px;color:#444;line-height:1.6;" id="modal-body"></div>
+    <button class="btn-red" style="margin-top:14px;" onclick="cerrarModal()">Entendido</button>
+  </div>
 </div>
 
 <div class="nav-tabs" id="nav-tabs" style="display:none;">
@@ -195,6 +206,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div><div class="fl">Kilometraje actual (odómetro)</div><input class="fi" type="text" inputmode="numeric" id="a-km" placeholder="60000"/></div>
       <div><div class="fl">Km por mes (aprox)</div><input class="fi" type="text" inputmode="numeric" id="a-kmmes" placeholder="1300"/></div>
+      <div style="background:#f4f4f0;border-radius:8px;padding:10px 12px;">
+        <div style="font-size:11px;font-weight:600;color:#777;margin-bottom:8px;">OPCIONAL — para alertas más precisas</div>
+        <div class="frow">
+          <div><div class="fl">Año llantas</div><input class="fi" type="text" inputmode="numeric" id="a-llantas-anio" placeholder="2021"/></div>
+          <div><div class="fl">Km llantas</div><input class="fi" type="text" inputmode="numeric" id="a-llantas-km" placeholder="10000"/></div>
+        </div>
+        <div style="margin-top:8px;"><div class="fl">Año batería</div><input class="fi" type="text" inputmode="numeric" id="a-bateria-anio" placeholder="2022"/></div>
+      </div>
       <button class="btn-red" style="margin-top:auto;" onclick="doReg2()">Siguiente →</button>
     </div>
   </div>
@@ -249,14 +268,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="display:flex;align-items:center;gap:12px;">
           <svg width="52" height="52" viewBox="0 0 52 52">
             <circle cx="26" cy="26" r="22" fill="none" stroke="#eee" stroke-width="4"/>
-            <circle cx="26" cy="26" r="22" fill="none" stroke="#B51E1E" stroke-width="4" stroke-dasharray="124" stroke-dashoffset="31" stroke-linecap="round" transform="rotate(-90 26 26)"/>
-            <text x="26" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#B51E1E">75%</text>
+            <circle id="salud-circle" cx="26" cy="26" r="22" fill="none" stroke="#B51E1E" stroke-width="4" stroke-dasharray="124" stroke-dashoffset="31" stroke-linecap="round" transform="rotate(-90 26 26)"/>
+            <text id="salud-pct" x="26" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#B51E1E">75%</text>
           </svg>
           <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
-            <div class="hrow"><span style="font-size:12px;color:#666;">Motor</span><div class="hbar-wrap"><div class="hbar" style="width:40%;background:#E24B4A;"></div></div></div>
-            <div class="hrow"><span style="font-size:12px;color:#666;">Frenos</span><div class="hbar-wrap"><div class="hbar" style="width:75%;background:#BA7517;"></div></div></div>
-            <div class="hrow"><span style="font-size:12px;color:#666;">Llantas</span><div class="hbar-wrap"><div class="hbar" style="width:65%;background:#BA7517;"></div></div></div>
-            <div class="hrow"><span style="font-size:12px;color:#666;">Batería</span><div class="hbar-wrap"><div class="hbar" style="width:85%;background:#639922;"></div></div></div>
+            <div class="hrow"><span style="font-size:12px;color:#666;">Motor</span><div class="hbar-wrap"><div class="hbar" id="bar-motor" style="width:80%;background:#639922;"></div></div></div>
+            <div class="hrow"><span style="font-size:12px;color:#666;">Frenos</span><div class="hbar-wrap"><div class="hbar" id="bar-frenos" style="width:75%;background:#BA7517;"></div></div></div>
+            <div class="hrow"><span style="font-size:12px;color:#666;">Llantas</span><div class="hbar-wrap"><div class="hbar" id="bar-llantas" style="width:65%;background:#BA7517;"></div></div></div>
+            <div class="hrow"><span style="font-size:12px;color:#666;">Batería</span><div class="hbar-wrap"><div class="hbar" id="bar-bateria" style="width:85%;background:#639922;"></div></div></div>
           </div>
         </div>
       </div>
@@ -380,6 +399,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div>
       <div style="border-top:0.5px solid #eee;padding-top:12px;">
+        <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Llantas y batería</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="frow">
+            <div><div class="fl">Año llantas</div><input class="fi" type="text" inputmode="numeric" id="c-llantas-anio"/></div>
+            <div><div class="fl">Km al instalar</div><input class="fi" type="text" inputmode="numeric" id="c-llantas-km"/></div>
+          </div>
+          <div><div class="fl">Año batería</div><input class="fi" type="text" inputmode="numeric" id="c-bateria-anio"/></div>
+        </div>
+      </div>
+      <div style="border-top:0.5px solid #eee;padding-top:12px;">
         <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Mis Automóviles</div>
         <div id="autos-lista" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
         <button class="btn-out" style="font-size:12px;padding:8px;" onclick="go('reg2add')">+ Agregar otro automóvil</button>
@@ -425,10 +454,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <!-- TÉRMINOS Y CONDICIONES -->
+  <!-- TÉRMINOS -->
   <div class="screen" id="screen-terminos">
     <div class="chk-hdr">
-      <button class="back-btn" onclick="history.back()||go('splash')">‹</button>
+      <button class="back-btn" onclick="go('splash')">‹</button>
       <div><div style="color:#fff;font-size:16px;font-weight:700;">Términos y Condiciones</div></div>
     </div>
     <div style="padding:1.25rem;flex:1;overflow-y:auto;font-size:12px;color:#333;line-height:1.6;">
@@ -440,21 +469,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <p style="margin-bottom:10px;">KM Un Millón es una aplicación web de seguimiento de mantenimiento automotriz basada en metodología japonesa. La App proporciona recordatorios y checklists orientativos — no sustituye el criterio de un mecánico certificado.</p>
       <p style="font-weight:600;margin-bottom:4px;">3. Planes y Precios</p>
       <p style="margin-bottom:4px;"><strong>Plan Individual:</strong> $20 MXN/mes — 1 vehículo.</p>
-      <p style="margin-bottom:10px;"><strong>Plan Familiar:</strong> $50 MXN/mes — hasta 3 vehículos.</p>
-      <p style="margin-bottom:10px;">Todos los nuevos usuarios tienen acceso gratuito por 30 días sin necesidad de tarjeta de crédito.</p>
+      <p style="margin-bottom:10px;"><strong>Plan Familiar:</strong> $50 MXN/mes — hasta 3 vehículos. Todos los nuevos usuarios tienen acceso gratuito por 30 días sin necesidad de tarjeta de crédito.</p>
       <p style="font-weight:600;margin-bottom:4px;">4. Pagos y Cancelación</p>
       <p style="margin-bottom:10px;">Los pagos se procesan a través de Mercado Pago. Puedes cancelar tu suscripción en cualquier momento desde la sección Planes. No se realizan reembolsos por períodos parciales.</p>
       <p style="font-weight:600;margin-bottom:4px;">5. Responsabilidad</p>
       <p style="margin-bottom:10px;">KM Un Millón no se responsabiliza por daños mecánicos derivados del uso o no uso de las recomendaciones de la App. Los intervalos de mantenimiento son orientativos.</p>
-      <p style="font-weight:600;margin-bottom:4px;">6. Modificaciones</p>
-      <p style="margin-bottom:10px;">Nos reservamos el derecho de modificar estos Términos con aviso previo de 15 días por correo electrónico.</p>
-      <p style="font-weight:600;margin-bottom:4px;">7. Jurisdicción</p>
+      <p style="font-weight:600;margin-bottom:4px;">6. Jurisdicción</p>
       <p style="margin-bottom:10px;">Estos Términos se rigen por las leyes de los Estados Unidos Mexicanos, con jurisdicción en Mexicali, Baja California.</p>
       <p style="color:#777;">Contacto: kmunmillon@gmail.com</p>
     </div>
   </div>
 
-  <!-- AVISO DE PRIVACIDAD -->
+  <!-- PRIVACIDAD -->
   <div class="screen" id="screen-privacidad">
     <div class="chk-hdr">
       <button class="back-btn" onclick="go('splash')">‹</button>
@@ -472,33 +498,67 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <p style="font-weight:600;margin-bottom:4px;">Transferencia de datos</p>
       <p style="margin-bottom:10px;">No compartimos tus datos con terceros, salvo proveedores de servicio esenciales (Supabase para almacenamiento, Mercado Pago para procesamiento de pagos) bajo acuerdos de confidencialidad.</p>
       <p style="font-weight:600;margin-bottom:4px;">Derechos ARCO</p>
-      <p style="margin-bottom:10px;">Tienes derecho de Acceso, Rectificación, Cancelación y Oposición al tratamiento de tus datos. Envía tu solicitud a kmunmillon@gmail.com.</p>
-      <p style="font-weight:600;margin-bottom:4px;">Cambios al Aviso</p>
-      <p style="margin-bottom:10px;">Cualquier modificación será notificada por correo electrónico con 15 días de anticipación.</p>
+      <p style="margin-bottom:10px;">Tienes derecho de Acceso, Rectificación, Cancelación y Oposición. Envía tu solicitud a kmunmillon@gmail.com.</p>
     </div>
   </div>
 
 </div>
 
 <script>
-// ── SUPABASE ───────────────────────────────────────────────
-const SUPA_URL = 'https://jhphmomrtyunfxomhkdx.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpocGhtb21ydHl1bmZ4b21oa2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODg3NDAsImV4cCI6MjA5Mjk2NDc0MH0.xI0JZV_4FPRR9L9O4zTt-qwGsGTUsoE93G4_CinD7Nc';
-const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+const SUPA_URL='https://jhphmomrtyunfxomhkdx.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpocGhtb21ydHl1bmZ4b21oa2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODg3NDAsImV4cCI6MjA5Mjk2NDc0MH0.xI0JZV_4FPRR9L9O4zTt-qwGsGTUsoE93G4_CinD7Nc';
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
 
-// ── ESTADO GLOBAL ──────────────────────────────────────────
-var U=null, V=null, H=[], mantOk=null, currentUID=null, todosAutos=[], autoIdx=0;
-var consejos=["No bajes el tanque por debajo de ¼. La bomba usa la gasolina para enfriarse.","Espera 10 segundos antes de arrancar y conduce suave los primeros 5 km.","Revisa el nivel de aceite cada 2 semanas con el motor frío.","En verano estaciona a la sombra — el calor sube la temperatura del aceite.","Evita acelerones y frenadas bruscas. El motor japonés vive de la suavidad.","Llena el filtro de aceite antes de instalarlo — el motor no arranca en seco.","Un termostato defectuoso sobrecalienta el motor silenciosamente.","Las bandas se endurecen con el calor extremo. Revísalas cada 10,000 km."];
+var U=null,V=null,H=[],mantOk=null,currentUID=null,todosAutos=[],autoIdx=0;
+var regData={};
 
-function showLoading(){ document.getElementById('loading-overlay').style.display='flex'; }
-function hideLoading(){ document.getElementById('loading-overlay').style.display='none'; }
+var consejos=[
+  "No bajes el tanque por debajo de ¼. La bomba usa la gasolina para enfriarse.",
+  "Espera 10 segundos antes de arrancar y conduce suave los primeros 5 km.",
+  "Revisa el nivel de aceite cada 2 semanas con el motor frío.",
+  "En verano estaciona a la sombra — el calor extremo degrada el aceite más rápido.",
+  "Evita acelerones y frenadas bruscas. El motor japonés vive de la suavidad.",
+  "Llena el filtro de aceite antes de instalarlo — el motor no arranca en seco.",
+  "Un termostato defectuoso sobrecalienta el motor silenciosamente.",
+  "Las bandas se endurecen con el calor extremo. Revísalas cada 10,000 km.",
+  "El agua destilada en el radiador previene la corrosión interna del motor.",
+  "Cambia el líquido de frenos cada 2 años — absorbe humedad y reduce su punto de ebullición.",
+  "Las llantas pierden 1 PSI por cada 10°C de cambio de temperatura.",
+  "Un filtro de aire sucio puede reducir la eficiencia del motor hasta un 10%."
+];
+
+var infoTextos={
+  'aceite': {t:'Cambio de aceite', b:'El aceite lubrica, limpia y enfría el motor. Cambiarlo a tiempo previene desgaste prematuro. Usa el viscosidad recomendada en tu manual (ej. 5W-30 sintético).'},
+  'presion': {t:'Presión de neumáticos', b:'La presión correcta mejora el consumo de combustible, la vida útil de las llantas y la seguridad. Revisa el PSI indicado en la puerta del conductor, no en la llanta.'},
+  'rotacion': {t:'Rotación de neumáticos', b:'Mover las llantas de posición compensa el desgaste desigual. Las delanteras desgastan más rápido en FWD. La rotación alarga su vida útil hasta un 20%.'},
+  'frenos': {t:'Revisión de frenos', b:'Las pastillas deben tener al menos 3mm de material. Los discos no deben tener ranuras profundas. El líquido de frenos se cambia cada 2 años por absorción de humedad.'},
+  'filtro_aire': {t:'Filtro de aire del motor', b:'Un filtro sucio reduce potencia y eficiencia. Se cambia cada 20,000-30,000 km o antes si conduces en zonas polvorientas como Mexicali.'},
+  'filtro_cabina': {t:'Filtro de cabina (A/C)', b:'Filtra el aire que entra al habitáculo. Un filtro sucio reduce el flujo del A/C y puede causar malos olores. Especialmente importante en ciudades con polvo.'},
+  'liquido_frenos': {t:'Líquido de frenos', b:'El líquido de frenos absorbe humedad con el tiempo, lo que baja su punto de ebullición y puede causar falla de frenos en descensos largos. Se cambia cada 40,000 km o 2 años.'},
+  'transmision': {t:'Servicio de transmisión', b:'El fluido de transmisión lubrica los engranajes y el convertidor de torque. Cambiarlo en tiempo previene reparaciones costosas. Una transmisión nueva cuesta $15,000-40,000 MXN.'},
+  'diferencial': {t:'Aceite de diferencial', b:'El diferencial distribuye la potencia a las ruedas. Su aceite se degrada con el calor. En AWD y 4x4, también incluye el transfer case.'},
+  'bujias': {t:'Cambio de bujías', b:'Las bujías encienden la mezcla aire-combustible. Bujías desgastadas causan arranques difíciles, menor potencia y mayor consumo. Las de iridio duran hasta 100,000 km.'},
+  'limpia_inyectores': {t:'Limpieza de inyectores', b:'Los inyectores sucios afectan la atomización del combustible. El aditivo Polieteramina (PEA) los limpia desde adentro. Marcas como Redline o BG44K son efectivas.'}
+};
+
+function showModal(key){
+  var info=infoTextos[key];
+  if(!info) return;
+  document.getElementById('modal-title').textContent=info.t;
+  document.getElementById('modal-body').textContent=info.b;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+function cerrarModal(){ document.getElementById('modal-overlay').classList.remove('active'); }
+
+function showLoading(){document.getElementById('loading-overlay').style.display='flex';}
+function hideLoading(){document.getElementById('loading-overlay').style.display='none';}
 
 function tick(){var n=new Date();document.getElementById('clock').textContent=n.getHours()+':'+(n.getMinutes()<10?'0':'')+n.getMinutes();}
-tick(); setInterval(tick,30000);
+tick();setInterval(tick,30000);
 
 function go(name){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
-  var el = document.getElementById('screen-'+name);
+  var el=document.getElementById('screen-'+name);
   if(el) el.classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
   var tabs=['dashboard','checklist','historial','planes','config'];
@@ -520,38 +580,36 @@ async function doLogin(){
   document.getElementById('login-err').style.display='none';
   document.getElementById('login-ok').style.display='none';
   showLoading();
-  try {
-    var {data,error} = await sb.auth.signInWithPassword({email,password:pass});
+  try{
+    var {data,error}=await sb.auth.signInWithPassword({email,password:pass});
     if(error) throw error;
-    await cargarDatos(data.user.uid || data.user.id);
+    await cargarDatos(data.user.id);
     go('dashboard');
-  } catch(e) {
+  }catch(e){
     document.getElementById('login-err').style.display='block';
     document.getElementById('login-err').textContent='Correo o contraseña incorrectos';
-  } finally { hideLoading(); }
+  }finally{hideLoading();}
 }
 
 async function doResetPass(){
   var email=document.getElementById('l-email').value.trim();
   if(!email){alert('Escribe tu correo primero');return;}
   showLoading();
-  try {
-    await sb.auth.resetPasswordForEmail(email, {redirectTo:'https://kmunmillon.com'});
+  try{
+    await sb.auth.resetPasswordForEmail(email,{redirectTo:'https://kmunmillon.com'});
     document.getElementById('login-ok').style.display='block';
     document.getElementById('login-ok').textContent='✓ Te enviamos un correo para restablecer tu contraseña.';
-  } catch(e){ alert('Error al enviar correo. Verifica el correo ingresado.'); }
-  finally { hideLoading(); }
+  }catch(e){alert('Error al enviar correo.');}
+  finally{hideLoading();}
 }
 
 async function cerrarSesion(){
   await sb.auth.signOut();
-  U=null; V=null; H=[]; mantOk=null; currentUID=null; todosAutos=[]; autoIdx=0;
+  U=null;V=null;H=[];mantOk=null;currentUID=null;todosAutos=[];autoIdx=0;
   go('splash');
 }
 
 // ── REGISTRO ───────────────────────────────────────────────
-var regData = {};
-
 function doReg1(){
   var n=document.getElementById('r-nombre').value.trim();
   var e=document.getElementById('r-email').value.trim();
@@ -572,9 +630,12 @@ function doReg2(){
   var trans=document.getElementById('a-trans').value;
   var trac=document.getElementById('a-trac').value;
   var km=parseInt(document.getElementById('a-km').value);
-  var kmmes=parseInt(document.getElementById('a-kmmes').value);
-  if(!marca||!modelo||!anio||isNaN(km)||isNaN(kmmes)){alert('Por favor completa todos los campos');return;}
-  regData.auto={marca,modelo,anio,comb,trans,trac,km,kmmes};
+  var kmmes=parseInt(document.getElementById('a-kmmes').value)||1300;
+  var llantasAnio=parseInt(document.getElementById('a-llantas-anio').value)||null;
+  var llantasKm=parseInt(document.getElementById('a-llantas-km').value)||null;
+  var bateriaAnio=parseInt(document.getElementById('a-bateria-anio').value)||null;
+  if(!marca||!modelo||!anio||isNaN(km)){alert('Por favor completa los campos obligatorios');return;}
+  regData.auto={marca,modelo,anio,comb,trans,trac,km,km_mes:kmmes,llantas_anio:llantasAnio,llantas_km:llantasKm,bateria_anio:bateriaAnio};
   go('reg3');
 }
 
@@ -586,226 +647,147 @@ function selOpt(val){
 }
 
 function doReg3(){
-  if(mantOk===null){alert('Por favor indica si tu auto está al corriente de mantenimiento');return;}
+  if(mantOk===null){alert('Por favor indica si tu auto está al corriente');return;}
   go('reg4');
 }
 
 async function doReg4(){
   var btn=document.getElementById('btn-finalizar');
-  btn.disabled=true; btn.textContent='Creando cuenta...';
+  btn.disabled=true;btn.textContent='Creando cuenta...';
   showLoading();
-  try {
-    // Crear usuario en Supabase Auth
-    var {data,error} = await sb.auth.signUp({email:regData.email, password:regData.pass});
+  try{
+    var {data,error}=await sb.auth.signUp({email:regData.email,password:regData.pass});
     if(error) throw error;
-    var uid = data.user.uid || data.user.id;
-
-    // Calcular trial
-    var trialEnd = new Date();
+    var uid=data.user.id;
+    var trialEnd=new Date();
     trialEnd.setDate(trialEnd.getDate()+30);
-
-    // Insertar en tabla usuarios
     await sb.from('usuarios').insert({
-      id: uid,
-      nombre: regData.nombre,
-      email: regData.email,
-      ciudad: regData.ciudad,
-      plan: 'trial',
-      trial_end: trialEnd.toISOString(),
-      mant_ok: mantOk===true,
-      auto_idx: 0
+      id:uid,nombre:regData.nombre,email:regData.email,ciudad:regData.ciudad,
+      plan:'free',trial_end:trialEnd.toISOString().split('T')[0]
     });
-
-    // Insertar auto
-    var {data:autoData} = await sb.from('autos').insert({
-      usuario_id: uid,
-      marca: regData.auto.marca,
-      modelo: regData.auto.modelo,
-      anio: regData.auto.anio,
-      comb: regData.auto.comb,
-      trans: regData.auto.trans,
-      trac: regData.auto.trac,
-      km: regData.auto.km,
-      kmmes: regData.auto.kmmes
-    }).select().single();
-
+    var autoInsert=Object.assign({user_id:uid,mant_ok:mantOk===true,es_activo:true},regData.auto);
+    await sb.from('autos').insert(autoInsert);
     await cargarDatos(uid);
     go('dashboard');
-  } catch(e) {
+  }catch(e){
     alert('Error al crear cuenta: '+e.message);
-    btn.disabled=false; btn.textContent='Comenzar mi plan →';
-  } finally { hideLoading(); }
+    btn.disabled=false;btn.textContent='Comenzar mi plan →';
+  }finally{hideLoading();}
 }
 
 // ── CARGAR DATOS ───────────────────────────────────────────
 async function cargarDatos(uid){
-  currentUID = uid;
-
-  // Perfil
-  var {data:perfil} = await sb.from('usuarios').select('*').eq('id',uid).single();
+  currentUID=uid;
+  var {data:perfil}=await sb.from('usuarios').select('*').eq('id',uid).single();
   if(!perfil) return;
-  U = {nombre:perfil.nombre, email:perfil.email, ciudad:perfil.ciudad, plan:perfil.plan, trial_end:perfil.trial_end};
-  mantOk = perfil.mant_ok !== false;
-  autoIdx = perfil.auto_idx || 0;
+  U={nombre:perfil.nombre,email:perfil.email,ciudad:perfil.ciudad,plan:perfil.plan,trial_end:perfil.trial_end,plan_expira:perfil.plan_expira};
 
-  // Autos
-  var {data:autos} = await sb.from('autos').select('*').eq('usuario_id',uid);
-  todosAutos = autos || [];
-  V = todosAutos[autoIdx] || todosAutos[0] || null;
+  var {data:autos}=await sb.from('autos').select('*').eq('user_id',uid).order('created_at',{ascending:true});
+  todosAutos=autos||[];
 
-  // Historial del auto activo
+  // Auto activo: el marcado como es_activo, o el primero
+  var activo=todosAutos.find(function(a){return a.es_activo;});
+  autoIdx=activo?todosAutos.indexOf(activo):0;
+  V=todosAutos[autoIdx]||null;
+  if(V) mantOk=V.mant_ok!==false;
+
   if(V){
-    var {data:hist} = await sb.from('historial').select('*').eq('auto_id',V.id).order('created_at',{ascending:false});
-    H = hist || [];
+    var {data:hist}=await sb.from('historial').select('*').eq('auto_id',V.id).order('created_at',{ascending:false});
+    H=hist||[];
   }
 }
 
-// ── GUARDAR CONFIG ─────────────────────────────────────────
-async function guardarCfg(){
-  if(!currentUID||!V) return;
-  V.marca=document.getElementById('c-marca').value;
-  V.modelo=document.getElementById('c-modelo').value;
-  V.anio=document.getElementById('c-anio').value;
-  V.comb=document.getElementById('c-comb').value;
-  V.trans=document.getElementById('c-trans').value;
-  V.trac=document.getElementById('c-trac').value;
-  V.km=parseInt(document.getElementById('c-km').value)||V.km;
-  V.kmmes=parseInt(document.getElementById('c-kmmes').value)||V.kmmes;
-  U.ciudad=document.getElementById('c-ciudad').value;
-  showLoading();
-  try {
-    await sb.from('autos').update({marca:V.marca,modelo:V.modelo,anio:V.anio,comb:V.comb,trans:V.trans,trac:V.trac,km:V.km,kmmes:V.kmmes}).eq('id',V.id);
-    await sb.from('usuarios').update({ciudad:U.ciudad}).eq('id',currentUID);
-    alert('✓ Cambios guardados');
-    go('dashboard');
-  } catch(e){ alert('Error: '+e.message); }
-  finally { hideLoading(); }
+// ── SALUD DEL VEHÍCULO ─────────────────────────────────────
+function calcSalud(){
+  if(!V) return {motor:80,frenos:75,llantas:65,bateria:85};
+  var anioActual=new Date().getFullYear();
+  var kmActual=V.km||0;
+
+  // Motor: basado en km desde último servicio
+  var ultimoServicio=H.find(function(h){return h.servicio&&h.servicio.toLowerCase().includes('aceite');});
+  var kmDesdeServicio=ultimoServicio?kmActual-ultimoServicio.km:5000;
+  var motor=Math.max(10,Math.min(100,100-Math.round((kmDesdeServicio/5000)*40)));
+
+  // Frenos
+  var ultimoFreno=H.find(function(h){return h.servicio&&h.servicio.toLowerCase().includes('freno');});
+  var kmDesdeFreno=ultimoFreno?kmActual-ultimoFreno.km:20000;
+  var frenos=Math.max(10,Math.min(100,100-Math.round((kmDesdeFreno/40000)*70)));
+
+  // Llantas
+  var llantas=75;
+  if(V.llantas_km&&V.llantas_anio){
+    var kmEnLlantas=kmActual-(V.llantas_km||0);
+    var aniosEnLlantas=anioActual-(V.llantas_anio||anioActual);
+    llantas=Math.max(10,Math.min(100,100-Math.round((kmEnLlantas/50000)*60)-aniosEnLlantas*5));
+  }
+
+  // Batería
+  var bateria=85;
+  if(V.bateria_anio){
+    var aniosBateria=anioActual-V.bateria_anio;
+    bateria=Math.max(10,Math.min(100,100-aniosBateria*15));
+  }
+
+  return{motor,frenos,llantas,bateria};
 }
 
-// ── GUARDAR SERVICIO ───────────────────────────────────────
-async function guardarSrv(){
-  var srv=document.getElementById('srv-manual').value.trim();
-  var km=parseInt(document.getElementById('srv-km').value);
-  if(!srv||isNaN(km)){alert('Por favor indica el servicio y el kilometraje');return;}
-  showLoading();
-  try {
-    var {data:nuevo} = await sb.from('historial').insert({
-      auto_id: V.id,
-      usuario_id: currentUID,
-      servicio: srv,
-      km: km
-    }).select().single();
-    H.unshift(nuevo);
-    document.getElementById('panel-reg').style.display='none';
-    alert('✓ Servicio registrado');
-  } catch(e){ alert('Error: '+e.message); }
-  finally { hideLoading(); }
+function colorBar(pct){
+  if(pct>=75) return '#639922';
+  if(pct>=45) return '#BA7517';
+  return '#E24B4A';
 }
 
-// ── AGREGAR AUTO ───────────────────────────────────────────
-async function guardarAutoAdd(){
-  var marca=document.getElementById('add-marca').value.trim();
-  var modelo=document.getElementById('add-modelo').value.trim();
-  var anio=document.getElementById('add-anio').value.trim();
-  var comb=document.getElementById('add-comb').value;
-  var trans=document.getElementById('add-trans').value;
-  var trac=document.getElementById('add-trac').value;
-  var km=parseInt(document.getElementById('add-km').value);
-  var kmmes=parseInt(document.getElementById('add-kmmes').value);
-  if(!marca||!modelo||!anio||isNaN(km)||isNaN(kmmes)){alert('Por favor completa todos los campos');return;}
-  showLoading();
-  try {
-    var {data:nuevoAuto} = await sb.from('autos').insert({usuario_id:currentUID,marca,modelo,anio,comb,trans,trac,km,kmmes}).select().single();
-    todosAutos.push(nuevoAuto);
-    alert('✓ Automóvil agregado');
-    go('config');
-  } catch(e){ alert('Error: '+e.message); }
-  finally { hideLoading(); }
+// ── RENDER DASHBOARD ───────────────────────────────────────
+function renderDash(){
+  if(!U||!V) return;
+  var h=new Date().getHours();
+  var s=h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
+  document.getElementById('d-saludo').textContent=s+', '+U.nombre.split(' ')[0];
+  document.getElementById('d-car').textContent=V.marca+' '+V.modelo+' '+V.anio+' · '+(V.comb==='diesel'?'Diesel':'Gasolina')+' · '+(V.trans==='manual'?'Manual':'Automático');
+  document.getElementById('d-km').textContent=(V.km||0).toLocaleString()+' km · Meta: 1,000,000 km';
+  document.getElementById('clima-banner').style.display=(U.ciudad==='mexicali'||U.ciudad==='tijuana')?'flex':'none';
+  document.getElementById('mant-banner').style.display=mantOk?'none':'flex';
+
+  // Trial banner
+  var trialBanner=document.getElementById('trial-banner');
+  if(U.trial_end&&(U.plan==='free'||U.plan==='trial')){
+    var dias=Math.max(0,Math.ceil((new Date(U.trial_end)-new Date())/(1000*60*60*24)));
+    if(dias>0){trialBanner.style.display='flex';document.getElementById('trial-txt').textContent='🎁 Te quedan '+dias+' días de prueba gratuita.';}
+    else{trialBanner.style.display='none';}
+  }else{trialBanner.style.display='none';}
+
+  // Salud
+  var salud=calcSalud();
+  var prom=Math.round((salud.motor+salud.frenos+salud.llantas+salud.bateria)/4);
+  document.getElementById('salud-pct').textContent=prom+'%';
+  var offset=Math.round(138*(1-prom/100));
+  document.getElementById('salud-circle').setAttribute('stroke-dashoffset',offset);
+  document.getElementById('bar-motor').style.width=salud.motor+'%';
+  document.getElementById('bar-motor').style.background=colorBar(salud.motor);
+  document.getElementById('bar-frenos').style.width=salud.frenos+'%';
+  document.getElementById('bar-frenos').style.background=colorBar(salud.frenos);
+  document.getElementById('bar-llantas').style.width=salud.llantas+'%';
+  document.getElementById('bar-llantas').style.background=colorBar(salud.llantas);
+  document.getElementById('bar-bateria').style.width=salud.bateria+'%';
+  document.getElementById('bar-bateria').style.background=colorBar(salud.bateria);
+
+  // Próximo servicio
+  var list=document.getElementById('rlist');
+  list.innerHTML='';
+  var pA=proxI(V.km||0,5000);
+  var kmA=pA-(V.km||0);
+  var niv=kmA<=500?'urgent':kmA<=1500?'warn':'ok';
+  var bg=niv==='urgent'?'#FCEBEB':niv==='warn'?'#FAEEDA':'#EAF3DE';
+  var bc=niv==='urgent'?'background:#FCEBEB;color:#A32D2D':niv==='warn'?'background:#FAEEDA;color:#854F0B':'background:#EAF3DE;color:#3B6D11';
+  var lbl=niv==='urgent'?'Urgente':niv==='warn'?'Próximo':'Al día';
+  var d=document.createElement('div');
+  d.className='rcard';d.onclick=function(){go('checklist');};
+  d.innerHTML='<div class="rico" style="background:'+bg+'">🛢️</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#111;">Próximo servicio</div><div style="font-size:11px;color:#777;margin-top:1px;">En '+kmA.toLocaleString()+' km · ~'+pA.toLocaleString()+' km</div></div><span class="badge" style="'+bc+'">'+lbl+'</span>';
+  list.appendChild(d);
+  document.getElementById('consejo').textContent=consejos[new Date().getDate()%consejos.length];
 }
 
-async function cambiarAuto(idx){
-  showLoading();
-  try {
-    autoIdx = idx;
-    V = todosAutos[idx];
-    await sb.from('usuarios').update({auto_idx:idx}).eq('id',currentUID);
-    var {data:hist} = await sb.from('historial').select('*').eq('auto_id',V.id).order('created_at',{ascending:false});
-    H = hist || [];
-    go('dashboard');
-  } catch(e){ alert('Error: '+e.message); }
-  finally { hideLoading(); }
-}
-
-async function borrarAuto(idx){
-  if(todosAutos.length<=1){alert('No puedes eliminar el único automóvil registrado.');return;}
-  if(!confirm('¿Eliminar este automóvil?')) return;
-  showLoading();
-  try {
-    await sb.from('autos').delete().eq('id',todosAutos[idx].id);
-    todosAutos.splice(idx,1);
-    if(autoIdx>=todosAutos.length) autoIdx=0;
-    V = todosAutos[autoIdx];
-    await sb.from('usuarios').update({auto_idx:autoIdx}).eq('id',currentUID);
-    renderCfg();
-  } catch(e){ alert('Error: '+e.message); }
-  finally { hideLoading(); }
-}
-
-async function borrarHist(idx){
-  if(!confirm('¿Borrar este servicio del historial?')) return;
-  showLoading();
-  try {
-    await sb.from('historial').delete().eq('id',H[idx].id);
-    H.splice(idx,1);
-    renderHist();
-  } catch(e){ alert('Error: '+e.message); }
-  finally { hideLoading(); }
-}
-
-// ── COMPLETAR CHECKLIST ────────────────────────────────────
-async function completar(){
-  if(!V) return;
-  var atrasado=!mantOk&&H.length===0;
-  var kmServicio=proxI(V.km,5000);
-  var srvNombre=atrasado?'Puesta al corriente':'Servicio '+kmServicio.toLocaleString()+' km';
-  var kmNuevoStr=prompt('Servicio registrado ✓\n\n¿Cuál es tu kilometraje actual?',''+V.km);
-  var kmNuevo=parseInt(kmNuevoStr);
-  showLoading();
-  try {
-    if(!isNaN(kmNuevo)&&kmNuevo>0){
-      V.km=kmNuevo;
-      await sb.from('autos').update({km:kmNuevo}).eq('id',V.id);
-    }
-    if(atrasado){
-      mantOk=true;
-      await sb.from('usuarios').update({mant_ok:true}).eq('id',currentUID);
-    }
-    var {data:nuevo} = await sb.from('historial').insert({
-      auto_id:V.id, usuario_id:currentUID, servicio:srvNombre, km:V.km
-    }).select().single();
-    H.unshift(nuevo);
-    alert('✓ '+(atrasado?'Puesta al corriente completada.':'Servicio registrado.')+(!isNaN(kmNuevo)&&kmNuevo>0?' Km actualizado a '+kmNuevo.toLocaleString()+'.':''));
-    go('dashboard');
-  } catch(e){ alert('Error: '+e.message); }
-  finally { hideLoading(); }
-}
-
-// ── PAGOS ──────────────────────────────────────────────────
-async function iniciarPago(tipo){
-  showLoading();
-  try {
-    var planId = tipo==='individual' ? 'f2a6347acada418a8cc080234227edb1' : 'eab5166139b642318a198561dbe6f5ad';
-    var {data,error} = await sb.functions.invoke('procesar-pago',{
-      body:{plan:tipo, plan_id:planId, usuario_id:currentUID, email:U.email}
-    });
-    if(error) throw error;
-    if(data && data.init_point) window.open(data.init_point,'_blank');
-    else alert('Error al generar el pago. Intenta de nuevo.');
-  } catch(e){ alert('Error al procesar pago: '+e.message); }
-  finally { hideLoading(); }
-}
-
-// ── RENDER ─────────────────────────────────────────────────
+// ── CHECKLIST ──────────────────────────────────────────────
 function proxI(km,i){var p=Math.ceil(km/i)*i;if(p<=km)p+=i;return p;}
 
 function getChecklist(km,comb,trans,trac,atrasado){
@@ -814,80 +796,165 @@ function getChecklist(km,comb,trans,trac,atrasado){
   var esAWD=trac==='awd';
   var esRWD=trac==='rwd';
   var items=[];
+
+  function item(txt,key){return{txt:txt,key:key||null};}
+
   if(atrasado){
-    items.push('⚠️ PUESTA AL CORRIENTE — Revisar todos los servicios atrasados con un mecánico de confianza');
-    items.push('Verificar nivel y estado de todos los fluidos (aceite, refrigerante, frenos, dirección, transmisión)');
-    items.push('Inspección visual completa de frenos (pastillas, discos y mangueras)');
-    items.push('Revisar estado de llantas y presión (PSI exacto del manual)');
-    items.push('Inspeccionar postes de batería y estado de la batería');
-    items.push('Revisar filtros de aire del motor y cabina');
-    items.push('Inspeccionar mangueras, bandas y sistema de enfriamiento');
-    if(esManual) items.push('Evaluar estado del embrague: patinamiento y ruidos');
-    items.push('Alinear y balancear llantas');
-    items.push('— Una vez completada, actualiza tu km en Configuración —');
-    return items;
+    return[
+      item('⚠️ PUESTA AL CORRIENTE — Revisar todos los servicios atrasados con un mecánico de confianza'),
+      item('Verificar nivel y estado de todos los fluidos (aceite, refrigerante, frenos, dirección, transmisión)'),
+      item('Inspección visual completa de frenos (pastillas, discos y mangueras)','frenos'),
+      item('Revisar estado de llantas y presión (PSI exacto del manual)','presion'),
+      item('Inspeccionar postes de batería y estado de la batería'),
+      item('Revisar filtros de aire del motor y cabina','filtro_aire'),
+      item('Inspeccionar mangueras, bandas y sistema de enfriamiento'),
+      esManual?item('Evaluar estado del embrague: patinamiento y ruidos'):null,
+      item('Alinear y balancear llantas'),
+      item('— Una vez completada, actualiza tu km en Configuración —')
+    ].filter(Boolean);
   }
-  items.push('Cambio de aceite y filtro '+(esDiesel?'(Diesel: especial DPF)':'(Gasolina: sintético)'));
-  items.push('Inspección de niveles y presión de neumáticos (PSI exacto)');
-  if(km%10000===0&&km%20000!==0){items.push('Rotación de neumáticos');items.push('Revisión visual y auditiva de frenos');items.push('Limpieza de postes de batería (grasa dieléctrica)');if(esDiesel)items.push('Diesel: Drenado de agua del filtro de combustible');}
-  if(km%20000===0&&km%40000!==0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina (Aire Acondicionado)');items.push('Revisión visual y auditiva de frenos');if(esManual)items.push('Evaluación de embrague');if(esDiesel)items.push('Diesel: Reemplazo total de filtro de combustible');}
-  if(km%40000===0&&km%60000!==0&&km%100000!==0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina');items.push('Cambio de líquido de frenos');if(esManual||esAWD||esRWD)items.push('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''));items.push('Revisión de bomba de gasolina');}
-  if(km%60000===0&&km%100000!==0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina');items.push('Cambio de líquido de frenos');items.push('Servicio de transmisión: cambio de fluido y filtro');if(esManual||esAWD||esRWD)items.push('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''));if(esDiesel){items.push('Diesel: Inspección de sistema DPF/SCR y nivel de Urea');}else{items.push('Gasolina: Agregar aditivo limpia inyectores (Polieteramina)');}}
-  if(km%100000===0){items.push('Rotación de neumáticos y alineación/balanceo');items.push('Cambio de filtro de aire del motor');items.push('Cambio de filtro de cabina');items.push('Cambio de líquido de frenos');items.push('Servicio de transmisión: cambio de fluido y filtro');if(esManual||esAWD||esRWD)items.push('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''));items.push('Revisión de bomba de gasolina');if(esDiesel){items.push('Diesel: Inspección de bujías de precalentamiento');items.push('Diesel: Inspección DPF/SCR y nivel de Urea');}else{items.push('Gasolina: Cambio de bujías (Preventivo)');items.push('Gasolina: Agregar aditivo limpia inyectores');}if(esManual)items.push('Evaluación de embrague');items.push('Inspección general de mangueras, bandas y sistema de enfriamiento');}
+
+  items.push(item('Cambio de aceite y filtro '+(esDiesel?'(Diesel: especial DPF)':'(Gasolina: sintético)'),'aceite'));
+  items.push(item('Inspección de niveles y presión de neumáticos (PSI exacto)','presion'));
+
+  if(km%10000===0&&km%20000!==0){
+    items.push(item('Rotación de neumáticos','rotacion'));
+    items.push(item('Revisión visual y auditiva de frenos','frenos'));
+    items.push(item('Limpieza de postes de batería (grasa dieléctrica)'));
+    if(esDiesel) items.push(item('Diesel: Drenado de agua del filtro de combustible'));
+  }
+  if(km%20000===0&&km%40000!==0){
+    items.push(item('Rotación de neumáticos y alineación/balanceo','rotacion'));
+    items.push(item('Cambio de filtro de aire del motor','filtro_aire'));
+    items.push(item('Cambio de filtro de cabina (Aire Acondicionado)','filtro_cabina'));
+    items.push(item('Revisión visual y auditiva de frenos','frenos'));
+    if(esManual) items.push(item('Evaluación de embrague: patinamiento, ruidos y suavidad'));
+    if(esDiesel) items.push(item('Diesel: Reemplazo total de filtro de combustible'));
+  }
+  if(km%40000===0&&km%60000!==0&&km%100000!==0){
+    items.push(item('Rotación de neumáticos y alineación/balanceo','rotacion'));
+    items.push(item('Cambio de filtro de aire del motor','filtro_aire'));
+    items.push(item('Cambio de filtro de cabina (Aire Acondicionado)','filtro_cabina'));
+    items.push(item('Cambio de líquido de frenos','liquido_frenos'));
+    if(esManual||esAWD||esRWD) items.push(item('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''),'diferencial'));
+    items.push(item('Revisión de bomba de gasolina (nivel de tanque y presión)'));
+    if(esManual) items.push(item('Evaluación de embrague'));
+  }
+  if(km%60000===0&&km%100000!==0){
+    items.push(item('Rotación de neumáticos y alineación/balanceo','rotacion'));
+    items.push(item('Cambio de filtro de aire del motor','filtro_aire'));
+    items.push(item('Cambio de filtro de cabina (Aire Acondicionado)','filtro_cabina'));
+    items.push(item('Cambio de líquido de frenos','liquido_frenos'));
+    items.push(item('Servicio de transmisión: cambio de fluido y filtro','transmision'));
+    if(esManual||esAWD||esRWD) items.push(item('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''),'diferencial'));
+    if(esDiesel){items.push(item('Diesel: Inspección de sistema DPF/SCR y nivel de Urea'));}
+    else{items.push(item('Gasolina: Agregar aditivo limpia inyectores (Polieteramina)','limpia_inyectores'));}
+    if(esManual) items.push(item('Evaluación de embrague'));
+  }
+  if(km%100000===0){
+    items.push(item('Rotación de neumáticos y alineación/balanceo','rotacion'));
+    items.push(item('Cambio de filtro de aire del motor','filtro_aire'));
+    items.push(item('Cambio de filtro de cabina (Aire Acondicionado)','filtro_cabina'));
+    items.push(item('Cambio de líquido de frenos','liquido_frenos'));
+    items.push(item('Servicio de transmisión: cambio de fluido y filtro','transmision'));
+    if(esManual||esAWD||esRWD) items.push(item('Cambio de aceite de diferencial(es)'+(esAWD?' y transfer':''),'diferencial'));
+    items.push(item('Revisión de bomba de gasolina'));
+    if(esDiesel){items.push(item('Diesel: Inspección de bujías de precalentamiento'));items.push(item('Diesel: Inspección DPF/SCR y nivel de Urea'));}
+    else{items.push(item('Gasolina: Cambio de bujías (Preventivo)','bujias'));items.push(item('Gasolina: Agregar aditivo limpia inyectores','limpia_inyectores'));}
+    if(esManual) items.push(item('Evaluación de embrague'));
+    items.push(item('Inspección general de mangueras, bandas y sistema de enfriamiento'));
+  }
   return items;
 }
 
-function renderDash(){
-  if(!U||!V) return;
-  var h=new Date().getHours();
-  var s=h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
-  document.getElementById('d-saludo').textContent=s+', '+U.nombre.split(' ')[0];
-  document.getElementById('d-car').textContent=V.marca+' '+V.modelo+' '+V.anio+' · '+(V.comb==='diesel'?'Diesel':'Gasolina')+' · '+(V.trans==='manual'?'Manual':'Automático');
-  document.getElementById('d-km').textContent=V.km.toLocaleString()+' km · Meta: 1,000,000 km';
-  document.getElementById('clima-banner').style.display=(U.ciudad==='mexicali'||U.ciudad==='tijuana')?'flex':'none';
-  document.getElementById('mant-banner').style.display=mantOk?'none':'flex';
-
-  // Trial banner
-  var trialBanner=document.getElementById('trial-banner');
-  var trialTxt=document.getElementById('trial-txt');
-  if(U.trial_end && U.plan==='trial'){
-    var dias=Math.ceil((new Date(U.trial_end)-new Date())/(1000*60*60*24));
-    if(dias>0){
-      trialBanner.style.display='flex';
-      trialTxt.textContent='🎁 Te quedan '+dias+' días de prueba gratuita. Suscríbete en Planes.';
-    }else{ trialBanner.style.display='none'; }
-  }else{ trialBanner.style.display='none'; }
-
-  var list=document.getElementById('rlist');
-  list.innerHTML='';
-  var pA=proxI(V.km,5000);
-  var kmA=pA-V.km;
-  var niv=kmA<=500?'urgent':kmA<=1500?'warn':'ok';
-  var bg=niv==='urgent'?'#FCEBEB':niv==='warn'?'#FAEEDA':'#EAF3DE';
-  var bc=niv==='urgent'?'background:#FCEBEB;color:#A32D2D':niv==='warn'?'background:#FAEEDA;color:#854F0B':'background:#EAF3DE;color:#3B6D11';
-  var lbl=niv==='urgent'?'Urgente':niv==='warn'?'Próximo':'Al día';
-  var d=document.createElement('div');
-  d.className='rcard'; d.onclick=function(){go('checklist');};
-  d.innerHTML='<div class="rico" style="background:'+bg+'">🛢️</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#111;">Próximo servicio</div><div style="font-size:11px;color:#777;margin-top:1px;">En '+kmA.toLocaleString()+' km · ~'+pA.toLocaleString()+' km</div></div><span class="badge" style="'+bc+'">'+lbl+'</span>';
-  list.appendChild(d);
-  document.getElementById('consejo').textContent=consejos[new Date().getDate()%consejos.length];
+function renderChk(){
+  if(!V) return;
+  var atrasado=!mantOk&&H.length===0;
+  var kmParaChecklist=proxI(V.km||0,5000);
+  document.getElementById('chk-title').textContent=atrasado?'Puesta al corriente':'Servicio '+kmParaChecklist.toLocaleString()+' km';
+  document.getElementById('chk-sub').textContent=V.marca+' '+V.modelo+' · '+(V.comb==='diesel'?'Diesel':'Gasolina')+' · '+(V.trans==='manual'?'Manual':'Automático');
+  var lista=getChecklist(kmParaChecklist,V.comb,V.trans,V.trac||'fwd',atrasado);
+  var body=document.getElementById('chk-body');
+  body.innerHTML='';
+  lista.forEach(function(item){
+    var d=document.createElement('div');
+    d.className='chk-item';
+    var infoBtn=item.key?'<button class="info-btn" onclick="event.stopPropagation();showModal(\''+item.key+'\')">i</button>':'';
+    d.innerHTML='<div class="chk-box"></div><div style="flex:1;font-size:13px;font-weight:500;color:#111;line-height:1.4;">'+item.txt+'</div>'+infoBtn;
+    d.onclick=function(){d.querySelector('.chk-box').classList.toggle('checked');updProg();};
+    body.appendChild(d);
+  });
+  updProg();
 }
 
-function renderPlanes(){
-  if(!U) return;
-  var lbl=document.getElementById('plan-estado-lbl');
-  var val=document.getElementById('plan-estado-val');
-  var sub=document.getElementById('plan-estado-sub');
-  if(U.plan==='individual'){lbl.textContent='Plan activo';val.textContent='Individual';sub.textContent='$20 MXN/mes · 1 vehículo';}
-  else if(U.plan==='familiar'){lbl.textContent='Plan activo';val.textContent='Familiar';sub.textContent='$50 MXN/mes · hasta 3 autos';}
-  else{
-    var dias=U.trial_end?Math.max(0,Math.ceil((new Date(U.trial_end)-new Date())/(1000*60*60*24))):0;
-    lbl.textContent='Periodo gratuito';
-    val.textContent=dias+' días restantes';
-    sub.textContent='Elige tu plan antes de que expire';
+function updProg(){
+  var total=document.querySelectorAll('#chk-body .chk-item').length;
+  var checked=document.querySelectorAll('#chk-body .chk-box.checked').length;
+  var pct=total?Math.round(checked/total*100):0;
+  document.getElementById('prog-txt').textContent=checked+' de '+total+' completados';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+async function completar(){
+  if(!V) return;
+  var atrasado=!mantOk&&H.length===0;
+  var kmServicio=proxI(V.km||0,5000);
+  var srvNombre=atrasado?'Puesta al corriente':'Servicio '+kmServicio.toLocaleString()+' km';
+  var kmNuevoStr=prompt('Servicio registrado ✓\n\n¿Cuál es tu kilometraje actual?',''+(V.km||0));
+  var kmNuevo=parseInt(kmNuevoStr);
+  showLoading();
+  try{
+    if(!isNaN(kmNuevo)&&kmNuevo>0){
+      V.km=kmNuevo;
+      await sb.from('autos').update({km:kmNuevo}).eq('id',V.id);
+    }
+    if(atrasado){
+      mantOk=true;
+      await sb.from('autos').update({mant_ok:true}).eq('id',V.id);
+    }
+    var {data:nuevo}=await sb.from('historial').insert({
+      auto_id:V.id,user_id:currentUID,servicio:srvNombre,km:V.km,
+      fecha:new Date().toLocaleDateString('es-MX')
+    }).select().single();
+    H.unshift(nuevo);
+    alert('✓ Servicio registrado.'+ (!isNaN(kmNuevo)&&kmNuevo>0?' Km actualizado a '+kmNuevo.toLocaleString()+'.':''));
+    go('dashboard');
+  }catch(e){alert('Error: '+e.message);}
+  finally{hideLoading();}
+}
+
+// ── HISTORIAL ──────────────────────────────────────────────
+function renderHist(){
+  if(!V) return;
+  document.getElementById('hist-sub').textContent=V.marca+' '+V.modelo+' '+V.anio;
+  var body=document.getElementById('hist-body');
+  if(!H.length){
+    body.innerHTML='<p style="font-size:13px;color:#999;text-align:center;margin-top:2rem;">Aún no tienes servicios registrados.<br>Completa tu primer checklist para comenzar.</p>';
+    return;
   }
+  body.innerHTML='';
+  H.forEach(function(h,idx){
+    var fecha=h.fecha||(h.created_at?new Date(h.created_at).toLocaleDateString('es-MX'):'—');
+    var d=document.createElement('div');
+    d.className='hist-item';
+    d.innerHTML='<div style="width:36px;height:36px;background:#FCEBEB;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🛢️</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#111;">'+h.servicio+'</div><div style="font-size:11px;color:#666;margin-top:2px;">'+(h.km||0).toLocaleString()+' km · '+fecha+'</div><div style="font-size:11px;color:#639922;margin-top:2px;font-weight:500;">✓ Completado</div></div><button class="hist-del" onclick="borrarHist('+idx+')">🗑️</button>';
+    body.appendChild(d);
+  });
 }
 
+async function borrarHist(idx){
+  if(!confirm('¿Borrar este servicio del historial?')) return;
+  showLoading();
+  try{
+    await sb.from('historial').delete().eq('id',H[idx].id);
+    H.splice(idx,1);
+    renderHist();
+  }catch(e){alert('Error: '+e.message);}
+  finally{hideLoading();}
+}
+
+// ── REGISTRAR SERVICIO ─────────────────────────────────────
 function toggleReg(){
   var p=document.getElementById('panel-reg');
   var v=p.style.display==='block';
@@ -911,117 +978,26 @@ function toggleReg(){
   }
 }
 
-function renderChk(){
-  if(!V) return;
-  var atrasado=!mantOk&&H.length===0;
-  var kmParaChecklist=proxI(V.km,5000);
-  document.getElementById('chk-title').textContent=atrasado?'Puesta al corriente':'Servicio '+kmParaChecklist.toLocaleString()+' km';
-  document.getElementById('chk-sub').textContent=V.marca+' '+V.modelo+' · '+(V.comb==='diesel'?'Diesel':'Gasolina')+' · '+(V.trans==='manual'?'Manual':'Automático');
-  var lista=getChecklist(kmParaChecklist,V.comb,V.trans,V.trac||'fwd',atrasado);
-  var body=document.getElementById('chk-body');
-  body.innerHTML='';
-  lista.forEach(function(txt){
-    var d=document.createElement('div');
-    d.className='chk-item';
-    d.innerHTML='<div class="chk-box"></div><div style="font-size:13px;font-weight:500;color:#111;">'+txt+'</div>';
-    d.onclick=function(){d.querySelector('.chk-box').classList.toggle('checked');updProg();};
-    body.appendChild(d);
-  });
-  updProg();
+async function guardarSrv(){
+  var srv=document.getElementById('srv-manual').value.trim();
+  var km=parseInt(document.getElementById('srv-km').value);
+  if(!srv||isNaN(km)){alert('Por favor indica el servicio y el kilometraje');return;}
+  showLoading();
+  try{
+    var {data:nuevo}=await sb.from('historial').insert({
+      auto_id:V.id,user_id:currentUID,servicio:srv,km:km,
+      fecha:new Date().toLocaleDateString('es-MX')
+    }).select().single();
+    H.unshift(nuevo);
+    document.getElementById('panel-reg').style.display='none';
+    alert('✓ Servicio registrado');
+  }catch(e){alert('Error: '+e.message);}
+  finally{hideLoading();}
 }
 
-function updProg(){
-  var total=document.querySelectorAll('#chk-body .chk-item').length;
-  var checked=document.querySelectorAll('#chk-body .chk-box.checked').length;
-  var pct=total?Math.round(checked/total*100):0;
-  document.getElementById('prog-txt').textContent=checked+' de '+total+' completados';
-  document.getElementById('prog-pct').textContent=pct+'%';
-  document.getElementById('prog-fill').style.width=pct+'%';
-}
-
-function renderHist(){
-  if(!V) return;
-  document.getElementById('hist-sub').textContent=V.marca+' '+V.modelo+' '+V.anio;
-  var body=document.getElementById('hist-body');
-  if(!H.length){
-    body.innerHTML='<p style="font-size:13px;color:#999;text-align:center;margin-top:2rem;">Aún no tienes servicios registrados.<br>Completa tu primer checklist para comenzar.</p>';
-    return;
-  }
-  body.innerHTML='';
-  H.forEach(function(h,idx){
-    var fecha=h.created_at?new Date(h.created_at).toLocaleDateString('es-MX'):'—';
-    var d=document.createElement('div');
-    d.className='hist-item';
-    d.innerHTML='<div style="width:36px;height:36px;background:#FCEBEB;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🛢️</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#111;">'+h.servicio+'</div><div style="font-size:11px;color:#666;margin-top:2px;">'+h.km.toLocaleString()+' km · '+fecha+'</div><div style="font-size:11px;color:#639922;margin-top:2px;font-weight:500;">✓ Completado</div></div><button class="hist-del" onclick="borrarHist('+idx+')">🗑️</button>';
-    body.appendChild(d);
-  });
-}
-
+// ── CONFIG ─────────────────────────────────────────────────
 function renderCfg(){
   if(!U||!V) return;
   document.getElementById('cfg-nom').textContent=U.nombre;
   document.getElementById('cfg-av').textContent=U.nombre.charAt(0).toUpperCase();
-  var planTxt = U.plan==='individual'?'Plan Individual · activo':U.plan==='familiar'?'Plan Familiar · activo':'30 días gratis · activo';
-  document.getElementById('cfg-plan').textContent=planTxt;
-  document.getElementById('c-marca').value=V.marca;
-  document.getElementById('c-modelo').value=V.modelo;
-  document.getElementById('c-anio').value=V.anio;
-  document.getElementById('c-comb').value=V.comb||'gasolina';
-  document.getElementById('c-trans').value=V.trans||'automatica';
-  document.getElementById('c-trac').value=V.trac||'fwd';
-  document.getElementById('c-km').value=V.km;
-  document.getElementById('c-kmmes').value=V.kmmes;
-  document.getElementById('c-ciudad').value=U.ciudad;
-  renderAutosLista();
-}
-
-function renderAutosLista(){
-  var lista=document.getElementById('autos-lista');
-  if(!lista) return;
-  lista.innerHTML='';
-  todosAutos.forEach(function(a,i){
-    var activo=i===autoIdx;
-    var d=document.createElement('div');
-    d.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid '+(activo?'#B51E1E':'#ddd')+';background:'+(activo?'#FCEBEB':'#fff')+';';
-    var btnUsar=activo?'<span style="font-size:10px;font-weight:600;color:#B51E1E;padding:3px 8px;">Activo</span>':'<button onclick="cambiarAuto('+i+')" style="font-size:11px;color:#B51E1E;background:none;border:1px solid #B51E1E;border-radius:6px;padding:3px 8px;cursor:pointer;">Usar</button>';
-    var btnBorrar=todosAutos.length>1?'<button onclick="borrarAuto('+i+')" style="background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;margin-left:4px;">🗑️</button>':'';
-    d.innerHTML='<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:'+(activo?'#B51E1E':'#111')+';">'+a.marca+' '+a.modelo+'</div><div style="font-size:11px;color:#777;">'+a.anio+' · '+a.km.toLocaleString()+' km</div></div>'+btnUsar+btnBorrar;
-    lista.appendChild(d);
-  });
-}
-
-function toggleSw(el){
-  var th=el.querySelector('.th');
-  var on=el.style.background==='rgb(181, 30, 30)';
-  el.style.background=on?'#ddd':'#B51E1E';
-  th.style.right=on?'':'2px';th.style.left=on?'2px':'';
-}
-
-function checkNotif(){
-  if(!V||!('Notification' in window)||Notification.permission!=='granted') return;
-  var pA=proxI(V.km,5000);
-  var kmA=pA-V.km;
-  if(kmA<=500) new Notification('🛢️ KM Un Millón',{body:'Servicio en '+kmA+' km — prepárate.'});
-  else if(kmA<=1500) new Notification('🛢️ KM Un Millón',{body:'Próximo servicio en '+kmA+' km.'});
-}
-
-// ── INICIALIZAR ────────────────────────────────────────────
-window.addEventListener('load', async function(){
-  if('Notification' in window && Notification.permission==='default') Notification.requestPermission();
-  try {
-    var {data:{session}} = await sb.auth.getSession();
-    if(session && session.user){
-      await cargarDatos(session.user.id);
-      go('dashboard');
-    } else {
-      go('splash');
-    }
-  } catch(e){
-    go('splash');
-  } finally {
-    hideLoading();
-  }
-});
-</script>
-</body>
-</html>
+  var planTxt=U.plan==='individual'?'Plan Individual 
