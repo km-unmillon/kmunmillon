@@ -12,6 +12,10 @@
   gtag('js', new Date());
   gtag('config', 'G-HYC87BQSVG');
 </script>
+<script>
+function showLoading(){ document.getElementById("loading-overlay").style.display="flex"; }
+function hideLoading(){ document.getElementById("loading-overlay").style.display="none"; }
+</script>
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -48,16 +52,17 @@
   };
 
   // Inicializar cuando Firebase esté listo
-  window.addEventListener('load', () => {
+  window._initAuth = function() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        await cargarDatosUsuario(user.uid);
+        await window.cargarDatosUsuario(user.uid);
         go('config');
       } else {
         go('splash');
       }
+      hideLoading();
     });
-  });
+  };
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -948,6 +953,13 @@ function checkNotif(){
 }
 
 window.cargarDatosUsuario = cargarDatosUsuario;
+
+// Iniciar Firebase Auth ahora que todas las funciones están definidas
+if(window._initAuth){
+  window._initAuth();
+} else {
+  document.addEventListener("DOMContentLoaded", function(){ if(window._initAuth) window._initAuth(); });
+}
 </script>
 </body>
 </html>
