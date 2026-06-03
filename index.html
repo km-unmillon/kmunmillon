@@ -995,9 +995,181 @@ async function guardarSrv(){
   finally{hideLoading();}
 }
 
-// ── CONFIG ─────────────────────────────────────────────────
 function renderCfg(){
   if(!U||!V) return;
   document.getElementById('cfg-nom').textContent=U.nombre;
   document.getElementById('cfg-av').textContent=U.nombre.charAt(0).toUpperCase();
-  var planTxt=U.plan==='individual'?'Plan Individual 
+  var planTxt=U.plan==='individual'?'Plan Individual · activo':U.plan==='familiar'?'Plan Familiar · activo':'30 días gratis · activo';
+  document.getElementById('cfg-plan').textContent=planTxt;
+  document.getElementById('c-marca').value=V.marca||'';
+  document.getElementById('c-modelo').value=V.modelo||'';
+  document.getElementById('c-anio').value=V.anio||'';
+  document.getElementById('c-comb').value=V.comb||'gasolina';
+  document.getElementById('c-trans').value=V.trans||'automatica';
+  document.getElementById('c-trac').value=V.trac||'fwd';
+  document.getElementById('c-km').value=V.km||'';
+  document.getElementById('c-kmmes').value=V.km_mes||1300;
+  document.getElementById('c-ciudad').value=U.ciudad||'';
+  document.getElementById('c-llantas-anio').value=V.llantas_anio||'';
+  document.getElementById('c-llantas-km').value=V.llantas_km||'';
+  document.getElementById('c-bateria-anio').value=V.bateria_anio||'';
+  renderAutosLista();
+}
+
+async function guardarCfg(){
+  if(!currentUID||!V) return;
+  V.marca=document.getElementById('c-marca').value;
+  V.modelo=document.getElementById('c-modelo').value;
+  V.anio=document.getElementById('c-anio').value;
+  V.comb=document.getElementById('c-comb').value;
+  V.trans=document.getElementById('c-trans').value;
+  V.trac=document.getElementById('c-trac').value;
+  V.km=parseInt(document.getElementById('c-km').value)||V.km;
+  V.km_mes=parseInt(document.getElementById('c-kmmes').value)||1300;
+  V.llantas_anio=parseInt(document.getElementById('c-llantas-anio').value)||null;
+  V.llantas_km=parseInt(document.getElementById('c-llantas-km').value)||null;
+  V.bateria_anio=parseInt(document.getElementById('c-bateria-anio').value)||null;
+  U.ciudad=document.getElementById('c-ciudad').value;
+  showLoading();
+  try{
+    await sb.from('autos').update({
+      marca:V.marca,modelo:V.modelo,anio:V.anio,comb:V.comb,trans:V.trans,trac:V.trac,
+      km:V.km,km_mes:V.km_mes,llantas_anio:V.llantas_anio,llantas_km:V.llantas_km,bateria_anio:V.bateria_anio
+    }).eq('id',V.id);
+    await sb.from('usuarios').update({ciudad:U.ciudad}).eq('id',currentUID);
+    alert('✓ Cambios guardados');
+    go('dashboard');
+  }catch(e){alert('Error al guardar: '+e.message);}
+  finally{hideLoading();}
+}
+
+function renderAutosLista(){
+  var lista=document.getElementById('autos-lista');
+  if(!lista) return;
+  lista.innerHTML='';
+  todosAutos.forEach(function(a,i){
+    var activo=i===autoIdx;
+    var d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid '+(activo?'#B51E1E':'#ddd')+';background:'+(activo?'#FCEBEB':'#fff')+';';
+    var btnUsar=activo?'<span style="font-size:10px;font-weight:600;color:#B51E1E;padding:3px 8px;">Activo</span>':'<button onclick="cambiarAuto('+i+')" style="font-size:11px;color:#B51E1E;background:none;border:1px solid #B51E1E;border-radius:6px;padding:3px 8px;cursor:pointer;">Usar</button>';
+    var btnBorrar=todosAutos.length>1?'<button onclick="borrarAuto('+i+')" style="background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;margin-left:4px;">🗑️</button>':'';
+    d.innerHTML='<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:'+(activo?'#B51E1E':'#111')+';">'+(a.marca||'')+' '+(a.modelo||'')+'</div><div style="font-size:11px;color:#777;">'+(a.anio||'')+' · '+(a.km||0).toLocaleString()+' km</div></div>'+btnUsar+btnBorrar;
+    lista.appendChild(d);
+  });
+}
+
+async function cambiarAuto(idx){
+  showLoading();
+  try{
+    for(var i=0;i<todosAutos.length;i++){
+      await sb.from('autos').update({es_activo:i===idx}).eq('id',todosAutos[i].id);
+    }
+    autoIdx=idx;V=todosAutos[idx];
+    mantOk=V.mant_ok!==false;
+    var {data:hist}=await sb.from('historial').select('*').eq('auto_id',V.id).order('created_at',{ascending:false});
+    H=hist||[];
+    go('dashboard');
+  }catch(e){alert('Error: '+e.message);}
+  finally{hideLoading();}
+}
+
+async function borrarAuto(idx){
+  if(todosAutos.length<=1){alert('No puedes eliminar el único automóvil registrado.');return;}
+  if(!confirm('¿Eliminar este automóvil?')) return;
+  showLoading();
+  try{
+    await sb.from('autos').delete().eq('id',todosAutos[idx].id);
+    todosAutos.splice(idx,1);
+    if(autoIdx>=todosAutos.length) autoIdx=0;
+    V=todosAutos[autoIdx];
+    mantOk=V.mant_ok!==false;
+    await sb.from('autos').update({es_activo:true}).eq('id',V.id);
+    renderCfg();
+  }catch(e){alert('Error: '+e.message);}
+  finally{hideLoading();}
+}
+
+async function guardarAutoAdd(){
+  var marca=document.getElementById('add-marca').value.trim();
+  var modelo=document.getElementById('add-modelo').value.trim();
+  var anio=document.getElementById('add-anio').value.trim();
+  var comb=document.getElementById('add-comb').value;
+  var trans=document.getElementById('add-trans').value;
+  var trac=document.getElementById('add-trac').value;
+  var km=parseInt(document.getElementById('add-km').value);
+  var kmmes=parseInt(document.getElementById('add-kmmes').value)||1300;
+  if(!marca||!modelo||!anio||isNaN(km)){alert('Por favor completa todos los campos');return;}
+  showLoading();
+  try{
+    var {data:nuevoAuto}=await sb.from('autos').insert({
+      user_id:currentUID,marca,modelo,anio,comb,trans,trac,km,km_mes:kmmes,es_activo:false,mant_ok:true
+    }).select().single();
+    todosAutos.push(nuevoAuto);
+    alert('✓ Automóvil agregado');
+    go('config');
+  }catch(e){alert('Error: '+e.message);}
+  finally{hideLoading();}
+}
+
+function renderPlanes(){
+  if(!U) return;
+  var lbl=document.getElementById('plan-estado-lbl');
+  var val=document.getElementById('plan-estado-val');
+  var sub=document.getElementById('plan-estado-sub');
+  if(U.plan==='individual'){lbl.textContent='Plan activo';val.textContent='Individual';sub.textContent='$20 MXN/mes · 1 vehículo';}
+  else if(U.plan==='familiar'){lbl.textContent='Plan activo';val.textContent='Familiar';sub.textContent='$50 MXN/mes · hasta 3 autos';}
+  else{
+    var dias=U.trial_end?Math.max(0,Math.ceil((new Date(U.trial_end)-new Date())/(1000*60*60*24))):0;
+    lbl.textContent='Periodo gratuito';
+    val.textContent=dias+' días restantes';
+    sub.textContent='Elige tu plan antes de que expire';
+  }
+}
+
+async function iniciarPago(tipo){
+  showLoading();
+  try{
+    var planId=tipo==='individual'?'f2a6347acada418a8cc080234227edb1':'eab5166139b642318a198561dbe6f5ad';
+    var {data,error}=await sb.functions.invoke('procesar-pago',{
+      body:{plan:tipo,plan_id:planId,usuario_id:currentUID,email:U.email}
+    });
+    if(error) throw error;
+    if(data&&data.init_point) window.open(data.init_point,'_blank');
+    else alert('Error al generar el pago. Intenta de nuevo.');
+  }catch(e){alert('Error al procesar pago: '+e.message);}
+  finally{hideLoading();}
+}
+
+function toggleSw(el){
+  var th=el.querySelector('.th');
+  var on=el.style.background==='rgb(181, 30, 30)';
+  el.style.background=on?'#ddd':'#B51E1E';
+  th.style.right=on?'':'2px';th.style.left=on?'2px':'';
+}
+
+function checkNotif(){
+  if(!V||!('Notification' in window)||Notification.permission!=='granted') return;
+  var pA=proxI(V.km||0,5000);
+  var kmA=pA-(V.km||0);
+  if(kmA<=500) new Notification('🛢️ KM Un Millón',{body:'Servicio en '+kmA+' km — prepárate.'});
+  else if(kmA<=1500) new Notification('🛢️ KM Un Millón',{body:'Próximo servicio en '+kmA+' km.'});
+}
+
+window.addEventListener('load',async function(){
+  if('Notification' in window&&Notification.permission==='default') Notification.requestPermission();
+  var timeout=setTimeout(function(){hideLoading();go('splash');},4000);
+  try{
+    var {data:{session}}=await sb.auth.getSession();
+    clearTimeout(timeout);
+    if(session&&session.user){
+      await cargarDatos(session.user.id);
+      go('dashboard');
+    }else{
+      go('splash');
+    }
+  }catch(e){clearTimeout(timeout);go('splash');}
+  finally{hideLoading();}
+});
+</script>
+</body>
+</html>
