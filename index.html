@@ -29,6 +29,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-red{background:#B51E1E;color:#fff;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;width:100%;}
 .btn-out{background:transparent;color:#B51E1E;border:1px solid #B51E1E;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%;}
 .btn-ghost{background:none;border:none;color:#B51E1E;font-size:12px;cursor:pointer;margin-top:4px;}
+.btn-wa{background:#25D366;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-mail{background:#1a73e8;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;}
 .frow{display:flex;gap:8px;}
 .frow>div{flex:1;}
 .err-box{background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:8px 12px;font-size:12px;color:#A32D2D;display:none;}
@@ -90,6 +92,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .modal-overlay.active{display:flex;}
 .modal-box{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:360px;}
 .tooltip-box{background:#333;color:#fff;font-size:11px;line-height:1.5;border-radius:8px;padding:8px 12px;margin-top:4px;display:none;}
+/* Quincenal task section */
+.quin-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid #eee;}
+.quin-item:last-child{border-bottom:none;}
+.quin-status{font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;}
 </style>
 </head>
 <body>
@@ -128,9 +134,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="btn-red" style="margin-top:1.5rem;background:#fff;color:#B51E1E;" onclick="go('login')">Iniciar sesión</button>
       <button class="btn-red" style="margin-top:8px;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="go('reg1')">Crear cuenta gratis →</button>
       <span class="splash-sub" style="margin-top:8px;">30 días gratis · Sin tarjeta requerida</span>
-      <div style="margin-top:16px;display:flex;gap:12px;">
-        <button onclick="go('terminos')" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:10px;cursor:pointer;text-decoration:underline;">Términos y Condiciones</button>
-        <button onclick="go('privacidad')" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:10px;cursor:pointer;text-decoration:underline;">Aviso de Privacidad</button>
+      <div style="margin-top:16px;display:flex;gap:16px;flex-direction:column;align-items:center;width:100%;">
+        <button class="btn-wa" onclick="compartirWA()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Compartir por WhatsApp
+        </button>
+        <button class="btn-mail" onclick="compartirMail()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          Recomendar por correo
+        </button>
+        <div style="display:flex;gap:12px;">
+          <button onclick="go('terminos')" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:10px;cursor:pointer;text-decoration:underline;">Términos y Condiciones</button>
+          <button onclick="go('privacidad')" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:10px;cursor:pointer;text-decoration:underline;">Aviso de Privacidad</button>
+        </div>
       </div>
     </div>
   </div>
@@ -142,8 +158,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div><div class="form-title">Bienvenido de vuelta</div><div class="form-sub">Ingresa a tu cuenta</div></div>
       <div id="login-err" class="err-box">Correo o contraseña incorrectos</div>
       <div id="login-ok" class="ok-box"></div>
-      <div><div class="fl">Correo</div><input class="fi" type="email" id="l-email" placeholder="tu@correo.com"/></div>
-      <div><div class="fl">Contraseña</div><input class="fi" type="password" id="l-pass" placeholder="••••••••"/></div>
+      <div><div class="fl">Correo</div><input class="fi" type="email" id="l-email" placeholder="tu@correo.com" autocomplete="email"/></div>
+      <div><div class="fl">Contraseña</div><input class="fi" type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"/></div>
       <button class="btn-red" onclick="doLogin()">Entrar →</button>
       <button class="btn-out" style="margin-top:4px;" onclick="go('reg1')">Crear cuenta gratis</button>
       <button class="btn-ghost" onclick="doResetPass()">¿Olvidaste tu contraseña?</button>
@@ -157,9 +173,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="step-bar"><div class="step-dot done"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
       <div><div class="form-title">Crea tu cuenta</div><div class="form-sub">Paso 1 de 4 — datos personales</div></div>
       <div id="reg-err" class="err-box"></div>
-      <div><div class="fl">Nombre</div><input class="fi" type="text" id="r-nombre" placeholder="Tu nombre"/></div>
-      <div><div class="fl">Correo</div><input class="fi" type="email" id="r-email" placeholder="tu@correo.com"/></div>
-      <div><div class="fl">Contraseña</div><input class="fi" type="password" id="r-pass" placeholder="Mínimo 6 caracteres"/></div>
+      <div><div class="fl">Nombre</div><input class="fi" type="text" id="r-nombre" placeholder="Tu nombre" autocomplete="name"/></div>
+      <div><div class="fl">Correo</div><input class="fi" type="email" id="r-email" placeholder="tu@correo.com" autocomplete="email"/></div>
+      <div><div class="fl">Contraseña</div><input class="fi" type="password" id="r-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password"/></div>
       <div><div class="fl">Ciudad</div>
         <select class="fi" id="r-ciudad">
           <option value="">Selecciona tu ciudad</option>
@@ -308,6 +324,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div style="padding:8px 1.25rem 0;">
         <button class="btn-out" style="font-size:12px;padding:8px;" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLScpT-3CgER6ANRVDT7CsHjq9wjEkz3hw5AijfnhtXnji6wlzw/viewform?usp=header','_blank')">💬 Envíanos tus comentarios</button>
+      </div>
+      <!-- Botones compartir -->
+      <div style="padding:8px 1.25rem 0;display:flex;gap:8px;">
+        <button class="btn-wa" style="flex:1;font-size:12px;padding:8px;" onclick="compartirWA()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </button>
+        <button class="btn-mail" style="flex:1;font-size:12px;padding:8px;" onclick="compartirMail()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          Correo
+        </button>
       </div>
       <div style="padding:1rem 1.25rem;">
         <div style="border:0.5px solid #ddd;border-radius:12px;padding:1rem 1.25rem;">
@@ -507,7 +534,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 const SUPA_URL='https://jhphmomrtyunfxomhkdx.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpocGhtb21ydHl1bmZ4b21oa2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODg3NDAsImV4cCI6MjA5Mjk2NDc0MH0.xI0JZV_4FPRR9L9O4zTt-qwGsGTUsoE93G4_CinD7Nc';
-const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+
+// ── FIX SAFARI iOS: inicializar con storage explícito y flowType pkce ──
+var sbStorage;
+try { sbStorage = window.localStorage; } catch(e) { sbStorage = null; }
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY, {
+  auth: {
+    storage: sbStorage,
+    persistSession: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce'
+  }
+});
 
 var U=null,V=null,H=[],mantOk=null,currentUID=null,todosAutos=[],autoIdx=0;
 var regData={};
@@ -540,6 +578,18 @@ var infoTextos={
   'bujias': {t:'Cambio de bujías', b:'Las bujías encienden la mezcla aire-combustible. Bujías desgastadas causan arranques difíciles, menor potencia y mayor consumo. Las de iridio duran hasta 100,000 km.'},
   'limpia_inyectores': {t:'Limpieza de inyectores', b:'Los inyectores sucios afectan la atomización del combustible. El aditivo Polieteramina (PEA) los limpia desde adentro. Marcas como Redline o BG44K son efectivas.'}
 };
+
+// ── COMPARTIR ──────────────────────────────────────────────
+function compartirWA(){
+  var msg='🚗 Lleva tu auto al millón de kilómetros con metodología japonesa.\n\n✅ Checklist inteligente de mantenimiento\n✅ Historial de servicios\n✅ 30 días gratis — sin tarjeta\n\n👉 kmunmillon.com';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+function compartirMail(){
+  var subject='Te recomiendo esta app para tu auto — KM Un Millón';
+  var body='Hola,\n\nTe recomiendo KM Un Millón, una app gratuita basada en metodología japonesa para llevar el mantenimiento de tu auto al corriente y llegar al millón de kilómetros.\n\n✅ Checklist inteligente por km\n✅ Historial de servicios\n✅ 30 días gratis, sin tarjeta de crédito\n\nPruébala aquí: https://kmunmillon.com\n\nSaludos.';
+  window.location.href='mailto:?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
 
 function showModal(key){
   var info=infoTextos[key];
@@ -581,9 +631,9 @@ async function doLogin(){
   document.getElementById('login-ok').style.display='none';
   showLoading();
   try{
-    var {data,error}=await sb.auth.signInWithPassword({email,password:pass});
-    if(error) throw error;
-    await cargarDatos(data.user.id);
+    var res=await sb.auth.signInWithPassword({email:email,password:pass});
+    if(res.error) throw res.error;
+    await cargarDatos(res.data.user.id);
     go('dashboard');
   }catch(e){
     document.getElementById('login-err').style.display='block';
@@ -635,7 +685,7 @@ function doReg2(){
   var llantasKm=parseInt(document.getElementById('a-llantas-km').value)||null;
   var bateriaAnio=parseInt(document.getElementById('a-bateria-anio').value)||null;
   if(!marca||!modelo||!anio||isNaN(km)){alert('Por favor completa los campos obligatorios');return;}
-  regData.auto={marca,modelo,anio,comb,trans,trac,km,km_mes:kmmes,llantas_anio:llantasAnio,llantas_km:llantasKm,bateria_anio:bateriaAnio};
+  regData.auto={marca:marca,modelo:modelo,anio:anio,comb:comb,trans:trans,trac:trac,km:km,km_mes:kmmes,llantas_anio:llantasAnio,llantas_km:llantasKm,bateria_anio:bateriaAnio};
   go('reg3');
 }
 
@@ -656,9 +706,9 @@ async function doReg4(){
   btn.disabled=true;btn.textContent='Creando cuenta...';
   showLoading();
   try{
-    var {data,error}=await sb.auth.signUp({email:regData.email,password:regData.pass});
-    if(error) throw error;
-    var uid=data.user.id;
+    var res=await sb.auth.signUp({email:regData.email,password:regData.pass});
+    if(res.error) throw res.error;
+    var uid=res.data.user.id;
     var trialEnd=new Date();
     trialEnd.setDate(trialEnd.getDate()+30);
     await sb.from('usuarios').insert({
@@ -678,22 +728,22 @@ async function doReg4(){
 // ── CARGAR DATOS ───────────────────────────────────────────
 async function cargarDatos(uid){
   currentUID=uid;
-  var {data:perfil}=await sb.from('usuarios').select('*').eq('id',uid).single();
+  var res1=await sb.from('usuarios').select('*').eq('id',uid).single();
+  var perfil=res1.data;
   if(!perfil) return;
   U={nombre:perfil.nombre,email:perfil.email,ciudad:perfil.ciudad,plan:perfil.plan,trial_end:perfil.trial_end,plan_expira:perfil.plan_expira};
 
-  var {data:autos}=await sb.from('autos').select('*').eq('user_id',uid).order('created_at',{ascending:true});
-  todosAutos=autos||[];
+  var res2=await sb.from('autos').select('*').eq('user_id',uid).order('created_at',{ascending:true});
+  todosAutos=res2.data||[];
 
-  // Auto activo: el marcado como es_activo, o el primero
   var activo=todosAutos.find(function(a){return a.es_activo;});
   autoIdx=activo?todosAutos.indexOf(activo):0;
   V=todosAutos[autoIdx]||null;
   if(V) mantOk=V.mant_ok!==false;
 
   if(V){
-    var {data:hist}=await sb.from('historial').select('*').eq('auto_id',V.id).order('created_at',{ascending:false});
-    H=hist||[];
+    var res3=await sb.from('historial').select('*').eq('auto_id',V.id).order('created_at',{ascending:false});
+    H=res3.data||[];
   }
 }
 
@@ -702,33 +752,24 @@ function calcSalud(){
   if(!V) return {motor:80,frenos:75,llantas:65,bateria:85};
   var anioActual=new Date().getFullYear();
   var kmActual=V.km||0;
-
-  // Motor: basado en km desde último servicio
   var ultimoServicio=H.find(function(h){return h.servicio&&h.servicio.toLowerCase().includes('aceite');});
   var kmDesdeServicio=ultimoServicio?kmActual-ultimoServicio.km:5000;
   var motor=Math.max(10,Math.min(100,100-Math.round((kmDesdeServicio/5000)*40)));
-
-  // Frenos
   var ultimoFreno=H.find(function(h){return h.servicio&&h.servicio.toLowerCase().includes('freno');});
   var kmDesdeFreno=ultimoFreno?kmActual-ultimoFreno.km:20000;
   var frenos=Math.max(10,Math.min(100,100-Math.round((kmDesdeFreno/40000)*70)));
-
-  // Llantas
   var llantas=75;
   if(V.llantas_km&&V.llantas_anio){
     var kmEnLlantas=kmActual-(V.llantas_km||0);
     var aniosEnLlantas=anioActual-(V.llantas_anio||anioActual);
     llantas=Math.max(10,Math.min(100,100-Math.round((kmEnLlantas/50000)*60)-aniosEnLlantas*5));
   }
-
-  // Batería
   var bateria=85;
   if(V.bateria_anio){
     var aniosBateria=anioActual-V.bateria_anio;
     bateria=Math.max(10,Math.min(100,100-aniosBateria*15));
   }
-
-  return{motor,frenos,llantas,bateria};
+  return{motor:motor,frenos:frenos,llantas:llantas,bateria:bateria};
 }
 
 function colorBar(pct){
@@ -747,16 +788,12 @@ function renderDash(){
   document.getElementById('d-km').textContent=(V.km||0).toLocaleString()+' km · Meta: 1,000,000 km';
   document.getElementById('clima-banner').style.display=(U.ciudad==='mexicali'||U.ciudad==='tijuana')?'flex':'none';
   document.getElementById('mant-banner').style.display=mantOk?'none':'flex';
-
-  // Trial banner
   var trialBanner=document.getElementById('trial-banner');
   if(U.trial_end&&(U.plan==='free'||U.plan==='trial')){
     var dias=Math.max(0,Math.ceil((new Date(U.trial_end)-new Date())/(1000*60*60*24)));
     if(dias>0){trialBanner.style.display='flex';document.getElementById('trial-txt').textContent='🎁 Te quedan '+dias+' días de prueba gratuita.';}
     else{trialBanner.style.display='none';}
   }else{trialBanner.style.display='none';}
-
-  // Salud
   var salud=calcSalud();
   var prom=Math.round((salud.motor+salud.frenos+salud.llantas+salud.bateria)/4);
   document.getElementById('salud-pct').textContent=prom+'%';
@@ -770,8 +807,6 @@ function renderDash(){
   document.getElementById('bar-llantas').style.background=colorBar(salud.llantas);
   document.getElementById('bar-bateria').style.width=salud.bateria+'%';
   document.getElementById('bar-bateria').style.background=colorBar(salud.bateria);
-
-  // Próximo servicio
   var list=document.getElementById('rlist');
   list.innerHTML='';
   var pA=proxI(V.km||0,5000);
@@ -784,7 +819,41 @@ function renderDash(){
   d.className='rcard';d.onclick=function(){go('checklist');};
   d.innerHTML='<div class="rico" style="background:'+bg+'">🛢️</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#111;">Próximo servicio</div><div style="font-size:11px;color:#777;margin-top:1px;">En '+kmA.toLocaleString()+' km · ~'+pA.toLocaleString()+' km</div></div><span class="badge" style="'+bc+'">'+lbl+'</span>';
   list.appendChild(d);
+  // Tarea quincenal
+  var quincenal=renderQuincenal();
+  if(quincenal){
+    var qd=document.createElement('div');
+    qd.className='rcard';
+    qd.style.cursor='default';
+    qd.innerHTML=quincenal;
+    list.appendChild(qd);
+  }
   document.getElementById('consejo').textContent=consejos[new Date().getDate()%consejos.length];
+}
+
+// ── TAREAS QUINCENALES ─────────────────────────────────────
+function renderQuincenal(){
+  var ahora=new Date();
+  var ultimaRevision=null;
+  try{ ultimaRevision=localStorage.getItem('km_quincenal_fecha'); }catch(e){}
+  var diasDesde=99;
+  if(ultimaRevision){
+    diasDesde=Math.floor((ahora-new Date(ultimaRevision))/(1000*60*60*24));
+  }
+  var vence=diasDesde>=15;
+  var color=vence?'#FCEBEB':'#EAF3DE';
+  var colorT=vence?'#A32D2D':'#3B6D11';
+  var colorB=vence?'#F09595':'#C0DD97';
+  var ico=vence?'⚠️':'✅';
+  var txt=vence?'Revisión quincenal pendiente':'Revisión quincenal al día';
+  var sub=vence?'Presión de llantas y niveles — vence hoy':'Próxima en '+(15-diasDesde)+' días';
+  return '<div class="rico" style="background:'+color+'">'+ico+'</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#111;">'+txt+'</div><div style="font-size:11px;color:#777;margin-top:1px;">'+sub+'</div></div><button onclick="marcarQuincenal(event)" style="font-size:10px;font-weight:600;padding:4px 8px;border-radius:6px;border:none;background:'+color+';color:'+colorT+';cursor:pointer;">Revisar ✓</button>';
+}
+
+function marcarQuincenal(e){
+  e.stopPropagation();
+  try{ localStorage.setItem('km_quincenal_fecha', new Date().toISOString()); }catch(err){}
+  renderDash();
 }
 
 // ── CHECKLIST ──────────────────────────────────────────────
@@ -796,9 +865,7 @@ function getChecklist(km,comb,trans,trac,atrasado){
   var esAWD=trac==='awd';
   var esRWD=trac==='rwd';
   var items=[];
-
   function item(txt,key){return{txt:txt,key:key||null};}
-
   if(atrasado){
     return[
       item('⚠️ PUESTA AL CORRIENTE — Revisar todos los servicios atrasados con un mecánico de confianza'),
@@ -813,10 +880,8 @@ function getChecklist(km,comb,trans,trac,atrasado){
       item('— Una vez completada, actualiza tu km en Configuración —')
     ].filter(Boolean);
   }
-
   items.push(item('Cambio de aceite y filtro '+(esDiesel?'(Diesel: especial DPF)':'(Gasolina: sintético)'),'aceite'));
   items.push(item('Inspección de niveles y presión de neumáticos (PSI exacto)','presion'));
-
   if(km%10000===0&&km%20000!==0){
     items.push(item('Rotación de neumáticos','rotacion'));
     items.push(item('Revisión visual y auditiva de frenos','frenos'));
@@ -876,6 +941,27 @@ function renderChk(){
   var lista=getChecklist(kmParaChecklist,V.comb,V.trans,V.trac||'fwd',atrasado);
   var body=document.getElementById('chk-body');
   body.innerHTML='';
+
+  // Sección quincenal arriba del checklist
+  var qDiv=document.createElement('div');
+  qDiv.style.cssText='margin:8px 0 4px;padding:10px 12px;background:#FAEEDA;border:0.5px solid #FAC775;border-radius:10px;';
+  var diasDesde=99;
+  try{
+    var ult=localStorage.getItem('km_quincenal_fecha');
+    if(ult) diasDesde=Math.floor((new Date()-new Date(ult))/(1000*60*60*24));
+  }catch(e){}
+  var vence=diasDesde>=15;
+  qDiv.innerHTML='<div style="font-size:11px;font-weight:600;color:#854F0B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Revisión Quincenal</div>'
+    +'<div class="quin-item"><span style="font-size:13px;color:#111;">Presión de llantas (PSI)</span><span class="quin-status" style="background:'+(vence?'#FCEBEB':'#EAF3DE')+';color:'+(vence?'#A32D2D':'#3B6D11')+'">'+(vence?'Pendiente':'Al día')+'</span></div>'
+    +'<div class="quin-item" style="border:none;"><span style="font-size:13px;color:#111;">Niveles (aceite, agua, frenos)</span><span class="quin-status" style="background:'+(vence?'#FCEBEB':'#EAF3DE')+';color:'+(vence?'#A32D2D':'#3B6D11')+'">'+(vence?'Pendiente':'Al día')+'</span></div>'
+    +'<button onclick="marcarQuincenalChk()" style="width:100%;margin-top:8px;background:#854F0B;color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:600;cursor:pointer;">Marcar revisión quincenal ✓</button>';
+  body.appendChild(qDiv);
+
+  // Separador
+  var sep=document.createElement('div');
+  sep.className='chk-section';sep.textContent='Servicio por kilometraje';
+  body.appendChild(sep);
+
   lista.forEach(function(item){
     var d=document.createElement('div');
     d.className='chk-item';
@@ -885,6 +971,11 @@ function renderChk(){
     body.appendChild(d);
   });
   updProg();
+}
+
+function marcarQuincenalChk(){
+  try{ localStorage.setItem('km_quincenal_fecha', new Date().toISOString()); }catch(e){}
+  renderChk();
 }
 
 function updProg(){
@@ -913,11 +1004,11 @@ async function completar(){
       mantOk=true;
       await sb.from('autos').update({mant_ok:true}).eq('id',V.id);
     }
-    var {data:nuevo}=await sb.from('historial').insert({
+    var res=await sb.from('historial').insert({
       auto_id:V.id,user_id:currentUID,servicio:srvNombre,km:V.km,
       fecha:new Date().toLocaleDateString('es-MX')
     }).select().single();
-    H.unshift(nuevo);
+    H.unshift(res.data);
     alert('✓ Servicio registrado.'+ (!isNaN(kmNuevo)&&kmNuevo>0?' Km actualizado a '+kmNuevo.toLocaleString()+'.':''));
     go('dashboard');
   }catch(e){alert('Error: '+e.message);}
@@ -984,17 +1075,18 @@ async function guardarSrv(){
   if(!srv||isNaN(km)){alert('Por favor indica el servicio y el kilometraje');return;}
   showLoading();
   try{
-    var {data:nuevo}=await sb.from('historial').insert({
+    var res=await sb.from('historial').insert({
       auto_id:V.id,user_id:currentUID,servicio:srv,km:km,
       fecha:new Date().toLocaleDateString('es-MX')
     }).select().single();
-    H.unshift(nuevo);
+    H.unshift(res.data);
     document.getElementById('panel-reg').style.display='none';
     alert('✓ Servicio registrado');
   }catch(e){alert('Error: '+e.message);}
   finally{hideLoading();}
 }
 
+// ── CONFIG ─────────────────────────────────────────────────
 function renderCfg(){
   if(!U||!V) return;
   document.getElementById('cfg-nom').textContent=U.nombre;
@@ -1066,8 +1158,8 @@ async function cambiarAuto(idx){
     }
     autoIdx=idx;V=todosAutos[idx];
     mantOk=V.mant_ok!==false;
-    var {data:hist}=await sb.from('historial').select('*').eq('auto_id',V.id).order('created_at',{ascending:false});
-    H=hist||[];
+    var res=await sb.from('historial').select('*').eq('auto_id',V.id).order('created_at',{ascending:false});
+    H=res.data||[];
     go('dashboard');
   }catch(e){alert('Error: '+e.message);}
   finally{hideLoading();}
@@ -1101,16 +1193,17 @@ async function guardarAutoAdd(){
   if(!marca||!modelo||!anio||isNaN(km)){alert('Por favor completa todos los campos');return;}
   showLoading();
   try{
-    var {data:nuevoAuto}=await sb.from('autos').insert({
-      user_id:currentUID,marca,modelo,anio,comb,trans,trac,km,km_mes:kmmes,es_activo:false,mant_ok:true
+    var res=await sb.from('autos').insert({
+      user_id:currentUID,marca:marca,modelo:modelo,anio:anio,comb:comb,trans:trans,trac:trac,km:km,km_mes:kmmes,es_activo:false,mant_ok:true
     }).select().single();
-    todosAutos.push(nuevoAuto);
+    todosAutos.push(res.data);
     alert('✓ Automóvil agregado');
     go('config');
   }catch(e){alert('Error: '+e.message);}
   finally{hideLoading();}
 }
 
+// ── PLANES ─────────────────────────────────────────────────
 function renderPlanes(){
   if(!U) return;
   var lbl=document.getElementById('plan-estado-lbl');
@@ -1130,11 +1223,11 @@ async function iniciarPago(tipo){
   showLoading();
   try{
     var planId=tipo==='individual'?'f2a6347acada418a8cc080234227edb1':'eab5166139b642318a198561dbe6f5ad';
-    var {data,error}=await sb.functions.invoke('procesar-pago',{
+    var res=await sb.functions.invoke('procesar-pago',{
       body:{plan:tipo,plan_id:planId,usuario_id:currentUID,email:U.email}
     });
-    if(error) throw error;
-    if(data&&data.init_point) window.open(data.init_point,'_blank');
+    if(res.error) throw res.error;
+    if(res.data&&res.data.init_point) window.open(res.data.init_point,'_blank');
     else alert('Error al generar el pago. Intenta de nuevo.');
   }catch(e){alert('Error al procesar pago: '+e.message);}
   finally{hideLoading();}
@@ -1155,20 +1248,27 @@ function checkNotif(){
   else if(kmA<=1500) new Notification('🛢️ KM Un Millón',{body:'Próximo servicio en '+kmA+' km.'});
 }
 
-window.addEventListener('load',async function(){
-  if('Notification' in window&&Notification.permission==='default') Notification.requestPermission();
+// ── INIT ───────────────────────────────────────────────────
+window.addEventListener('load', async function(){
+  if('Notification' in window && Notification.permission==='default') Notification.requestPermission();
   var timeout=setTimeout(function(){hideLoading();go('splash');},4000);
   try{
-    var {data:{session}}=await sb.auth.getSession();
+    // FIX SAFARI: no usar destructuring en getSession
+    var sessionResp = await sb.auth.getSession();
     clearTimeout(timeout);
-    if(session&&session.user){
+    var session = sessionResp && sessionResp.data ? sessionResp.data.session : null;
+    if(session && session.user){
       await cargarDatos(session.user.id);
       go('dashboard');
-    }else{
+    } else {
       go('splash');
     }
-  }catch(e){clearTimeout(timeout);go('splash');}
-  finally{hideLoading();}
+  } catch(e){
+    clearTimeout(timeout);
+    go('splash');
+  } finally {
+    hideLoading();
+  }
 });
 </script>
 </body>
