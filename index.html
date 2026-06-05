@@ -254,15 +254,79 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- REG 4 -->
   <div class="screen" id="screen-reg4">
     <div class="form-wrap">
-      <div class="step-bar"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div></div>
-      <div><div class="form-title">Notificaciones</div><div class="form-sub">Paso 4 de 4</div></div>
+      <div class="step-bar"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot"></div></div>
+      <div><div class="form-title">Notificaciones</div><div class="form-sub">Paso 4 de 5</div></div>
       <p style="font-size:13px;color:#555;line-height:1.5;">Activa las notificaciones para recibir recordatorios antes de cada servicio.</p>
       <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
         <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Alertas de mantenimiento</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
         <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Consejo japonés del día</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
         <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:#111;">Alerta clima extremo</span><div class="sw" style="background:#B51E1E;" onclick="toggleSw(this)"><div class="th" style="right:2px;"></div></div></div>
       </div>
-      <button class="btn-red" style="margin-top:auto;" id="btn-finalizar" onclick="doReg4()">Comenzar mi plan →</button>
+      <button class="btn-red" style="margin-top:auto;" onclick="go('reg5')">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- REG 5 — DIAGNÓSTICO INICIAL -->
+  <div class="screen" id="screen-reg5">
+    <div class="form-wrap" style="overflow-y:auto;">
+      <div class="step-bar"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div></div>
+      <div><div class="form-title">Diagnóstico inicial</div><div class="form-sub">Paso 5 de 5 — estado actual de tu auto</div></div>
+      <p style="font-size:13px;color:#555;line-height:1.5;">Para calcular la salud con precisión, indícanos el estado actual. <strong>Todo es opcional</strong> — si no recuerdas, déjalo en blanco.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="background:#f4f4f0;border-radius:10px;padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:#B51E1E;margin-bottom:8px;">🛢️ Aceite del motor</div>
+          <div class="frow">
+            <div><div class="fl">Km en el último cambio</div><input class="fi" type="text" inputmode="numeric" id="diag-aceite-km" placeholder="58000"/></div>
+            <div><div class="fl">Hace aprox.</div>
+              <select class="fi" id="diag-aceite-tiempo">
+                <option value="">No recuerdo</option>
+                <option value="1">Menos de 1 mes</option>
+                <option value="3">1–3 meses</option>
+                <option value="6">3–6 meses</option>
+                <option value="12">Más de 6 meses</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div style="background:#f4f4f0;border-radius:10px;padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:#B51E1E;margin-bottom:8px;">🔴 Frenos</div>
+          <div><div class="fl">¿Cuándo fue la última revisión?</div>
+            <select class="fi" id="diag-frenos">
+              <option value="">No recuerdo</option>
+              <option value="reciente">Menos de 6 meses</option>
+              <option value="año">6–12 meses</option>
+              <option value="mas">Más de 1 año</option>
+              <option value="nunca">Nunca / no sé</option>
+            </select>
+          </div>
+        </div>
+        <div style="background:#f4f4f0;border-radius:10px;padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:#B51E1E;margin-bottom:8px;">⚫ Llantas</div>
+          <div><div class="fl">¿Estado general de las llantas?</div>
+            <select class="fi" id="diag-llantas">
+              <option value="">No sé</option>
+              <option value="nuevas">Nuevas (menos de 1 año)</option>
+              <option value="buenas">Buen estado (1–3 años)</option>
+              <option value="desgaste">Desgaste visible (3–5 años)</option>
+              <option value="urgente">Necesitan cambio urgente</option>
+            </select>
+          </div>
+        </div>
+        <div style="background:#f4f4f0;border-radius:10px;padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:#B51E1E;margin-bottom:8px;">🔋 Batería</div>
+          <div><div class="fl">¿Cuántos años tiene la batería actual?</div>
+            <select class="fi" id="diag-bateria">
+              <option value="">No sé</option>
+              <option value="1">Menos de 1 año</option>
+              <option value="2">1–2 años</option>
+              <option value="3">2–3 años</option>
+              <option value="4">3–4 años</option>
+              <option value="5">Más de 4 años</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <button class="btn-red" style="margin-top:12px;" id="btn-finalizar" onclick="doReg5()">Comenzar mi plan →</button>
     </div>
   </div>
 
@@ -280,7 +344,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div class="dash-body">
       <div class="hcard">
-        <div style="font-size:12px;color:#777;margin-bottom:8px;">Salud del vehículo</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:12px;color:#777;">Salud del vehículo</span>
+          <button class="info-btn" onclick="showModal('salud')" style="width:18px;height:18px;font-size:11px;">i</button>
+        </div>
         <div style="display:flex;align-items:center;gap:12px;">
           <svg width="52" height="52" viewBox="0 0 52 52">
             <circle cx="26" cy="26" r="22" fill="none" stroke="#eee" stroke-width="4"/>
@@ -576,7 +643,8 @@ var infoTextos={
   'transmision': {t:'Servicio de transmisión', b:'El fluido de transmisión lubrica los engranajes y el convertidor de torque. Cambiarlo en tiempo previene reparaciones costosas. Una transmisión nueva cuesta $15,000-40,000 MXN.'},
   'diferencial': {t:'Aceite de diferencial', b:'El diferencial distribuye la potencia a las ruedas. Su aceite se degrada con el calor. En AWD y 4x4, también incluye el transfer case.'},
   'bujias': {t:'Cambio de bujías', b:'Las bujías encienden la mezcla aire-combustible. Bujías desgastadas causan arranques difíciles, menor potencia y mayor consumo. Las de iridio duran hasta 100,000 km.'},
-  'limpia_inyectores': {t:'Limpieza de inyectores', b:'Los inyectores sucios afectan la atomización del combustible. El aditivo Polieteramina (PEA) los limpia desde adentro. Marcas como Redline o BG44K son efectivas.'}
+  'limpia_inyectores': {t:'Limpieza de inyectores', b:'Los inyectores sucios afectan la atomización del combustible. El aditivo Polieteramina (PEA) los limpia desde adentro. Marcas como Redline o BG44K son efectivas.'},
+  'salud': {t:'¿Cómo se calcula la salud?', b:'Motor: basado en km desde tu último cambio de aceite registrado (óptimo cada 5,000 km).\n\nFreenos: basado en km desde tu último servicio de frenos (óptimo cada 40,000 km).\n\nLlantas: combinación de km acumulados y años desde instalación.\n\nBatería: basado en años desde instalación (vida útil promedio 4-5 años).\n\nRegistra tus servicios en Historial para que los cálculos sean más precisos.'}
 };
 
 // ── COMPARTIR ──────────────────────────────────────────────
@@ -701,9 +769,22 @@ function doReg3(){
   go('reg4');
 }
 
-async function doReg4(){
+async function doReg5(){
   var btn=document.getElementById('btn-finalizar');
   btn.disabled=true;btn.textContent='Creando cuenta...';
+  // Recoger diagnóstico
+  var diagAceiteKm=parseInt(document.getElementById('diag-aceite-km').value)||null;
+  var diagAceiteTiempo=document.getElementById('diag-aceite-tiempo').value||null;
+  var diagFreno=document.getElementById('diag-frenos').value||null;
+  var diagLlantas=document.getElementById('diag-llantas').value||null;
+  var diagBateria=parseInt(document.getElementById('diag-bateria').value)||null;
+  regData.diag={aceiteKm:diagAceiteKm,aceiteTiempo:diagAceiteTiempo,freno:diagFreno,llantas:diagLlantas,bateria:diagBateria};
+  await doReg4();
+}
+
+async function doReg4(){
+  var btn=document.getElementById('btn-finalizar');
+  if(btn){ btn.disabled=true;btn.textContent='Creando cuenta...'; }
   showLoading();
   try{
     var res=await sb.auth.signUp({email:regData.email,password:regData.pass});
@@ -717,6 +798,42 @@ async function doReg4(){
     });
     var autoInsert=Object.assign({user_id:uid,mant_ok:mantOk===true,es_activo:true},regData.auto);
     await sb.from('autos').insert(autoInsert);
+
+    // Insertar historial inicial basado en diagnóstico
+    var diag=regData.diag||{};
+    var hoy=new Date().toLocaleDateString('es-MX');
+    var kmBase=regData.auto.km||0;
+    var histItems=[];
+    if(diag.aceiteKm||diag.aceiteTiempo){
+      var kmAceite=diag.aceiteKm||(kmBase-Math.round((parseInt(diag.aceiteTiempo||6)/6)*3000));
+      histItems.push({user_id:uid,servicio:'Cambio de aceite y filtro (diagnóstico inicial)',km:kmAceite,fecha:hoy});
+    }
+    if(diag.freno&&diag.freno!=='nunca'){
+      var meses=diag.freno==='reciente'?3:diag.freno==='año'?9:18;
+      var kmFreno=kmBase-Math.round((meses/12)*regData.auto.km_mes*12);
+      histItems.push({user_id:uid,servicio:'Revisión de frenos (diagnóstico inicial)',km:Math.max(0,kmFreno),fecha:hoy});
+    }
+    if(histItems.length>0){
+      // Necesitamos el auto_id — lo buscamos
+      var resAuto=await sb.from('autos').select('id').eq('user_id',uid).single();
+      if(resAuto.data){
+        var autoId=resAuto.data.id;
+        var itemsConId=histItems.map(function(h){return Object.assign({auto_id:autoId},h);});
+        await sb.from('historial').insert(itemsConId);
+      }
+    }
+    // Ajustar batería en el auto si se indicó
+    if(diag.bateria){
+      var anioActual=new Date().getFullYear();
+      var anioBat=anioActual-(diag.bateria-1);
+      await sb.from('autos').update({bateria_anio:anioBat}).eq('user_id',uid);
+    }
+    // Ajustar llantas
+    if(diag.llantas){
+      var llantasAnio=diag.llantas==='nuevas'?new Date().getFullYear():diag.llantas==='buenas'?new Date().getFullYear()-2:diag.llantas==='desgaste'?new Date().getFullYear()-4:new Date().getFullYear()-5;
+      await sb.from('autos').update({llantas_anio:llantasAnio}).eq('user_id',uid);
+    }
+
     await cargarDatos(uid);
     go('dashboard');
   }catch(e){
