@@ -458,6 +458,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <button class="btn-red" style="margin-top:10px;font-size:13px;" onclick="iniciarPago('familiar')">Suscribirme →</button>
       </div>
+      <div class="plan-card" style="border:1px dashed #999;background:#f9f9f7;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;font-weight:600;color:#111;">🚐 Flotilla / Empresarial</span></div>
+            <div style="font-size:12px;color:#666;margin-top:2px;">Para empresas con varios vehículos</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:#444;line-height:1.6;">
+          <div style="display:flex;justify-content:space-between;"><span>Hasta 10 vehículos</span><strong>$20 MXN/auto/mes</strong></div>
+          <div style="display:flex;justify-content:space-between;"><span>Más de 10 vehículos</span><strong>$15 MXN/auto/mes</strong></div>
+        </div>
+        <div style="font-size:11px;color:#999;margin-top:8px;line-height:1.5;">Llena el formulario y te enviamos una cotización personalizada. Activación y alta de vehículos a cargo de nuestro equipo.</div>
+        <button class="btn-out" style="margin-top:10px;font-size:13px;" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSf9lfEyG4u_6nvqxKwomdu3tnPnijgdYmtGs6Ags543iP2vSw/viewform','_blank')">Solicitar cotización →</button>
+      </div>
       <div style="text-align:center;font-size:11px;color:#aaa;">Pago seguro vía Mercado Pago · Cancela en cualquier momento</div>
       <div style="text-align:center;">
         <button onclick="go('terminos')" style="background:none;border:none;color:#B51E1E;font-size:11px;cursor:pointer;text-decoration:underline;">Ver Términos y Condiciones</button>
@@ -1208,7 +1222,7 @@ function renderCfg(){
   if(!U||!V) return;
   document.getElementById('cfg-nom').textContent=U.nombre;
   document.getElementById('cfg-av').textContent=U.nombre.charAt(0).toUpperCase();
-  var planTxt=U.plan==='individual'?'Plan Individual · activo':U.plan==='familiar'?'Plan Familiar · activo':'30 días gratis · activo';
+  var planTxt=U.plan==='individual'?'Plan Individual · activo':U.plan==='familiar'?'Plan Familiar · activo':U.plan==='empresarial'?'Plan Empresarial · activo':'30 días gratis · activo';
   document.getElementById('cfg-plan').textContent=planTxt;
   document.getElementById('c-marca').value=V.marca||'';
   document.getElementById('c-modelo').value=V.modelo||'';
@@ -1328,6 +1342,7 @@ function renderPlanes(){
   var sub=document.getElementById('plan-estado-sub');
   if(U.plan==='individual'){lbl.textContent='Plan activo';val.textContent='Individual';sub.textContent='$20 MXN/mes · 1 vehículo';}
   else if(U.plan==='familiar'){lbl.textContent='Plan activo';val.textContent='Familiar';sub.textContent='$50 MXN/mes · hasta 3 autos';}
+  else if(U.plan==='empresarial'){lbl.textContent='Plan activo';val.textContent='Empresarial / Flotilla';sub.textContent='Plan corporativo · contacta a soporte';}
   else{
     var dias=U.trial_end?Math.max(0,Math.ceil((new Date(U.trial_end)-new Date())/(1000*60*60*24))):0;
     lbl.textContent='Periodo gratuito';
